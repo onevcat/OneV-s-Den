@@ -1,0 +1,997 @@
+---
+layout: post
+title: WWDC15 Session笔记 - 30 分钟开发一个简单的 watchOS 2 app
+date: 2015-08-03 23:23:34.000000000 +09:00
+tags: 能工巧匠集
+---
+Apple Watch 和 watchOS 第一代产品只允许用户在 iPhone 设备上进行计算，然后将结果传输到手表上进行显示。在这个框架下，手表充当的功能在很大程度上只是手机的另一块小一些的显示器。而在 watchOS 2 中，Apple 开放了在手表端直接进行计算的能力，一些之前无法完成的 app 现在也可以进行构建了。本文将通过一个很简单的天气 app 的例子，讲解一下 watchOS 2 中新引入的一些特性的使用方法。
+
+本文是我的 [WWDC15 笔记](http://onevcat.com/2015/06/ios9-sdk/)中的一篇，在 WWDC15 中涉及到 watchOS 2 的相关内容的 session 非常多，本文所参考的有：
+
+* [Introducing WatchKit for watchOS 2](https://developer.apple.com/videos/wwdc/2015/?id=105)
+* [WatchKit In-Depth, Part 1](https://developer.apple.com/videos/wwdc/2015/?id=207)
+* [WatchKit In-Depth, Part 2](https://developer.apple.com/videos/wwdc/2015/?id=208)
+* [Introducing Watch Connectivity](https://developer.apple.com/videos/wwdc/2015/?id=713)
+* [Building Watch Apps](https://developer.apple.com/videos/wwdc/2015/?id=108)
+* [Creating Complications with ClockKit](https://developer.apple.com/videos/wwdc/2015/?id=209)
+
+## 项目简介
+
+作为一个示例项目，我们就来构建一个最简单的天气 app 吧。本文将一步步带你从零开始构建一个相对完整的 iOS + watch app。这个 app 的 iOS 端很简单，从数据源取到数据，然后解析成天气的 model 后，通过一个 PageViewController 显示出来。为了让 demo 更有说服力，我们将展示当前日期以及前后两天的天气情况，包括天气状况和气温。在手表端，我们希望构建一个类似的 app，可以展示这几天的天气情况。另外我们当然也介绍如何利用 watchOS 2 的一些新特性，比如 complications 和 Time Travel 等等。
+
+## 开始
+
+虽然本文的重点是 watchOS，但是为了完整性，我们还是从开头开始来构建这个 app 吧。因为不管是 watchOS 1 还是 2，一个手表 app 都是无法脱离手机 app 单独存在和申请的。所以我们首先来做的是一个像模像样的 iOS app 吧。
+
+### 新建项目
+
+第一步当然是使用 Xcode 7 新建一个工程，这里我们直接选择 iOS App with WatchKit App，这样 Xcode 将直接帮助我们建立一个带有 watchOS app 的 iOS 应用。
+
+![step-1](/assets/images/2015/step-1.png)
+
+在接下来的画面中，我们选中 Include Complication 选项，因为我们希望制作一个包含有 Complication 的 watch app。
+
+![step-2](/assets/images/2015/step-2.png)
+
+### UI
+
+这个 app 的 UI 部分比较简单，我将使用到的素材都放到了[这里](/assets/images/2015/WatchWeatherImage.zip)。你可以下载这些素材，并把它们解压并拖拽到项目 iOS app 的 Assets.xcassets 里去：
+
+![step-3](/assets/images/2015/step-3.png)
+
+接下来，我们来构建 UI 部分。我们想要使用 PageViewController 来作为 app 的导航，首先，在 Main.StoryBoard 中删掉原来的 ViewController，并新加一个 Page View Controller，然后在它的 Attributes Inspector 中将 Transition Style 改为 Scroll，并勾选上 Is Initial View Controller。这将使这个 view controller 成为整个 app 的入口。
+
+![step-4](/assets/images/2015/step-4.png)
+
+接下来，我们需要将这个 Page View Controller 和代码关联起来。首先将 ViewController.swift 文件中，将 ViewController 的继承关系从 `UIViewController` 改为 `UIPageViewController`。
+
+```swift
+class ViewController: UIPageViewController {
+	...
+}
+```
+
+然后我们就可以在 StoryBoard 文件中将刚才的 Page View Controller 的 class 改为我们的 `ViewController` 了。
+
+![step-5](/assets/images/2015/step-5.png)
+
+另外我们还需要一个实际展示天气的 View Controller。创建一个继承自 `UIViewController` 的 `WeatherViewController`，然后将 WeatherViewController.swift 的内容替换为：
+
+```swift
+import UIKit
+
+class WeatherViewController: UIViewController {
+
+    enum Day: Int {
+        case DayBeforeYesterday = -2
+        case Yesterday
+        case Today
+        case Tomorrow
+        case DayAfterTomorrow
+    }
+
+    var day: Day?
+}
+```
+
+这里仅只是定义了一个 `Day` 的枚举，它将用来标记这个 `WeatherViewController` 所代表的日期 (可能你会说把 `Day` 在 ViewController 里并不是很好的选择，没错，但是放在这里有助于我们快速搭建 app，在之后我们会对此进行重构)。接下来，我们在 StoryBoard 中添加一个 ViewController，并将它的 class 改为 `WeatherViewController`。我们可以在这里构建 UI，对于这个 demo 来说，一个简单的背景，加上表示天气的图标和表示温度的标签就足够了。因为这里并不是一个关于 Auto Layout 或是 Size Class 的 demo，所以就不详细一步步地做了，我随意拖了拖 UI 和约束，最后结果如下图所示。
+
+![step-6](/assets/images/2015/step-6.png)
+
+接下来就是从 StoryBoard 中把需要的 IBOutlet 拖出来。我们需要天气图标，最高最低温度的 label。完成这些 UI 工作之后的项目可以在 GitHub 的[这个 tag](https://github.com/onevcat/WatchWeather/releases/tag/ui-setup) 下找到，如果你不想自己完成这些步骤的话，也可以直接使用这个 tag 的源文件来继续下面的 demo。当然，如果你对 AutoLayout 和 Interface Builder 还不熟悉的话，这会是一个很好的机会来从简单的布局入手，去理解对 IB 的使用。关于更多 IB 和 StoryBoard 的教程，推荐 Raywenderlich 的这两篇系列文章：[Storyboards Tutorial in Swift](http://www.raywenderlich.com/81879/storyboards-tutorial-swift-part-1) 和 [Auto Layout Tutoria](http://www.raywenderlich.com/83129/beginning-auto-layout-tutorial-swift-part-1)。
+
+然后我们可以考虑先把 Page View Controller 的框架实现出来。在 `ViewController.swift` 中，我们首先在 `ViewController` 类中加入以下方法：
+
+```swift
+func weatherViewControllerForDay(day: WeatherViewController.Day) -> UIViewController {
+
+	let vc = storyboard?.instantiateViewControllerWithIdentifier("WeatherViewController") as! WeatherViewController
+	let nav = UINavigationController(rootViewController: vc)
+	vc.day = day
+
+	return nav
+}
+```
+
+这将从当前的 StroyBoard 里寻找 id 为 "WeatherViewController" 的 ViewController，并且初始化它。我们希望能为每一天的天气显示一个 title，一个比较理想的做法就是直接将我们的 WeatherViewController 嵌套在 navigation controller 里，这样我们就可以直接使用 navigation bar 来显示标题，而不用去操心它的布局了。我们刚才并没有为 `WeatherViewController` 指定 id，在 StoryBoard 中，找到 WeatherViewController，然后在 Identity 里添加即可：
+
+![step-7](/assets/images/2015/step-7.png)
+
+接下来我们来实现 `UIPageViewControllerDataSource`。在 `ViewController.swift` 的 `viewDidLoad` 里加入：
+
+```swift
+dataSource = self
+let vc = weatherViewControllerForDay(.Today)
+setViewControllers([vc], direction: .Forward, animated: true, completion: nil)
+```
+
+首先它将 `viewController` 自己设置为 dataSource。然后设定了初始需要表示的 viewController。对于 `UIPageViewControllerDataSource` 的实现，我们在同一文件中加入一个 `ViewController` 的 extension 来搞定：
+
+```swift
+extension ViewController: UIPageViewControllerDataSource {
+    func pageViewController(pageViewController: UIPageViewController, viewControllerBeforeViewController viewController: UIViewController) -> UIViewController? {
+        guard let nav = viewController as? UINavigationController,
+                  viewController = nav.viewControllers.first as? WeatherViewController,
+                  day = viewController.day else {
+            return nil
+        }
+
+        if day == .DayBeforeYesterday {
+            return nil
+        }
+
+        guard let earlierDay = WeatherViewController.Day(rawValue: day.rawValue - 1) else {
+            return nil
+        }
+
+        return self.weatherViewControllerForDay(earlierDay)
+    }
+
+    func pageViewController(pageViewController: UIPageViewController, viewControllerAfterViewController viewController: UIViewController) -> UIViewController? {
+        guard let nav = viewController as? UINavigationController,
+            viewController = nav.viewControllers.first as? WeatherViewController,
+            day = viewController.day else {
+                return nil
+        }
+
+        if day == .DayAfterTomorrow {
+            return nil
+        }
+
+        guard let laterDay = WeatherViewController.Day(rawValue: day.rawValue + 1) else {
+            return nil
+        }
+
+        return self.weatherViewControllerForDay(laterDay)
+    }
+}
+```
+
+这两个方法分别根据输入的 View Controller 对象来确定前一个和后一个 View Controller，如果返回 `nil` 则说明没有之前/后的页面了。另外，我们可能还想要先将 title 显示出来，以确定现在的架构是否正确工作。在 `WeatherViewController.swift` 的 Day 枚举里添加如下属性：
+
+```swift
+var title: String {
+            let result: String
+            switch self {
+            case .DayBeforeYesterday: result = "前天"
+            case .Yesterday: result = "昨天"
+            case .Today: result = "今天"
+            case .Tomorrow: result = "明天"
+            case .DayAfterTomorrow: result = "后天"
+            }
+            return result
+        }
+```
+
+然后将 `day` 属性改为：
+
+```swift
+var day: Day? {
+	didSet {
+		title = day?.title
+	}
+}
+```
+
+运行 app，现在我们应该可以在五个页面之间进行切换了。你也可以从 GitHub 上[对应的 tag](https://github.com/onevcat/WatchWeather/releases/tag/basic-workflow) 中下载到目前为止的项目。
+
+![step-8](/assets/images/2015/step-8.png)
+
+### 重构和 Model
+
+很难有人一次性就把代码写得完美无瑕，这也是重构的意义。重构从来不是一个“等待项目完成后再开始”的活动，而是应该随着项目的展开和进行，一旦发现有可能存在问题的地方，就尽快进行改进。比如在上面我们将 `Day` 放在了 `WeatherViewController` 中，这显然不是一个很好地选择。这个枚举更接近于 Model 层的东西而非控制层，我们应该将它迁移到另外的地方。同样现在还需要实现的还有天气的 Model，即表征天气状况和高低温度的对象。我们将这些内容提取出来，放到一个 framework 中去，以便使用的维护。
+
+![step-9](/assets/images/2015/step-9.png)
+
+我们首先对现有的 `Day` 进行迁移。创建一个新的 Cocoa Touch Framework target，命名为 `WatchWeatherKit`。在这个 target 中新建 `Day.swift` 文件，其中内容为：
+
+```swift
+public enum Day: Int {
+    case DayBeforeYesterday = -2
+    case Yesterday
+    case Today
+    case Tomorrow
+    case DayAfterTomorrow
+
+    public var title: String {
+        let result: String
+        switch self {
+        case .DayBeforeYesterday: result = "前天"
+        case .Yesterday: result = "昨天"
+        case .Today: result = "今天"
+        case .Tomorrow: result = "明天"
+        case .DayAfterTomorrow: result = "后天"
+        }
+        return result
+    }
+}
+```
+
+这就是原来存在于 `WeatherViewController` 中的代码，只不过将必要的内容申明为了 `public`，这样我们才能在别的 target 中使用它们。我们现在可以将原来的 Day 整个删除掉了，接下来，我们在 `WeatherViewController.swift` 和 `ViewController.swift` 最上面加入 `import WatchWeatherKit`，并将 `WeatherViewController.Day` 改为 `Day`。现在 `Day` 枚举就被隔离出 View Controller 了。
+
+然后实现天气的 Model。在 `WatchWeatherKit` 里新建 `Weather.swift`，并书写如下代码：
+
+```swift
+import Foundation
+
+public struct Weather {
+    public enum State: Int {
+        case Sunny, Cloudy, Rain, Snow
+    }
+
+    public let state: State
+    public let highTemperature: Int
+    public let lowTemperature: Int
+    public let day: Day
+
+    public init?(json: [String: AnyObject]) {
+
+        guard let stateNumber = json["state"] as? Int,
+                  state = State(rawValue: stateNumber),
+                  highTemperature = json["high_temp"] as? Int,
+                  lowTemperature = json["low_temp"] as? Int,
+                  dayNumber = json["day"] as? Int,
+                  day = Day(rawValue: dayNumber) else {
+            return nil
+        }
+
+
+        self.state = state
+        self.highTemperature = highTemperature
+        self.lowTemperature = lowTemperature
+        self.day = day
+    }
+}
+```
+
+Model 包含了天气的状态信息和最高最低温度，我们稍后会用一个 JSON 字符串中拿到字典，然后初始化它。如果字典中信息不全的话将直接返回 `nil` 表示天气对象创建失败。到此为止的项目可以在 GitHub 的 [model tag](https://github.com/onevcat/WatchWeather/releases/tag/model) 中找到。
+
+### 获取天气信息
+
+接下来的任务是获取天气的 JSON，作为一个 demo 我们完全可以用一个本地文件替代网络请求部分。不过因为之后在介绍 watch app 时会用到使用手表进行网络请求，所以这里我们还是从网络来获取天气信息。为了简单，假设我们从服务器收到的 JSON 是这个样子的：
+
+```json
+{"weathers": [
+	{"day": -2, "state": 0, "low_temp": 18, "high_temp": 25},
+	{"day": -1, "state": 2, "low_temp": 9, "high_temp": 14},
+	{"day": 0, "state": 1, "low_temp": 12, "high_temp": 16},
+	{"day": 1, "state": 3, "low_temp": 2, "high_temp": 6},
+	{"day": 2, "state": 0, "low_temp": 19, "high_temp": 28}
+	]}
+```
+
+其中 `day` 0 表示今天，`state` 是天气状况的代码。
+
+我们已经有 `Weather` 这个 Model 类型了，现在我们需要一个 API Client 来获取这个信息。在 `WeatherWatchKit` target 中新建一个文件 `WeatherClient.swift`，并填写以下代码：
+
+```swift
+import Foundation
+
+public let WatchWeatherKitErrorDomain = "com.onevcat.WatchWeatherKit.error"
+public struct WatchWeatherKitError {
+    public static let CorruptedJSON = 1000
+}
+
+public struct WeatherClient {
+
+    public static let sharedClient = WeatherClient()
+    let session = NSURLSession.sharedSession()
+
+    public func requestWeathers(handler: ((weather: [Weather?]?, error: NSError?) -> Void)?) {
+
+        guard let url = NSURL(string: "https://raw.githubusercontent.com/onevcat/WatchWeather/master/Data/data.json") else {
+            handler?(weather: nil, error: NSError(domain: NSURLErrorDomain, code: NSURLErrorBadURL, userInfo: nil))
+            return
+        }
+
+        let task = session.dataTaskWithURL(url) { (data, response, error) -> Void in
+            if error != nil {
+                handler?(weather: nil, error: error)
+            } else {
+                do {
+                    let object = try NSJSONSerialization.JSONObjectWithData(data!, options: .AllowFragments)
+                    if let dictionary = object as? [String: AnyObject] {
+                        handler?(weather: Weather.parseWeatherResult(dictionary), error: nil)
+                    }
+                } catch _ {
+                    handler?(weather: nil,
+						       error: NSError(domain: WatchWeatherKitErrorDomain,
+								                code: WatchWeatherKitError.CorruptedJSON,
+										    userInfo: nil))
+                }
+            }
+        }
+
+        task!.resume()
+    }
+}
+```
+
+其实我们的 client 现在有点过度封装和耦合，不过作为 demo 来说的话还不错。它现在只有一个方法，就是从[网络源](https://raw.githubusercontent.com/onevcat/WatchWeather/master/Data/data.json)请求一个 JSON 然后进行解析。解析的代码 `parseWeatherResult` 我们放在了 `Weather` 中，以一个 extension 的形式存在：
+
+```swift
+// MARK: - Parsing weather request
+extension Weather {
+    static func parseWeatherResult(dictionary: [String: AnyObject]) -> [Weather?]? {
+        if let weathers = dictionary["weathers"] as? [[String: AnyObject]] {
+            return weathers.map{ Weather(json: $0) }
+        } else {
+            return nil
+        }
+    }
+}
+```
+
+我们在 ViewController 中使用这个方法即可获取到天气信息，就可以构建我们的 UI 了。在 `ViewController.swift` 中，加入一个属性来存储天气数据：
+
+```swift
+var data: [Day: Weather]?
+```
+
+然后更改 `viewDidLoad` 的代码：
+
+```swift
+override func viewDidLoad() {
+	super.viewDidLoad()
+	// Do any additional setup after loading the view, typically from a nib.
+
+	dataSource = self
+
+	let vc = UIViewController()
+	vc.view.backgroundColor = UIColor.whiteColor()
+	setViewControllers([vc], direction: .Forward, animated: true, completion: nil)
+
+	UIApplication.sharedApplication().networkActivityIndicatorVisible = true
+
+	WeatherClient.sharedClient.requestWeathers { (weather, error) -> Void in
+		UIApplication.sharedApplication().networkActivityIndicatorVisible = false
+		if error == nil && weather != nil {
+			for w in weather! where w != nil {
+				self.data[w!.day] = w
+			}
+
+			let vc = self.weatherViewControllerForDay(.Today)
+			self.setViewControllers([vc], direction: .Forward, animated: false, completion: nil)
+		} else {
+			let alert = UIAlertController(title: "Error", message: error?.description ?? "Unknown Error", preferredStyle: .Alert)
+			alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: nil))
+			self.presentViewController(alert, animated: true, completion: nil)
+		}
+	}
+}
+```
+
+在这里一开始使用了一个临时的 `UIViewController` 来作为 PageViewController 在网络请求时的初始视图控制 (虽然在我们的例子中这个初始视图就是一块白屏幕)。接下来进行网络请求，并把得到的数据存储在 `data` 变量中以待使用。之后我们需要把这些数据传递给不同日期的 ViewController，在 `weatherViewControllerForDay` 方法中，换为对 weather 做设定，而非 `day`：
+
+```swift
+func weatherViewControllerForDay(day: Day) -> UIViewController {
+
+	let vc = self.storyboard?.instantiateViewControllerWithIdentifier("WeatherViewController") as! WeatherViewController
+	let nav = UINavigationController(rootViewController: vc)
+	vc.weather = data[day]
+
+	return nav
+}
+```
+
+同时我们还需要修改一下 `WeatherViewController`，将原来的：
+
+```swift
+var day: Day? {
+	didSet {
+		title = day?.title
+	}
+}
+```
+
+改为
+
+```swift
+var weather: Weather? {
+	didSet {
+		title = weather?.day.title
+	}
+}
+```
+
+另外还需要在 `UIPageViewControllerDataSource` 的两个方法中，把对应的 `viewController.day` 换为 `viewController.weather?.day`。最后我们要做的是在 `WeatherViewController` 的 `viewDidLoad` 中根据 model 更新 UI：
+
+```swift
+override func viewDidLoad() {
+	super.viewDidLoad()
+	lowTemprature.text = "\(weather!.lowTemperature)℃"
+	highTemprature.text = "\(weather!.highTemperature)℃"
+
+	let imageName: String
+	switch weather!.state {
+	case .Sunny: imageName = "sunny"
+	case .Cloudy: imageName = "cloudy"
+	case .Rain: imageName = "rain"
+	case .Snow: imageName = "snow"
+	}
+
+	weatherImage.image = UIImage(named: imageName)
+}
+```
+
+> 一个可能的改进是新建一个 `WeatherViewModel` 来将对 View 的内容和 Model 的映射关系代码从 ViewController 里分理出去，如果有兴趣的话你可以自己研究下。
+
+到此我们的 iOS 端的代码就全部完成了，运行一下看看，Perfect！到现在为止的项目可以在[这里](tag ios)找到。
+
+![step-10](/assets/images/2015/step-10.png)
+
+## Watch App
+
+### UI 构建
+
+终于进入正题了，我们可以开始设计和制作 watch app 了。
+
+首先我们把需要的图片添加到 watch app target 的 Assets.xcassets 中，这样在之后用户安装 app 时这些图片将被存放在手表中，我们可以直接快速地从手表本地读取。UI 的设计非常简单，在 Watch app 的 Interface.storyboard 中，我们先将代表天气状态的图片和温度标签拖拽到 InterfaceController 中，并将它们连接到 `InterfaceController.swift` 中的 IBOutlet 去。
+
+```swift
+@IBOutlet var weatherImage: WKInterfaceImage!
+@IBOutlet var highTempratureLabel: WKInterfaceLabel!
+@IBOutlet var lowTempratureLabel: WKInterfaceLabel!
+```
+
+接下来，我们将它复制四次，并用 next page 的 segue 串联起来，并设置它们的 title。这样，在最后的 watch app 里我们就会有五个可以左右 scorll 滑动的页面，分别表示从前天到后天的五个日子。
+
+![step-11](/assets/images/2015/step-11.png)
+
+为了标记和区分这五个 InterfaceController 实例。因为使用 next page 级联的 WKInterfaceController 会被依次创建，所以我们可以在 `awakeWithContext` 方法中用一个静态变量计数。在这里，我们想要将序号为 2 的 InterfaceController (也就是代表 “今天” 的那个) 设为当前 page。在 `InterfaceController.swift` 里添加一个静态变量：
+
+```swift
+static var index = 0
+```
+
+然后在 `awakeWithContext` 方法中加入：
+
+```swift
+InterfaceController.index = InterfaceController.index + 1
+if (InterfaceController.index == 2) {
+	becomeCurrentPage()
+}
+```
+
+### WatchKit Framework
+
+和 iOS app 类似，我们希望能够使用框架来组织代码。watch app 中的天气 model 和网络请求部分的内容其实和 iOS app 中的是完全一样的，我们没有理由重复开发。在一个 watch app 中，其实 app 本身只负责图形显示，实际的代码都是在 extension 中的。在 watchOS 2 之前，因为 extension 是在手机端，和 iOS app 处于同样的物理设备中，所以我们可以简单地将为 iOS app 中创建的框架使用在 watch extension target 中。但是在 watchOS 2 中发生了变化，因为 extension 现在直接将运行在手表上，我们无法与 iOS app 共享同一个框架了。取而代之，我们需要为手表 app 创建新的属于自己的 framewok，然后将合适的文件添加到这个 framework 中去。
+
+为项目新建一个 target，类型选择为 Watch OS 的 Watch Framework。
+
+![step-12](/assets/images/2015/step-12.png)
+
+接下来，我们把之前的 `Day.swift`，`Weather.swift` 和 `WeatherClient.swift` 三个文件添加到这个新的 target (在这里我们叫它 WatchWeatherWatchKit) 里去。我们将在新的这个 watch framework 中重用这三个文件。这样做相较于直接把这三个文件放到 watch extension target 中来说，会更易于管理组织和模块分割，也是 Apple 所推荐的使用方式。
+
+![step-13](/assets/images/2015/step-13.png)
+
+接下来我们需要手动在 watch extension 里将这个新的 framework 链接进来。在 `WatchWeather WatchKit Extension` target 的 General 页面中，将 `WatchWeatherWatchKit` 添加到 Embedded Binaries 中。Xcode 将会自动把它加到 Link Binary With Libraries 里去。这时候如果你尝试编译 watch app，可能会得到一个警告："Linking against dylib not safe for use in application extensions"。这是因为不论是 iOS app 的 extension 还是 watchOS 的 extension，所能使用的 API 都只是完整 iOS SDK 的子集。编译器无法确定我们所动态链接的框架是否含有一些 extension 无法调用的 API。要解决这个警告，我们可以通过在 `WatchWeatherWatchKit` 的 Build Setting 中将 "Require Only App-Extension-Safe API" 设置为 `YES` 来将 target 里可用的 API 限制在 extension 中。
+
+![step-14](/assets/images/2015/step-14.png)
+
+是时候来实现我们的 app 了。首先一刻都不能再忍受的是 `InterfaceController.swift` 中的 `index`。我们既然有了 `WatchWeatherWatchKit`，就可以利用已有的模型将这里写得更清楚。在 `InterfaceController.swift` 中，首先在文件上面 `import WatchWeatherWatchKit`，然后修改 `index` 的定义，并添加一个字典来临时保存这些 Interface Controller，以便之后使用：
+
+```swift
+static var index = Day.DayBeforeYesterday.rawValue
+static var controllers = [Day: InterfaceController]()
+```
+
+将刚才我们的在 `awakeWithContext` 中添加的内容删掉，改为：
+
+```swift
+override func awakeWithContext(context: AnyObject?) {
+	super.awakeWithContext(context)
+
+	// Configure interface objects here.
+	guard let day = Day(rawValue: InterfaceController.index) else {
+		return
+	}
+
+	InterfaceController.controllers[day] = self
+	InterfaceController.index = InterfaceController.index + 1
+
+	if day == .Today {
+		becomeCurrentPage()
+	}
+}
+```
+
+现在表意就要清楚不少了。
+
+接下来就是获取天气信息了。和 iOS app 中一样，我们可以直接使用 `WeatherClient` 来获取。在 `InterfaceController.swift` 中加入以下代码：
+
+```swift
+var weather: Weather? {
+	didSet {
+		if let w = weather {
+			updateWeather(w)
+		}
+	}
+}
+
+func request() {
+	WeatherClient.sharedClient.requestWeathers({ [weak self] (weathers, error) -> Void in
+		if let weathers = weathers {
+			for weather in weathers where weather != nil {
+				guard let controller = InterfaceController.controllers[weather!.day] else {
+					continue
+				}
+				controller.weather = weather
+			}
+		} else {
+			// 2
+			let action = WKAlertAction(title: "Retry", style: .Default, handler: { () -> Void in
+				self?.request()
+			})
+			let errorMessage = (error != nil) ? error!.description : "Unknown Error"
+			self?.presentAlertControllerWithTitle("Error", message: errorMessage, preferredStyle: .Alert, actions: [action])
+		}
+	})
+}
+```
+
+如果我们获取到了天气，就设置 `weather` 属性并调用 `updateWeather` 方法依次对相应的 InterfaceController 的 UI 进行设置。如果出现了错误，我们这里简单地用一个 watchOS 2 中新加的 alert view 来进行提示并让用户重试。在这个方法的下面加上更新 UI 的方法 `updateWeather`：
+
+```swift
+func updateWeather(weather: Weather) {
+	lowTempratureLabel.setText("\(weather.lowTemperature)℃")
+	highTempratureLabel.setText("\(weather.highTemperature)℃")
+
+	let imageName: String
+	switch weather.state {
+	case .Sunny: imageName = "sunny"
+	case .Cloudy: imageName = "cloudy"
+	case .Rain: imageName = "rain"
+	case .Snow: imageName = "snow"
+	}
+
+	weatherImage.setImageNamed(imageName)
+}
+```
+
+我们只需要网络请求进行一次就可以了，所以在这里我们用一个 once_token 来限定一开始的 request 只执行一次。在 `InterfaceController.swift` 中加上一个类变量：
+
+```swift
+static var token: dispatch_once_t = 0
+```
+
+然后在 `awakeWithContext` 的最后用 `dispatch_once` 来开始请求：
+
+```swift
+dispatch_once(&InterfaceController.token) { () -> Void in
+	self.request()
+}
+```
+
+最后，在 `willActivate` 中也需要刷新 UI：
+
+```swift
+override func willActivate() {
+	super.willActivate()
+	if let w = weather {
+		updateWeather(w)
+	}
+}
+```
+
+应该就这么多了。选定手表 scheme，运行程序，除了图标的尺寸不太对以及网络请求时还显示默认的天气状况和温度以外，其他的看起来还不赖：
+
+![step-15](/assets/images/2015/step-15.png)
+
+至于显示默认值的问题，我们可以通过简单地在 StoryBoard 中将图和标签内容设为空来改善，在此就不再赘述了。
+
+值得一提的是，如果你多测试几次，比如关闭整个 app (或者模拟器)，然后再运行的话，可能会有一定几率遇到下面这样的错误：
+
+![step-16](/assets/images/2015/step-16.png)
+
+如果你还记得的话，这个 1000 错误就是我们定义在 `WeatherClient.swift` 中的 `CorruptedJSON` 错误。调试一下，你就会发现在请求返回时得到的数据存在问题，会得到一个内容被完整复制了一遍的返回 (比如正确的数据 {a:1}，但是我们得到的是 {a:1} {a:1})。虽然我不是太明白为什么会出现这样的状况，但这应该是 `NSURLSession` 在 watchOS SDK 上的一个缓存上的 bug。我之后会尝试向 Apple 提交一个 radar 来汇报这个问题。现在的话，我们可以通过设置不带缓存的 `NSURLSessionConfiguration` 来绕开这个问题。将 WeatherClient 中的 `session` 属性改为以下即可：
+
+```swift
+let session = NSURLSession(configuration: NSURLSessionConfiguration.ephemeralSessionConfiguration())
+```
+
+至此，我们的 watch app 本体就完成了。到这一步为止的项目可以在[这个 tag](https://github.com/onevcat/WatchWeather/releases/tag/watch-app) 找到。Notification 和 Glance 两个特性相对简单，基本只是界面的制作，为了节省篇幅 (其实这篇文章已经够长了，如果你需要休息一下的话，这里会是一个很好地机会)，就不再详细说明了。你可以分别在[这里](https://developer.apple.com/library/ios/documentation/General/Conceptual/WatchKitProgrammingGuide/ImplementingaGlance.html#//apple_ref/doc/uid/TP40014969-CH5-SW1)和[这里](https://developer.apple.com/library/ios/documentation/General/Conceptual/WatchKitProgrammingGuide/BasicSupport.html#//apple_ref/doc/uid/TP40014969-CH18-SW1)找到开发两者所需要的一切知识。
+
+在下一节中，我们将着重于 watchOS 2 的新特性。首先是 complications。
+
+### Complications
+
+Complications 是 watchOS 2 新加入的特性，它是表盘上除了时间以外的一些功能性的小部件。比如我们的天气 app 里，将今天的天气状况显示在表盘上就是一个非常理想的应用场景，这样用户就不需要打开你的 app 就能看到今天的天气状况了 (其实今天的天气的话用户抬头望窗外就能知道。如果是一个实际的天气 app 的话，显示明天或者两小时后的天气状况会更理想，但是作为 demo 就先这样吧..)。我们在这一小节中将为刚才的天气 app 实现一个 complication。
+
+Complications 可以是不同的形状，如图所示：
+
+![step-17](/assets/images/2015/step-17.png)
+
+根据用户表盘选择的不同，表盘上对应的可用的 complications 形状也各不相同。如果你想要你的 complication 在所有表盘上都能使用的话，你需要实现所有的形状。掌管 complications 或者说是表盘相关的框架并不是我们一直使用的 WatchKit，而是一个 watchOS 2 中全新框架，ClockKit。ClockKit 会提供一些模板给我们，并在一定时间点向我们请求数据。我们依照模板使用我们的数据来实现 complication，最后 ClockKit 负责帮助我们将其渲染在表盘上。在 ClockKit 请求数据时，它会唤醒我们的 watch extension。我们需要在 extension 中实现数据源，并以一段时间线的方式把数据提供给 ClockKit。这样做有两个好处，首先 ClockKit 可以一次性获取到很多数据，这样它就能在合适的时候更新 complication 的显示，而不必再次唤醒 extension 来请求数据。其次，因为有一条时间线的数据，我们就可以使用 Time Travel 来查看 complication 已经过去的和即将到来的状况，这在某些场合下会十分方便。
+
+理论已经说了很多了，来实际操作一下吧。
+
+首先，因为我们在新建项目的时候已经选择了包含 complications，所以我们并不需要再进行额外的配置就可以开始了。如果你不小心没有选中这个选项，或者是想在已有项目中进行添加的话，你就需要手动配置，在 extension 的 target 里的 Complications Configuration 中指定数据源的 class 和支持的形状。在运行时，系统会使用在这个设置中指定的类型名字去初始化一个的实例，然后调用这个实例中实现的数据源方法。我们要做的就是在被询问这些方法时，尽快地提供需要的数据。
+
+第一步是实现数据源，这在在我们的项目中已经配置好了，就是 `ComplicationController.swift`。这是一个实现了 `CLKComplicationDataSource` 的类型，打开文件可以看到所有的方法都已经有默认空实现了，我们现在要做的就是把这些空填上。其中最关键的是 `getCurrentTimelineEntryForComplication:withHandler:`，我们需要通过这个方法来提供当前表盘所要显示的 complication。罗马不是一天建成的，项目也不是。我们先提供一个 dummy 的数据来让流程运作起来。在 ComplicationController.swift 中，将这个方法的内容换成：
+
+```swift
+func getCurrentTimelineEntryForComplication(complication: CLKComplication, withHandler handler: ((CLKComplicationTimelineEntry?) -> Void)) {
+	// Call the handler with the current timeline entry
+	var entry : CLKComplicationTimelineEntry?
+	let now = NSDate()
+
+	// Create the template and timeline entry.
+	if complication.family == .ModularSmall {
+
+		let imageTemplate = CLKComplicationTemplateModularSmallSimpleImage()
+		imageTemplate.imageProvider = CLKImageProvider(backgroundImage:UIImage(named: "sunny")!, backgroundColor: nil)
+
+		// Create the entry.
+		entry = CLKComplicationTimelineEntry(date: now, complicationTemplate: imageTemplate)
+	}
+	else {
+		// ...configure entries for other complication families.
+	}
+
+	// Pass the timeline entry back to ClockKit.
+	handler(entry)
+}
+```
+
+在这个方法中，系统会提供给我们所需要的 complication 的类型，我们要做的是使用合适的系统所提供的模板 (这里是 `CLKComplicationTemplateModularSmallSimpleImage`) 以及我们自己的数据，来构建一个 `CLKComplicationTimelineEntry` 对象，然后再 handler 中返回给系统。结合天气 app 的特点，我们这里选择了一个小的简单图片的模板。另外因为篇幅有限，这里只实现了 `.ModularSmall`。在实际的项目中，你应该支持尽量多的 complication 类型，这样可以保证你的用户在不同的表盘上都能使用。
+
+在提供具体的数据时，我们使用 template 的 `imageProvider` 或者 `textProvider`。在我们现在使用的这个模板中，只有一个简单的 `imageProvider`，我们从 extension 的 Assets Category 中获取并设置合适的图像就可以了 (对于 `.ModularSmall` 来说，需要图像的尺寸为 52px 和 58px 的 @2x。关于其他模板的图像尺寸要求，可以参考[文档](https://developer.apple.com/library/prerelease/watchos/documentation/ClockKit/Reference/ClockKit_framework/index.html#//apple_ref/doc/uid/TP40016082))。
+
+运行程序，选取一个带有 `ModularSmall` complication 的表盘 (如果是在模拟器的话，可以使用 Shift+Cmd+2 然后点击表盘来打开表盘选择界面)，然后在 complication 中选择 WatchWeather，可以看到以下的结果：
+
+![step-18](/assets/images/2015/step-18.png)
+
+看起来不错，我们的小太阳已经在界面上熠熠生辉了，接下来就是要实现把实际的数据替换进来。对于 complication 来说，我们需要以尽可能快的速度去调用 handler 来向系统提供数据。我们并没有那么多时间去从网络上获取数据，所以需要使用之前在 watch app 或者是 iOS app 中获取到的数据来组织 complication。为了在 complication 中能直接获取数据，我们需要在用 Client 获取到数据后把它存在本地。这里我们用 UserDefaults 就已经足够了。在 `Weather.swift` 中加入以下 extension：
+
+```swift
+public extension Weather {
+    static func storeWeathersResult(dictionary: [String: AnyObject]) {
+        let userDefault = NSUserDefaults.standardUserDefaults()
+        userDefault.setObject(dictionary, forKey: kWeatherResultsKey)
+        userDefault.setObject(NSDate(), forKey: kWeatherRequestDateKey)
+
+        userDefault.synchronize()
+    }
+
+    public static func storedWeathers() -> (requestDate: NSDate?, weathers: [Weather?]?) {
+        let userDefault = NSUserDefaults.standardUserDefaults()
+        let date = userDefault.objectForKey(kWeatherRequestDateKey) as? NSDate
+
+        let weathers: [Weather?]?
+        if let dic = userDefault.objectForKey(kWeatherResultsKey) as? [String: AnyObject] {
+            weathers = parseWeatherResult(dic)
+        } else {
+            weathers = nil
+        }
+
+        return (date, weathers)
+    }
+}
+```
+
+这里我们需要知道获取到这组数据时的时间，我们以当前时间作为获取时间进行存储。一个更加合适的做法应该是在请求的返回中包含每个天气状况所对应的时间信息。但是因为我们并没有真正的服务器，也并非实际的请求，所以这里就先简单粗暴地用本地时间了。接下来，在每次请求成功后，我们调用 `storeWeathersResult` 将结果存储起来。在 `WeatherClient.swift` 中，把
+
+```swift
+dispatch_async(dispatch_get_main_queue(), { () -> Void in
+	handler?(weathers: Weather.parseWeatherResult(dictionary), error: nil)
+})
+```
+
+这段代码改为：
+
+```swift
+dispatch_async(dispatch_get_main_queue(), { () -> Void in
+    let weathers = Weather.parseWeatherResult(dictionary)
+    if weathers != nil {
+        Weather.storeWeathersResult(dictionary)
+    }
+	handler?(weathers: weathers, error: nil)
+})
+```
+
+接下来我们还需要另外一项准备工作。Complication 的时间线是以一组 `CLKComplicationTimelineEntry` 来表示的，一个 entry 中包含了 template 和对应的 `NSDate`。watchOS 将在当前时间超过这个 `NSDate` 时表示。所以如果我们需要显示当天的天气情况的话，就需要将对应的日期设定为当日的 0 点 0 分。对于其他几个日期的天气来说，这个状况也是一样的。我们需要添加一个方法来通过 Weather 的 `day` 属性和请求的当日日期来返回一个对应 entry 中需要的日期。为了运算简便，我们这里引入一个第三方框架，[SwiftDate](https://github.com/malcommac/SwiftDate)。将这个项目导入我们 app，然后在 `Weather.swift` 中添加：
+
+```swift
+public extension Weather {
+    public func dateByDayWithRequestDate(requestDate: NSDate) -> NSDate {
+        let dayOffset = day.rawValue
+        let date = requestDate.set(componentsDict: ["hour":0, "minute":0, "second":0])!
+        return date + dayOffset.day
+    }
+}
+```
+
+接下来我们就可以更新 `ComplicationController.swift` 的内容了。首先我们需要实现 `getTimelineStartDateForComplication:withHandler:` 和 `getTimelineEndDateForComplication:withHandler:` 来告诉系统我们所能提供 complication 的日期区间：
+
+```swift
+func getTimelineStartDateForComplication(complication: CLKComplication, withHandler handler: (NSDate?) -> Void) {
+	var date: NSDate? = nil
+	let (reqestDate, weathers) = Weather.storedWeathers()
+
+	if let weathers = weathers,
+		 requestDate = requestDate {
+		for w in weathers where w != nil {
+			if w!.day == .DayBeforeYesterday {
+				date = w!.dateByDayWithRequestDate(requestDate)
+				break
+			}
+		}
+	}
+
+	handler(date)
+}
+
+func getTimelineEndDateForComplication(complication: CLKComplication, withHandler handler: (NSDate?) -> Void) {
+	var date: NSDate? = nil
+	let (reqestDate, weathers) = Weather.storedWeathers()
+
+	if let weathers = weathers,
+		requestDate = requestDate {
+			for w in weathers where w != nil {
+				if w!.day == .DayAfterTomorrow {
+					date = w!.dateByDayWithRequestDate(requestDate) + 1.day - 1.second
+					break
+				}
+			}
+	}
+
+	handler(date)
+}
+```
+
+最早的时间是前天的 00:00，这是毫无疑问的。但是最晚的可显示时间并不是后天的 00:00，而是 23:59:59，这里一定需要注意。
+
+另外，为了之后创建 template 能容易一些，我们添加一个由 `Weather.State` 创建 template 的方法：
+
+```swift
+private func templateForComplication(complication: CLKComplication, weatherState: Weather.State) -> CLKComplicationTemplate? {
+	let imageTemplate: CLKComplicationTemplate?
+
+	if complication.family == .ModularSmall {
+		imageTemplate = CLKComplicationTemplateModularSmallSimpleImage()
+
+		let imageName: String
+		switch weatherState {
+		case .Sunny: imageName = "sunny"
+		case .Cloudy: imageName = "cloudy"
+		case .Rain: imageName = "rain"
+		case .Snow: imageName = "snow"
+		}
+
+		(imageTemplate as! CLKComplicationTemplateModularSmallSimpleImage).imageProvider = CLKImageProvider(backgroundImage:UIImage(named: imageName)!, backgroundColor: nil)
+	} else {
+		imageTemplate = nil
+	}
+
+	return imageTemplate
+}
+```
+
+接下来就是实现核心的三个提供时间轴的方法了，虽然很长，但是做的事情却差不多：
+
+```swift
+func getCurrentTimelineEntryForComplication(complication: CLKComplication, withHandler handler: ((CLKComplicationTimelineEntry?) -> Void)) {
+    // Call the handler with the current timeline entry
+    var entry : CLKComplicationTimelineEntry?
+
+    // Create the template and timeline entry.
+    let (requestDate, weathers) = Weather.storedWeathers()
+
+    if let weathers = weathers,
+        requestDate = requestDate {
+            for w in weathers where w != nil {
+
+                let weatherDate = w!.dateByDayWithRequestDate(requestDate)
+                if weatherDate == NSDate.today() {
+
+                    if let template = templateForComplication(complication, weatherState: w!.state) {
+                        entry = CLKComplicationTimelineEntry(date: weatherDate, complicationTemplate: template)
+                    }
+                }
+            }
+    }
+
+    // Pass the timeline entry back to ClockKit.
+    handler(entry)
+}
+
+func getTimelineEntriesForComplication(complication: CLKComplication, beforeDate date: NSDate, limit: Int, withHandler handler: (([CLKComplicationTimelineEntry]?) -> Void)) {
+    // Call the handler with the timeline entries prior to the given date
+    var entries = [CLKComplicationTimelineEntry]()
+    let (requestDate, weathers) = Weather.storedWeathers()
+
+    if let weathers = weathers,
+        requestDate = requestDate {
+            for w in weathers where w != nil {
+                let weatherDate = w!.dateByDayWithRequestDate(requestDate)
+                if weatherDate < date {
+                    if let template = templateForComplication(complication, weatherState: w!.state) {
+                        let entry = CLKComplicationTimelineEntry(date: weatherDate, complicationTemplate: template)
+                        entries.append(entry)
+
+                        if entries.count == limit {
+                            break
+                        }
+                    }
+                }
+            }
+    }
+
+    handler(entries)
+}
+
+func getTimelineEntriesForComplication(complication: CLKComplication, afterDate date: NSDate, limit: Int, withHandler handler: (([CLKComplicationTimelineEntry]?) -> Void)) {
+    // Call the handler with the timeline entries after to the given date
+    var entries = [CLKComplicationTimelineEntry]()
+    let (requestDate, weathers) = Weather.storedWeathers()
+
+    if let weathers = weathers,
+        requestDate = requestDate {
+            for w in weathers where w != nil {
+                let weatherDate = w!.dateByDayWithRequestDate(requestDate)
+                if weatherDate > date {
+                    if let template = templateForComplication(complication, weatherState: w!.state) {
+                        let entry = CLKComplicationTimelineEntry(date: weatherDate, complicationTemplate: template)
+                        entries.append(entry)
+
+                        if entries.count == limit {
+                            break
+                        }
+                    }
+                }
+            }
+    }
+
+    handler(entries)
+}
+```
+
+代码来说非常简单。`getCurrentTimelineEntryForComplication` 中我们找到今天的 `Weather` 对象，然后构建合适的 entry。而对于 `beforeDate` 和 `afterDate` 两个版本的方法，按照系统提供的 `date` 我们需要组织在这个 `date` 之前或者之后的所有 entry，并将它们放到一个数组中去调用回调。这两个方法中还为我们提供了一个 `limit` 参数，我们的结果数应该不超过这个数字。在实现这三个方法后，我们的时间线就算是构建完毕了。
+
+另外，我们还可以通过实现 `getPlaceholderTemplateForComplication:withHandler:` 来提供一个在表盘定制界面是会用到的占位图像。
+
+```swift
+func getPlaceholderTemplateForComplication(complication: CLKComplication, withHandler handler: (CLKComplicationTemplate?) -> Void) {
+	// This method will be called once per supported complication, and the results will be cached
+	handler(templateForComplication(complication, weatherState: .Sunny))
+}
+```
+
+这样，在自定义表盘界面我们也可以在选择到我们的 complication 时看到表示我们的 complication 的样式了：
+
+![step-19](/assets/images/2015/step-19.png)
+
+`ComplicationController` 中最后需要实现的是 `getNextRequestedUpdateDateWithHandler`。系统会在你的 watch app 被运行时更新时间线，另外要是你的 app 一直没有被运行的话，你可以通过这个方法提供给系统一个参考时间，用来建议系统应该在什么时候为你更新时间线。这个时间应该尽可能长，以节省电池的电量。在我们的天气的例子中，每天一次更新也许会是个不错的选择：
+
+```swift
+func getNextRequestedUpdateDateWithHandler(handler: (NSDate?) -> Void) {
+	// Call the handler with the date when you would next like to be given the opportunity to update your complication content
+	handler(NSDate.tomorrow());
+}
+```
+
+> 你也许会注意到，因为我们这里要是不开启 watch app 的话，其实天气数据时不会更新的，这样我们设定刷新时间线似乎并没有什么意义 - 因为不开 watch app 的话数据并不会变化，而开了 watch app 的话时间线就会直接被刷新。这里我们考虑到了之后使用 Watch Connectivity 从手机端刷新 watch 数据的可能性，所以做了每天刷新一次的设置。我们在稍后会详细将这方面内容。
+
+另外，我们还需要记得在 watch app 数据更新之后，强制 reload 一下 complication 的数据。在 ComplicationController.swift 中加入：
+
+```swift
+static func reloadComplications() {
+	let server = CLKComplicationServer.sharedInstance()
+	for complication in server.activeComplications {
+		server.reloadTimelineForComplication(complication)
+	}
+}
+```
+
+然后在 `InterfaceController.swift` 的 `request` 中，在请求成功返回后调用一下这个方法就可以了。
+
+现在，我们的 watch app 已经支持 complication 了。同时，因为我们努力提供了之前和之后的数据，我们免费得到了 Time Travel 的支持。现在你不仅可以在表盘上看到今天的天气，通过旋转 Digital Crown 你还能了解到之前和之后的天气状况了：
+
+![step-20](/assets/images/2015/step-20.gif)
+
+到这里为止的项目代码可以在 [complication tag](https://github.com/onevcat/WatchWeather/releases/tag/complication) 中找到。
+
+### Watch Connectivity
+
+在 watchOS 1 时代，watch 的 extension 是和 iOS app 一样，存在于手机里的。所以在 watch extension 和 iOS app 之间共享数据是比较简单的，和其他 extension 类似，使用 app group 将 app 本体和 extension 设为同一组 app，就可以在一个共享容器中共享数据了。但是这在 watchOS 2 中发生了改变。因为 watchOS 2 的手表 extension 是直接存在于手表中的，所以之前的 app group 的方法对于 watch app 来说已经失效。Watch extension 现在会使用自己的一套数据存储 (如果你之前注意到了的话，我们在请求数据后将它存到了 UserDefaults 中，但是手机和手表的 UserDefaults 是不同的，所以我们不用担心数据被不小心覆盖)。如果我们想要在 iOS 设备和手表之间共享数据的话，我们需要使用新的 Watch Connectivity 框架。
+
+`WatchConnectivity` 框架所扮演的角色就是 iOS app 和 watch extension 之间的桥梁，利用这个框架你可以在两者之间互相传递数据。在这个例子中，我们会用 `WatchConnectivity` 来改善我们的天气 app 的表现 -- 我们打算实现无论在手表还是 iOS app 中，每天最多只进行一次请求。在一个设备上请求后，我们会把数据传递到配对的另一个设备上，这样在另一个设备上打开 app 时，就可以直接显示天气状况，而不再需要请求一次了。
+
+我们在 iOS app 和 watchOS app 中都可以使用 WatchConnectivity。首先我们需要检查设备上是否能使用 session，因为在一部分设备 (比如 iPad) 上，这个框架是不能使用的。这可以通过 `WCSession.isSupported()` 来判断。在确认平台上可以使用后，我们可以设定 delegate 来监听事件，然后开始这个 session。当我们有一个已经启动的 session 后，就可以通过框架的方法来向配对的另一个设备发送数据了。
+
+大致来说数据发送分为后台发送和即时消息两类。当 iOS app 和 watch app 都在前台的时候，我们可以通过 `-sendMessage:replyHandler:errorHandler:` 来在两者之间发送消息，这在 iOS app 和 watch app 之间需要互动的时候是非常有用的。另一种是后台发送，在 iOS 或 watch app 中有一者不在前台时，我们就需要考虑使用这种方式。后台通讯有三种方式：通过 Application Context，通过 User Info，以及传送文件。文件传送简单明了就是传递一个文件，另外两个都是传递一个字典，不同之处在于 Application Context 将会使用新的数据覆盖原来的内容，而 User Info 则可以使多次内容形成队列进行传送。每种方式都会在另外一方的 session 开始运行后调用相应的 delegate 方法，于是我们就能知道有数据发送过来了。
+
+结合天气 app 的特点，我们应该选择使用 Application Context 来收发数据。这篇文章已经太长了，所以我们这里只做从 iOS 到 watchOS 的发送了。因为反过来的代码其实完全一样，我会在 repo 中完成，在这里就不再重复一遍了。
+
+首先是在 iOS app 中启动 session。在 `ViewController.swift` 中添加一个属性：`var session: WCSession?`，然后在 `viewDidLoad:` 中添加：
+
+```swift
+if WCSession.isSupported() {
+	session = WCSession.defaultSession()
+	session!.delegate = self
+	session!.activateSession()
+}
+```
+
+为了让 `self` 成为 session 的 delegate，我们需要声明 `ViewController` 实现 `WCSessionDelegate`。这里我们先在文件最后添加一个空的 extension 即可：
+
+```swift
+extension ViewController: WCSessionDelegate {
+
+}
+```
+
+注意我们一定需要设定 session 的 delegate，即使它什么都没有做。一个没有 delegate 的 session 是不能被启动或正确使用的。
+
+然后就是发送数据了。在 `requestWeathers` 的回调中，数据请求一切正常的分支最后，添加一段
+
+```swift
+if error == nil && weather != nil {
+    //...
+	if let dic = Weather.storedWeathersDictionary() {
+		do {
+			try self.session?.updateApplicationContext(dic)
+		} catch _ {
+
+		}
+	}
+} else {
+	...
+}
+```
+
+这里的 `storedWeathersDictionary` 是个新加入的方法，它返回存储在 User Defaults 中的内容的字典表现形式 (我们在请求返回的时候就已经将结果内容存储在 User Defaults 里了，希望你还记得)。
+
+在 watchOS app 一侧，我们类似地启动一个 session。在 `InterfaceController.swift` 的 `awakeWithContext` 中的 `dispatch_once` 里，添加
+
+```swift
+if WCSession.isSupported() {
+	InterfaceController.session = WCSession.defaultSession()
+	InterfaceController.session!.delegate = self
+	InterfaceController.session!.activateSession()
+}
+```
+
+然后添加一个 extension 来接收传输过来的数据：
+
+```swift
+extension InterfaceController: WCSessionDelegate {
+    func session(session: WCSession, didReceiveApplicationContext applicationContext: [String : AnyObject]) {
+        guard let dictionary = applicationContext[kWeatherResultsKey] as? [String: AnyObject] else {
+            return
+        }
+        guard let date = applicationContext[kWeatherRequestDateKey] as? NSDate else {
+            return
+        }
+        Weather.storeWeathersResult(dictionary, requestDate: date)
+    }
+}
+```
+
+最后，在请求数据之前我们可以判断一下已经存储在 User Defaults 中的内容是否是今天请求的。如果是的话，就不再需要进行请求，而是直接使用存储的内容来刷新界面，否则的话进行请求并存储。将原来的 `self.request()` 改为：
+
+```swift
+dispatch_async(dispatch_get_main_queue()) { () -> Void in
+	if self.shouldRequest() {
+		self.request()
+	} else {
+		let (_, weathers) = Weather.storedWeathers()
+		if let weathers = weathers {
+			self.updateWeathers(weathers)
+		}
+	}
+}
+```
+
+如果你只是单纯地 copy 这些代码的话，在之前项目的基础上应该是不能编译的。这是因为在这里我并没有列举出所有的改动，而只是写出了关于 WatchConnectivity 的相关内容。这里涉及到了每次启动或者从后台切换到 app 时都需要检测并刷新界面，所以我们还需要一些额外的重构来达到这个目的。这些内容我们在此也略过了。同理，在 watchOS app 需要请求，并且请求结束的时候，我们也可以如前所述，通过几乎一样的代码和方式将请求得到的内容发回给 iOS app。这样，当我们打开 iOS app 时，也就不需要再次进行网络请求了。
+
+这部分的完整的代码可以在这个 repo 的[最终的 tag](https://github.com/onevcat/WatchWeather/releases/tag/connectivity) 上找到，您可以尝试自己实现一下，也可以直接找这里的代码进行参考。如果后续还有修正的话，我会直接在 master 上进行。
+
+## 总结
+
+本文从零开始完成了一个 iOS 和 Apple Watch 上的天气情况的 app。虽然说数据源上用的是一个 stub，但是在其他方面还算是比较完整的。本来主要的目的是探索下 watchOS 2 中的几个新 API 的用法，主要是 complication 和 WatchConnectivity。但是发现如果只是单纯地照搬文档的话一是不够直观，二是很难说明问题，所以干脆不如从头开始，和大家一起完成一个 app 来的更实在。
+
+Apple Watch 作为 Apple 的新产品线，其实所扮演的角色会非常重要。watchOS 一代由于种种限制，开发者们很难发挥出设备的优势来做出一些有意思的 app。在一代系统中，手表更多地还是只是一块 iPhone 的额外屏幕。但是在 watchOS 2 中，这一状况有望改善。更加合理和灵活的 app 组织方式以及在手表上的 native 开发，使得 Apple Watch 的可用范围提升了不止一个档次。而在经历了大半年的彷徨之后，Apple Watch 开发也逐渐趋于稳定，系统的架构和 API 也逐渐合理。其实 Apple Watch 还是一款非常有希望的产品，相信随着设备的进一步成熟和 SDK 的更加开放，我们会有机会像是直接利用 Digital Crown 或者其他一个手表特性来开发令人耳目一新的 app。个人的对于 Apple Watch 开发的建议是，现在最好能紧跟上 watch 开发的脚步，尽量进行积累，这样你才有可能在之后的爆发中取得先机和灵感。
+
+就这么多吧 (其实已经很多了)，祝编程愉快~
