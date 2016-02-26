@@ -1,0 +1,34 @@
+---
+layout: post
+title: 关于 NSURL 的解析和编码
+date: 2011-11-30 00:06:37.000000000 +09:00
+tags: 能工巧匠集
+---
+NSURL毫无疑问是常用类，有时候我们需要对一个url进行分析整理，当然是可以按照RFC 1808的定义去自己分析，但是万能的Apple大大已经在SDK里扔了不少方法来帮助解析一个url了…方便又快捷呐～比如下面的输入：
+
+```
+NSURL *url = [NSURL URLWithString:
+ @"http://www.onevcat.com/2011/11/debug/;param?p=307#more-307"];
+NSLog(@“Scheme: %@”, [url scheme]);
+NSLog(@“Host: %@”, [url host]);
+NSLog(@“Port: %@”, [url port]);
+NSLog(@“Path: %@”, [url path]);
+NSLog(@“Relative path: %@”, [url relativePath]);
+NSLog(@“Path components as array: %@”, [url pathComponents]);
+NSLog(@“Parameter string: %@”, [url parameterString]);
+NSLog(@“Query: %@”, [url query]);
+NSLog(@“Fragment: %@”, [url fragment]);
+```
+
+将得到以下输出：
+
+![](http://www.onevcat.com/wp-content/uploads/2011/11/url_result.png)
+
+没什么值得多说的～相当方便就能得到所要结果的方法～
+另外，在由`NSString`生成`NSURL`对象时，有可能会出现`NSString`中包含百分号各类括号冒号等对于url来说的非法字符如果直接进行转换的话将得到nil。在对于复杂url进行转换前，可以先试试对待转换的NSString发送
+`stringByAddingPercentEscapesUsingEncoding:`
+将其转换为合法的url字符串（其实目的就是保证非法字符用UTF8编码..） 比如这样：
+
+```
+NSString *fixedStr = [reqStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+```
