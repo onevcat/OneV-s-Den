@@ -25,7 +25,7 @@ blog_button:
 nav:
     - {title: 项目, description: 我的项目, url: 'http://project.onevcat.com'}
     - {title: 关于, description: 了解更多关于我, url: 'http://about.onevcat.com/'}
-    - {title: 订阅, description: 邮件订阅本站, url: '//api.onevcat.com/subscribe'}
+    - {title: 订阅, description: 邮件订阅本站, url: '//store.objccn.io/subscribe'}
 
 # Pagination
 gems: [jekyll-paginate]
