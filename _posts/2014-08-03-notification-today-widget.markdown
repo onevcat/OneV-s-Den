@@ -92,14 +92,14 @@ Demo 做的应用是一个简单的计时器，即点击开始按钮后开始倒
 
 然后让我们开始写代码吧！首先是在主体程序的 `ViewController.swift` 中添加一个程序失去前台的监听，在 `viewDidLoad` 中加入：
 
-```
+```swift
 NSNotificationCenter.defaultCenter()
     .addObserver(self, selector: "applicationWillResignActive",name: UIApplicationWillResignActiveNotification, object: nil)
 ```
 
 然后是所调用的 `applicationWillResignActive` 方法：
 
-```
+```swift
 @objc private func applicationWillResignActive() {
     if timer == nil {
         clearDefaults()
@@ -133,7 +133,7 @@ private func clearDefaults() {
 
 接下来，我们可以到扩展的 `TodayViewController.swift` 中去获取这些数据了。在扩展 ViewController 的 `viewDidLoad` 中，添加以下代码：
 
-```
+```swift
 let userDefaults = NSUserDefaults(suiteName: "group.simpleTimerSharedDefaults")
 let leftTimeWhenQuit = userDefaults.integerForKey("com.onevcat.simpleTimer.lefttime")
 let quitDate = userDefaults.integerForKey("com.onevcat.simpleTimer.quitdate")
@@ -147,7 +147,7 @@ lblTImer.text = "\(leftTime)"
 
 当然别忘了把 StoryBoard 的那个 label 拖出来：
 
-```
+```swift
 @IBOutlet weak var lblTImer: UILabel!
 ```
 
@@ -181,7 +181,7 @@ lblTImer.text = "\(leftTime)"
 
 接下来，在扩展的 ViewController 中也链接 `SimpleTimerKit` 并加入 `import SimpleTimerKit`，我们就可以在扩展中使用 `Timer` 了。将刚才的直接设置 label 的代码去掉，换成下面的：
 
-```
+```swift
 override func viewDidLoad() {
     //...
     
@@ -212,7 +212,7 @@ private func updateLabel() {
 
 另外，我们可能还需要调整一下扩展 widget 的尺寸，以让我们有更多的空间显示按钮，这可以通过设定 `preferredContentSize` 来做到。在 `TodayViewController.swift` 中加入以下方法：
 
-```
+```swift
 private func showOpenAppButton() {
     lblTimer.text = "Finished"
     preferredContentSize = CGSizeMake(0, 100)
@@ -229,7 +229,7 @@ private func showOpenAppButton() {
 
 然后添加这个按钮的 action：
 
-```
+```swift
 @objc private func buttonPressed(sender: AnyObject!) {
     extensionContext.openURL(NSURL(string: "simpleTimer://finished"), completionHandler: nil)
 }
@@ -237,7 +237,7 @@ private func showOpenAppButton() {
 
 我们将传递的 URL 的 scheme 是 `simpleTimer`，以 host 的 `finished` 作为参数，就可以通知主体应用计时完成了。然后我们需要在计时完成时调用 `showOpenAppButton` 来显示按钮，更新 `viewDidLoad` 中的内容：
 
-```
+```swift
 override func viewDidLoad() {
     //...
     if (leftTime > 0) {
@@ -259,7 +259,7 @@ override func viewDidLoad() {
 
 然后在 `AppDelegate.swift` 中捕获这个打开事件，并检测计时是否完成，然后做出相应：
 
-```
+```swift
 func application(application: UIApplication!, openURL url: NSURL!, sourceApplication: String!, annotation: AnyObject!) -> Bool {
     if url.scheme == "simpleTimer" {
         if url.host == "finished" {
@@ -283,7 +283,7 @@ func application(application: UIApplication!, openURL url: NSURL!, sourceApplica
 
 其实在 Xcode 为我们生成的模板文件中，还有这么一段代码也很重要：
 
-```
+```swift
 func widgetPerformUpdateWithCompletionHandler(completionHandler: ((NCUpdateResult) -> Void)!) {
     // Perform any setup necessary in order to update the view.
 
@@ -304,3 +304,5 @@ func widgetPerformUpdateWithCompletionHandler(completionHandler: ((NCUpdateResul
 这个 Demo 主要涉及了通知中心的 Toady widget 的添加和一般交互。其实扩展是一个相当大块的内容，对于其他像是分享或者是 Action 的扩展，其使用方式又会有所不同。但是核心的概念，生命周期以及与本体应用交互的方法都是相似的。Xcode 在我们创建扩展时就为我们提供了非常好的模版文件，更多的时候我们要做的只不过是在相应的方法内填上我们的逻辑，而对于配置方面基本不太需要操心，这一点还是非常方便的。
 
 就为了扩展这个功能，我已经迫不及待地想用上 iOS 8 了..不论是使用别人开发的扩展还是自己开发方便的扩展，都会让这个世界变得更美好。
+
+
