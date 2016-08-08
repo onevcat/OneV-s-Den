@@ -1,9 +1,11 @@
 ---
 layout: post
 title: "活久见的重构 - iOS 10 UserNotifications 框架解析"
-date: 2016-08-08 10:34:11.000000000 +09:00
+date: 2016-08-08 10:22:11.000000000 +09:00
 tags: 能工巧匠集
 ---
+
+> 先借文打个广告，我们和[数码荔枝](https://lizhi.io)合作，为中国的开发者们争取到了 [Charles](https://www.charlesproxy.com) 的特别优惠。Charles 是一款非常强大和方便的跨平台网络请求查看和调试 app，也是我自己日常每天都会使用的软件。现在原价 50 美金的 license 面向中国开发者的特别优惠价为 199 元，另外，这次活动还可以额外提供给大家 30 元的优惠券，就相当于以 ¥169 的价格就可以购入，非常合算。如果您对此有兴趣，可以使用这个[优惠链接](https://taoquan.taobao.com/coupon/unify_apply.htm?sellerId=881336826&activityId=78e1e4228aaf4da89d2ae6f9963eada0)领取优惠券并购买 (此次优惠针对的是 Charles 新版本 version 4 的新购入用户，从 3 升级的用户还是选择官方升级价格会实惠一些)。关于 Charles 的使用教程，唐巧大大曾经写过[一篇博文](http://blog.devtang.com/2015/11/14/charles-introduction/)，介绍得非常好，如果对使用有什么疑问，也可以去那边参加讨论。
 
 ## TL;DR
 
