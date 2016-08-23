@@ -265,7 +265,7 @@ delay(2) {
 class NotificationHandler: NSObject, UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, 
                        willPresent notification: UNNotification, 
-                       withCompletionHandler completionHandler: (UNNotificationPresentationOptions) -> Void) 
+                       withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) 
     {
         completionHandler([.alert, .sound])
         
@@ -294,7 +294,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 一个最简单的实现自然是什么也不错，直接告诉系统你已经完成了所有工作。
 
 ```swift
-func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: () -> Void) {
+func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
     completionHandler()
 }
 ```
@@ -312,7 +312,7 @@ content.userInfo = ["name": "onevcat"]
 在该方法里，我们将获取到这个推送请求对应的 response，`UNNotificationResponse` 是一个几乎包括了通知的所有信息的对象，从中我们可以再次获取到 `userInfo` 中的信息：
 
 ```swift
-func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: () -> Void) {
+func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
     if let name = response.notification.request.content.userInfo["name"] as? String {
         print("I know it's you! \(name)")
     }
@@ -404,7 +404,7 @@ content.categoryIdentifier = "saySomethingCategory"
 和普通的通知并无二致，actionable 通知也会走到 `didReceive` 的 delegate 方法，我们通过 request 中包含的 `categoryIdentifier` 和 response 里的 `actionIdentifier` 就可以轻易判定是哪个通知的哪个操作被执行了。对于 `UNTextInputNotificationAction` 触发的 response，直接将它转换为一个 `UNTextInputNotificationResponse`，就可以拿到其中的用户输入了：
 
 ```swift
-func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: () -> Void) {
+func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
     
     if let category = UserNotificationCategoryType(rawValue: response.notification.request.content.categoryIdentifier) {
         switch category {
@@ -456,7 +456,7 @@ class NotificationService: UNNotificationServiceExtension {
     var bestAttemptContent: UNMutableNotificationContent?
     
     // 1
-    override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler:(UNNotificationContent) -> Void) {
+    override func didReceive(_ request: UNNotificationRequest, withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void) {
         self.contentHandler = contentHandler
         bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
         
@@ -547,7 +547,7 @@ if let imageURL = Bundle.main.url(forResource: "image", withExtension: "jpg"),
 在 `NotificationService` 里，加入如下代码来下载图片，并将其保存到磁盘缓存中：
 
 ```swift
-private func downloadAndSave(url: URL, handler: (localURL: URL?) -> Void) {
+private func downloadAndSave(url: URL, handler: @escaping (_ localURL: URL?) -> Void) {
     let task = URLSession.shared.dataTask(with: url, completionHandler: {
         data, res, error in
         
@@ -563,7 +563,7 @@ private func downloadAndSave(url: URL, handler: (localURL: URL?) -> Void) {
             }
         }
         
-        handler(localURL: localURL)
+        handler(localURL)
     })
     
     task.resume()
