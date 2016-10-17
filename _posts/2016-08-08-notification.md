@@ -9,7 +9,7 @@ tags: 能工巧匠集
 
 iOS 10 中以前杂乱的和通知相关的 API 都被统一了，现在开发者可以使用独立的 UserNotifications.framework 来集中管理和使用 iOS 系统中通知的功能。在此基础上，Apple 还增加了撤回单条通知，更新已展示通知，中途修改通知内容，在通知中展示图片视频，自定义通知 UI 等一系列新功能，非常强大。
 
-对于开发者来说，相较于之前版本，iOS 10 提供了一套非常易用通知处理接口，是 SDK 的一次重大重构。而之前的绝大部分通知相关 API 都已经被标为弃用 (deprecated)。
+对于开发者来说，相较于之前版本，iOS 10 提供了一套非常易用的通知处理接口，是 SDK 的一次重大重构。而之前的绝大部分通知相关 API 都已经被标为弃用 (deprecated)。
 
 这篇文章将首先回顾一下 Notification 的发展历史和现状，然后通过一些例子来展示 iOS 10 SDK 中相应的使用方式，来说明新 SDK 中通知可以做的事情以及它们的使用方式。
 
@@ -35,7 +35,7 @@ application(_:didReceive:)`
 * iOS 9 - Text Input action，基于 HTTP/2 的推送请求
     `UIUserNotificationActionBehavior`，全新的 Provider API 等
     
-有点晕，不是么？一个开发者很难在不借助于文档的帮助下区分 `application(_:didReceiveRemoteNotification:)` 和 `application(_:didReceiveRemoteNotification:fetchCompletionHandle:)`，新入行的开发者也不可能明白 `registerForRemoteNotificationTypes` 和 `registerUserNotificationSettings(_:)` 之间是不是有什么关系，Remote 和 Local Notification 除了在初始化方式之外那些细微的区别也让人抓狂，而很多 API 都被随意地放在了 `UIApplication` 或者 `UIApplicationDelegate` 中。除此之外，应用已经在前台时，远程推送是无法直接显示的，要先捕获到远程来的通知，然后再发起一个本地通知才能完成现实。更让人郁闷的是，应用在运行时和非运行时捕获通知的路径还不一致。虽然这些种种问题都是由一定历史原因造成的，但不可否认，正是混乱的组织方式和之前版本的考虑不周，使得 iOS 通知方面的开发一直称不上“让人愉悦”，甚至有不少“坏代码”的味道。
+有点晕，不是么？一个开发者很难在不借助于文档的帮助下区分 `application(_:didReceiveRemoteNotification:)` 和 `application(_:didReceiveRemoteNotification:fetchCompletionHandle:)`，新入行的开发者也不可能明白 `registerForRemoteNotificationTypes` 和 `registerUserNotificationSettings(_:)` 之间是不是有什么关系，Remote 和 Local Notification 除了在初始化方式之外那些细微的区别也让人抓狂，而很多 API 都被随意地放在了 `UIApplication` 或者 `UIApplicationDelegate` 中。除此之外，应用已经在前台时，远程推送是无法直接显示的，要先捕获到远程来的通知，然后再发起一个本地通知才能完成显示。更让人郁闷的是，应用在运行时和非运行时捕获通知的路径还不一致。虽然这些种种问题都是由一定历史原因造成的，但不可否认，正是混乱的组织方式和之前版本的考虑不周，使得 iOS 通知方面的开发一直称不上“让人愉悦”，甚至有不少“坏代码”的味道。
 
 另一方面，现在的通知功能相对还是简单，我们能做的只是本地或者远程发起通知，然后显示给用户。虽然 iOS 8 和 9 中添加了按钮和文本来进行交互，但是已发出的通知不能更新，通知的内容也只是在发起时唯一确定，而这些内容也只能是简单的文本。 想要在现有基础上扩展通知的功能，势必会让原本就盘根错节的 API 更加难以理解。
 
@@ -76,7 +76,7 @@ import UserNotifications
 
 ![](/assets/images/2016/notification-auth-alert.png)
 
-要注意的是，一旦用户拒绝了这个请求，再次调用该方法也不会再进行弹窗，想要应用有机会接收到通知的话，用户必须自行前往系统的设置中为你的应用打开通知，而这往往是不可能的。因此，在合适的时候弹出请求窗，在请求权限前预先进行说明，而不是直接粗暴地在启动的时候就进行弹窗，会是更明智的选择。
+要注意的是，一旦用户拒绝了这个请求，再次调用该方法也不会再进行弹窗，想要应用有机会接收到通知的话，用户必须自行前往系统的设置中为你的应用打开通知，如果不是杀手级应用，想让用户主动去在茫茫多 app 中找到你的那个并专门为你开启通知，往往是不可能的。因此，在合适的时候弹出请求窗，在请求权限前预先进行说明，以此增加通过的概率应该是开发者和策划人员的必修课。相比与直接简单粗暴地在启动的时候就进行弹窗，耐心诱导会是更明智的选择。
 
 #### 远程推送
 
@@ -184,7 +184,7 @@ UNUserNotificationCenter.current().add(request) { error in
     
 2. 触发器是只对本地通知而言的，远程推送的通知的话默认会在收到后立即显示。现在 UserNotifications 框架中提供了三种触发器，分别是：在一定时间后触发 `UNTimeIntervalNotificationTrigger`，在某月某日某时触发 `UNCalendarNotificationTrigger` 以及在用户进入或是离开某个区域时触发 `UNLocationNotificationTrigger`。
 3. 请求标识符可以用来区分不同的通知请求，在将一个通知请求提交后，通过特定 API 我们能够使用这个标识符来取消或者更新这个通知。我们将在稍后再提到具体用法。
-4. 在新版本的通知框架中，Apple 借用了一部分网络请求的概念。我们组织并发送一个通知请求，然后将这个请求提交给 `UNUserNotificationCenter` 进行处理。我们会在 delegaet 中接收到这个通知请求对应的 response，另外我们也有机会在应用的 extension 中对 request 进行处理。我们在接下来的章节会看到更多这方面的内容。
+4. 在新版本的通知框架中，Apple 借用了一部分网络请求的概念。我们组织并发送一个通知请求，然后将这个请求提交给 `UNUserNotificationCenter` 进行处理。我们会在 delegate 中接收到这个通知请求对应的 response，另外我们也有机会在应用的 extension 中对 request 进行处理。我们在接下来的章节会看到更多这方面的内容。
 
 在提交通知请求后，我们锁屏或者将应用切到后台，并等待设定的时间后，就能看到我们的通知出现在通知中心或者屏幕横幅了：
 
