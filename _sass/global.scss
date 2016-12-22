@@ -143,13 +143,15 @@ ul {
 }
 
 code {
-  padding: .1em .4em;
+  padding: .4em;
+  padding-top: .2em;
+  padding-bottom: .1em;
   background: lighten($secondary-color, 32%);
   border: 1px solid lighten($secondary-color, 25%);
   border-radius: $border-radius;
   font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;
   font-size: .9em;
-  vertical-align: bottom;
+  vertical-align: middle;
   word-wrap: break-word;
 }
 
