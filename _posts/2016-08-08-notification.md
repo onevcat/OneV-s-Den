@@ -180,7 +180,7 @@ UNUserNotificationCenter.current().add(request) { error in
     
     好消息是，后一种字典的方法其实在 iOS 8.2 的时候就已经存在了。虽然当时 `title` 只是用在 Apple Watch 上的，但是设置好 `body` 的话在 iOS 上还是可以显示的，所以针对 iOS 10 添加标题时是可以保证前向兼容的。
     
-    另外，如果要进行本地化对应，在设置这些内容文本时，本地可以使用 `String.localizedUserNotificationString(forKey: "your_key", arguments: [])` 的方式来从 Localizable.strings 文件中取出本地化字符串，而远程推送的话，也可以在 payload 的 alert 中使用 `loc-key` 或者 `title-loc-key` 来进行指定。关于 payload 中的 key，可以参考[这篇文档](https://developer.apple.com/library/ios/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/Chapters/TheNotificationPayload.html)。
+    另外，如果要进行本地化对应，在设置这些内容文本时，本地可以使用 `String.localizedUserNotificationString(forKey: "your_key", arguments: [])` 的方式来从 Localizable.strings 文件中取出本地化字符串，而远程推送的话，也可以在 payload 的 alert 中使用 `loc-key` 或者 `title-loc-key` 来进行指定。关于 payload 中的 key，可以参考[这篇文档](https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/RemoteNotificationsPG/PayloadKeyReference.html)。
     
 2. 触发器是只对本地通知而言的，远程推送的通知的话默认会在收到后立即显示。现在 UserNotifications 框架中提供了三种触发器，分别是：在一定时间后触发 `UNTimeIntervalNotificationTrigger`，在某月某日某时触发 `UNCalendarNotificationTrigger` 以及在用户进入或是离开某个区域时触发 `UNLocationNotificationTrigger`。
 3. 请求标识符可以用来区分不同的通知请求，在将一个通知请求提交后，通过特定 API 我们能够使用这个标识符来取消或者更新这个通知。我们将在稍后再提到具体用法。
@@ -524,7 +524,7 @@ if let imageURL = Bundle.main.url(forResource: "image", withExtension: "jpg"),
 
 ![](/assets/images/2016/notification-thumbnail.png) ![](/assets/images/2016/notification-image.png)
 
-除了图片以外，通知还支持音频以及视频。你可以将 MP3 或者 MP4 这样的文件提供给系统来在通知中进行展示和播放。不过，这些文件都有尺寸的限制，比如图片不能超过 5MB，视频不能超过 50MB 等，不过对于一般的能在通知中展示的内容来说，这个尺寸应该是绰绰有余了。关于支持的文件格式和尺寸，可以在[文档](https://developer.apple.com/reference/usernotifications/unnotificationattachment)中进行确认。在创建 `UNNotificationAttachment` 时，如果遇到了不支持的格式，SDK 也会抛出错误。
+除了图片以外，通知还支持音频以及视频。你可以将 MP3 或者 MP4 这样的文件提供给系统来在通知中进行展示和播放。不过，这些文件都有尺寸的限制，比如图片不能超过 10MB，视频不能超过 50MB 等，不过对于一般的能在通知中展示的内容来说，这个尺寸应该是绰绰有余了。关于支持的文件格式和尺寸，可以在[文档](https://developer.apple.com/reference/usernotifications/unnotificationattachment)中进行确认。在创建 `UNNotificationAttachment` 时，如果遇到了不支持的格式，SDK 也会抛出错误。
 
 通过远程推送的方式，你也可以显示图片等多媒体内容。这要借助于上一节所提到的通过 Notification Service Extension 来修改推送通知内容的技术。一般做法是，我们在推送的 payload 中指定需要加载的图片资源地址，这个地址可以是应用 bundle 内已经存在的资源，也可以是网络的资源。不过因为在创建 `UNNotificationAttachment` 时我们只能使用本地资源，所以如果多媒体还不在本地的话，我们需要先将其下载到本地。在完成 `UNNotificationAttachment` 创建后，我们就可以和本地通知一样，将它设置给 `attachments` 属性，然后调用 `contentHandler` 了。
 
