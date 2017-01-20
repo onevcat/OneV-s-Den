@@ -19,7 +19,7 @@ Swift 现在没有语言层面的并行机制，不过我们确实有一些基�
 
 ### 基于闭包的线程调度
 
-虽然恍如隔世，不过 GCD (Grand Central Dispatch) 确实是从 iOS 4 才开始走进我们的视野的。在 GCD 和 block 被加入之前，我们想要新开一个线程需要用到 `NSThread` 或者 `NSOperation`，然后使用 delegate 的方式来接收回调。这种书写方式太过古老，也相当麻烦，容易出错。GCD 为我们带来了一套很简单的 API，可以让我们在线程中进行调度。在很常一段时间里，这套 API 成为了 iOS 中多线程编程的主流方式。Swift 继承了这套 API，并且在 Swift 3 中将它们重新导入为了更符合 Swift 语法习惯的形式。现在我们可以将一个操作很容易地派发到后台进行，首先创建一个后台队列，然后调用 `async` 并传入需要执行的闭包即可：
+虽然恍如隔世，不过 GCD (Grand Central Dispatch) 确实是从 iOS 4 才开始走进我们的视野的。在 GCD 和 block 被加入之前，我们想要新开一个线程需要用到 `NSThread` 或者 `NSOperation`，然后使用 delegate 的方式来接收回调。这种书写方式太过古老，也相当麻烦，容易出错。GCD 为我们带来了一套很简单的 API，可以让我们在线程中进行调度。在很长一段时间里，这套 API 成为了 iOS 中多线程编程的主流方式。Swift 继承了这套 API，并且在 Swift 3 中将它们重新导入为了更符合 Swift 语法习惯的形式。现在我们可以将一个操作很容易地派发到后台进行，首先创建一个后台队列，然后调用 `async` 并传入需要执行的闭包即可：
 
 ```swift
 let backgroundQueue = DispatchQueue(label: "com.onevcat.concurrency.backgroundQueue")
