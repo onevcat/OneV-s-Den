@@ -339,8 +339,8 @@ if let n = num {
 最后一个问题是 Optional 的变量也可以是 Optinal。因为 Optional 就相当于一个黑盒子，可以知道盒子里有没有东西 (通过 LogicValue)，也可以打开这个盒子 (unwrap) 来拿到里面的东西 (你要的类型的变量或者代表没有东西的 nil)。请注意，这里没有任何规则限制一个 Optional 的量不能再次被 Optional，比如下面这种情况是完全 OK 的：
 
 ```swift
-var str: String? = "Hi"         //{Some "Hi"}
-var anotherStr: String?? = str  //{{Some "Hi"}}
+var str: String? = "Hi"         //.Some("Hi")
+var anotherStr: String?? = str  //.Some(.Some("Hi"))
 ```
 
 这其实是没有多少疑问的，很完美的两层 Optional，使用的时候也一层层解开就好。但是如果是 nil 的话，在这里就有点尴尬...
