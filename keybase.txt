@@ -1,0 +1,68 @@
+==================================================================
+https://keybase.io/onevcat
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://onevcat.com
+  * I am onevcat (https://keybase.io/onevcat) on keybase.
+  * I have a public key with fingerprint A151 8725 F27D B82C 0655  EE81 E228 6724 C063 4366
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "0101fe9e93c4521f5e88e2f8b0798982b4fff14f32e3e7770b3a5b6a80c7c00ebd170a",
+            "fingerprint": "a1518725f27db82c0655ee81e2286724c0634366",
+            "host": "keybase.io",
+            "key_id": "e2286724c0634366",
+            "kid": "0101fe9e93c4521f5e88e2f8b0798982b4fff14f32e3e7770b3a5b6a80c7c00ebd170a",
+            "uid": "f83ac2315660e0f739b3ccedf7c19200",
+            "username": "onevcat"
+        },
+        "service": {
+            "hostname": "onevcat.com",
+            "protocol": "https:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "ctime": 1490750139,
+    "expire_in": 157680000,
+    "prev": "b99322e1a0f1d7b9d50cc17ecc458ff387b6468fb4fc8af3d41107d58973987b",
+    "seqno": 6,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+-----BEGIN PGP MESSAGE-----
+Version: Keybase OpenPGP v2.0.66
+Comment: https://keybase.io/crypto
+
+yMIiAnicrVJdSBVBGL1aafkTdYMQqajVsvBymdm/mb2RD1ZP9VARopnddmdnrkve
+3dvd9VZYoBCS0g/0H2QYGiHVg5RlZaFlRFbkQ0WkEWFRGUYQ9KJSs1IPQY/NyzDf
+d86Z8x2+/txpgay0nPLFD+jcvQvTHvedqA2UD2XdrhMMx9wjROqEHXTqojUmdb3o
+DssUIgKAADKqUU0isiJCplCMqciwAZCGNSwaMmMMykwSqUQRQsCQdMVQdQwIIgBQ
+w4QI6EJIYJYdo8lE0rI9LqtDBWIkKkxEpoFFAlRFoRRDKopYRaLMC5IsqSonVjuu
+z+DmDN2lYcvhNf6ITtn7B/4/+66dkmNY0okoQUVVAQUMSZohEUJNhgjURAB8oEuT
+th6nHO3YNEV0T9gXEngxZRHq5+oP8jcgTJw4ZyaSjucQp4Y3qj0v4UZ8orcn4SN3
+USP6WyNqWLbJU+SMFE26lmMLEciRxLN8UShrACkASlpIoLsTVpJGLR+hIBUDfvx/
+aIpLGpomiSKFOmDQRIZmKoAQiCjhSWHGJIwMVVYx4xERrDPJlCEEyFSwxsfmTcGf
+aqftCBGV29RjXNK1Yrbu1SapsO9e79bpgbSsQMaMdH+7Almz5vzZuUevMieDsWsf
+6591R9JLxlZvKl59691YeDjYFgx/mxxX7cKBss2tLVV9bVWNoYp5HQuGetvk/o6f
+YMXIurFkTln3/YoPJ0vbv84Pv2+kBU3h64ktIxnC0Pc7ma0P42F346nR5oGi9MFH
+eZ/qE8bs/CXu+JejN2J9rOJF0ek1Sm69sj5vRs+Z5p+DF/O7JpYVHu0rellXqB0e
+Kg2uXb69J5h/YWR/Zc/z7JYj58RVl6XOz4dGq9ufHm9687qofd7B7sTKH+eFTVfe
+dtoHnvSOFNSNLrh09fnSxlvF5YEzDaWhRd2DIPdszgZrZ9cPc3hay7a52dr5C28y
+jbsTx57NrGyw4k9Lbr74/gvWJjyn
+=XJJ3
+-----END PGP MESSAGE-----
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/onevcat
+
+==================================================================
