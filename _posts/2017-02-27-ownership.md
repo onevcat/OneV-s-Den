@@ -388,8 +388,6 @@ Swift 现在的所有权系统中的基本问题在于复制，有关所有权�
       ...
     }
   ```
-
-  This cannot be combined with `shared` or `inout`.
   
   `owned` 不能和 `shared` 或者 `inout` 一起使用。
   
@@ -402,8 +400,6 @@ Swift 现在的所有权系统中的基本问题在于复制，有关所有权�
       ...
     }
   ```
-
-  This cannot be combined with `owned` or `inout`.
   
   `shared` 不能和 `owned` 或 `inout` 一起使用。
   
