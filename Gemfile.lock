@@ -1,12 +1,12 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    addressable (2.5.0)
+    addressable (2.5.1)
       public_suffix (~> 2.0, >= 2.0.2)
     colorator (1.1.0)
-    ffi (1.9.17)
+    ffi (1.9.18)
     forwardable-extended (2.6.0)
-    jekyll (3.4.0)
+    jekyll (3.4.3)
       addressable (~> 2.4)
       colorator (~> 1.0)
       jekyll-sass-converter (~> 1.0)
@@ -37,7 +37,7 @@ GEM
     redcarpet (3.4.0)
     rouge (1.11.1)
     safe_yaml (1.0.4)
-    sass (3.4.23)
+    sass (3.4.24)
 
 PLATFORMS
   ruby
@@ -48,4 +48,4 @@ DEPENDENCIES
   redcarpet
 
 BUNDLED WITH
-   1.14.3
+   1.14.5

@@ -3579,7 +3579,7 @@
 		"rFN": 0,
 		"uCM": 0
 		},
-	"\/_posts\/2017-02-20-personal-app.md": {
+	"\/_posts\/2017-02-22-mailme-app.md": {
 		"cS": 0,
 		"eF": 1,
 		"eL": 1,
@@ -3588,7 +3588,43 @@
 		"eSQ": 1,
 		"ft": 4096,
 		"oA": 0,
-		"oAP": "\/_posts\/2017-02-20-personal-app.html",
+		"oAP": "\/_posts\/2017-02-22-mailme-app.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
+	"\/_posts\/2017-02-27-ownership.md": {
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"eLB": 0,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"oA": 0,
+		"oAP": "\/_posts\/2017-02-27-ownership.html",
+		"oF": 0,
+		"oFM": 0,
+		"oS": 0,
+		"pHT": 0,
+		"pME": 1,
+		"rFN": 0,
+		"uCM": 0
+		},
+	"\/_posts\/2017-04-27-storyboard-argue.md": {
+		"cS": 0,
+		"eF": 1,
+		"eL": 1,
+		"eLB": 0,
+		"ema": 1,
+		"eSQ": 1,
+		"ft": 4096,
+		"oA": 0,
+		"oAP": "\/_posts\/2017-04-27-storyboard-argue.html",
 		"oF": 0,
 		"oFM": 0,
 		"oS": 0,
@@ -6298,10 +6334,22 @@
 		"oAP": "\/_site\/2016\/12\/pop-cocoa-2\/index.html",
 		"oF": 0
 		},
-	"\/_site\/2017\/02\/personal-app\/index.html": {
+	"\/_site\/2017\/02\/mailme-app\/index.html": {
 		"ft": 8192,
 		"oA": 2,
-		"oAP": "\/_site\/2017\/02\/personal-app\/index.html",
+		"oAP": "\/_site\/2017\/02\/mailme-app\/index.html",
+		"oF": 0
+		},
+	"\/_site\/2017\/02\/ownership\/index.html": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/_site\/2017\/02\/ownership\/index.html",
+		"oF": 0
+		},
+	"\/_site\/2017\/04\/storyboard-argue\/index.html": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/_site\/2017\/04\/storyboard-argue\/index.html",
 		"oF": 0
 		},
 	"\/_site\/about\/index.html": {
@@ -6309,6 +6357,1622 @@
 		"oA": 2,
 		"oAP": "\/_site\/about\/index.html",
 		"oF": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic1.png": {
+		"ft": 32768,
+		"iS": 115767,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic1.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic10.png": {
+		"ft": 32768,
+		"iS": 16826,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic10.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic11.png": {
+		"ft": 32768,
+		"iS": 11710,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic11.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic12.png": {
+		"ft": 32768,
+		"iS": 17472,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic12.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic13.png": {
+		"ft": 32768,
+		"iS": 48935,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic13.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic14.png": {
+		"ft": 32768,
+		"iS": 9657,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic14.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic15.png": {
+		"ft": 32768,
+		"iS": 18996,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic15.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic2.png": {
+		"ft": 32768,
+		"iS": 139562,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic2.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic3.png": {
+		"ft": 32768,
+		"iS": 158102,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic3.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic4.png": {
+		"ft": 32768,
+		"iS": 151862,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic4.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic5.png": {
+		"ft": 32768,
+		"iS": 134765,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic5.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic6.png": {
+		"ft": 32768,
+		"iS": 163276,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic6.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic7.png": {
+		"ft": 32768,
+		"iS": 125824,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic7.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic8.png": {
+		"ft": 32768,
+		"iS": 27625,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic8.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arcpic9.png": {
+		"ft": 32768,
+		"iS": 16230,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arcpic9.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2012\/arctitle.png": {
+		"ft": 32768,
+		"iS": 9130,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2012\/arctitle.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/1-ourmoney-login.png": {
+		"ft": 32768,
+		"iS": 232573,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/1-ourmoney-login.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/2-ourmoney-month.png": {
+		"ft": 32768,
+		"iS": 239770,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/2-ourmoney-month.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/3-ourmoney-stat.png": {
+		"ft": 32768,
+		"iS": 220672,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/3-ourmoney-stat.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/4-ourmoney-invite.png": {
+		"ft": 32768,
+		"iS": 147527,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/4-ourmoney-invite.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/5-ourmoney-push.png": {
+		"ft": 32768,
+		"iS": 47642,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/5-ourmoney-push.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/6-ourmoney-offline.png": {
+		"ft": 32768,
+		"iS": 167071,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/6-ourmoney-offline.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/blend_1.png": {
+		"ft": 32768,
+		"iS": 36957,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/blend_1.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/blend_2.png": {
+		"ft": 32768,
+		"iS": 42728,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/blend_2.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/blend_3.png": {
+		"ft": 32768,
+		"iS": 44781,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/blend_3.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/blend_origin.png": {
+		"ft": 32768,
+		"iS": 44781,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/blend_origin.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/blend_title.png": {
+		"ft": 32768,
+		"iS": 63077,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/blend_title.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/cannot-connect-its.png": {
+		"ft": 32768,
+		"iS": 62445,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/cannot-connect-its.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/code-xib-sb.png": {
+		"ft": 32768,
+		"iS": 100497,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/code-xib-sb.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/custom-vc-transition-1.gif": {
+		"ft": 4194304,
+		"iS": 55553,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/custom-vc-transition-1.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/custom-vc-transition-2.gif": {
+		"ft": 4194304,
+		"iS": 101756,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/custom-vc-transition-2.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/IB-tip1.png": {
+		"ft": 32768,
+		"iS": 41552,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/IB-tip1.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/IB-tip2.png": {
+		"ft": 32768,
+		"iS": 50125,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/IB-tip2.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/IB-tip3.png": {
+		"ft": 32768,
+		"iS": 31573,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/IB-tip3.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/IB-tip4.png": {
+		"ft": 32768,
+		"iS": 27175,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/IB-tip4.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/ios-7-logo.png": {
+		"ft": 32768,
+		"iS": 30764,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/ios-7-logo.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/ios-multitask-ios6.png": {
+		"ft": 32768,
+		"iS": 13246,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/ios-multitask-ios6.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/ios-multitask-ios7.png": {
+		"ft": 32768,
+		"iS": 15475,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/ios-multitask-ios7.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/ios-transition-banner.jpg": {
+		"ft": 16384,
+		"iS": 48569,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/ios-transition-banner.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/ios7-back-fetch-scheme.png": {
+		"ft": 32768,
+		"iS": 29124,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/ios7-back-fetch-scheme.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/ios7-message-app-spring.gif": {
+		"ft": 4194304,
+		"iS": 572817,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/ios7-message-app-spring.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/ios7-multitask-background-fetch.png": {
+		"ft": 32768,
+		"iS": 19880,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/ios7-multitask-background-fetch.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/ios7-multitasking.jpg": {
+		"ft": 16384,
+		"iS": 31045,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/ios7-multitasking.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/itc-special-character.png": {
+		"ft": 32768,
+		"iS": 89351,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/itc-special-character.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/iTunesArtwork-ios7.png": {
+		"ft": 32768,
+		"iS": 41312,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/iTunesArtwork-ios7.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/iTunesArtwork.png": {
+		"ft": 32768,
+		"iS": 346313,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/iTunesArtwork.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/oculus-me.png": {
+		"ft": 32768,
+		"iS": 136759,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/oculus-me.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/ourmoney-banner.jpg": {
+		"ft": 16384,
+		"iS": 15218,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/ourmoney-banner.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/ourmoney_icon.png": {
+		"ft": 32768,
+		"iS": 23792,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/ourmoney_icon.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/OurMoneyIcon.png": {
+		"ft": 32768,
+		"iS": 23585,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/OurMoneyIcon.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/projectAT.keystore": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/_site\/assets\/images\/2013\/projectAT.keystore",
+		"oF": 0
+		},
+	"\/_site\/assets\/images\/2013\/QQ.app.zip": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/_site\/assets\/images\/2013\/QQ.app.zip",
+		"oF": 0
+		},
+	"\/_site\/assets\/images\/2013\/ResourcePackSpriteKit.zip": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/_site\/assets\/images\/2013\/ResourcePackSpriteKit.zip",
+		"oF": 0
+		},
+	"\/_site\/assets\/images\/2013\/shader-create-in-unity.png": {
+		"ft": 32768,
+		"iS": 10450,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/shader-create-in-unity.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/shader-select.png": {
+		"ft": 32768,
+		"iS": 14203,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/shader-select.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/shader-structure.png": {
+		"ft": 32768,
+		"iS": 29765,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/shader-structure.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/shader-toturial-hl.jpg": {
+		"ft": 16384,
+		"iS": 68440,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/shader-toturial-hl.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/shader-tutorial-banner.jpg": {
+		"ft": 16384,
+		"iS": 35309,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/shader-tutorial-banner.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/shader-tutorial2-compare.jpg": {
+		"ft": 16384,
+		"iS": 111895,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/shader-tutorial2-compare.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/shader-tutorial2-light.jpg": {
+		"ft": 16384,
+		"iS": 17387,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/shader-tutorial2-light.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/shader-tutorial2-normal.jpg": {
+		"ft": 16384,
+		"iS": 84951,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/shader-tutorial2-normal.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/shader-tutorial2-snow-vert.jpg": {
+		"ft": 16384,
+		"iS": 107809,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/shader-tutorial2-snow-vert.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/shader-tutorial2-snow.jpg": {
+		"ft": 16384,
+		"iS": 83195,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/shader-tutorial2-snow.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/spring-collection-view-over-ios7.gif": {
+		"ft": 4194304,
+		"iS": 664593,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/spring-collection-view-over-ios7.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/spring-list-ios7.png": {
+		"ft": 32768,
+		"iS": 43685,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/spring-list-ios7.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/sprite-kit-add-player.png": {
+		"ft": 32768,
+		"iS": 15328,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/sprite-kit-add-player.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/sprite-kit-begin-screen.png": {
+		"ft": 32768,
+		"iS": 12604,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/sprite-kit-begin-screen.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/spritekit-add-moving-monster.png": {
+		"ft": 32768,
+		"iS": 15614,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/spritekit-add-moving-monster.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/spritekit-add-projectile.gif": {
+		"ft": 4194304,
+		"iS": 322193,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/spritekit-add-projectile.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/spritekit-create.png": {
+		"ft": 32768,
+		"iS": 84262,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/spritekit-create.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/spritekit-hit.gif": {
+		"ft": 4194304,
+		"iS": 196410,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/spritekit-hit.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/spritekit-import-images.png": {
+		"ft": 32768,
+		"iS": 20834,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/spritekit-import-images.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/spritekit-intro.png": {
+		"ft": 32768,
+		"iS": 21231,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/spritekit-intro.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/spritekit-math.png": {
+		"ft": 32768,
+		"iS": 8896,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/spritekit-math.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/spritekit-result.png": {
+		"ft": 32768,
+		"iS": 7059,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/spritekit-result.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/spritekit-update_loop.png": {
+		"ft": 32768,
+		"iS": 77330,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/spritekit-update_loop.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/sprtekit-monsters.gif": {
+		"ft": 4194304,
+		"iS": 79596,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/sprtekit-monsters.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/uikit-dynamics-collider.gif": {
+		"ft": 4194304,
+		"iS": 49412,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/uikit-dynamics-collider.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/uikit-dynamics-dragdrop.gif": {
+		"ft": 4194304,
+		"iS": 347013,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/uikit-dynamics-dragdrop.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/uikit-dynamics-gravity.gif": {
+		"ft": 4194304,
+		"iS": 70066,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/uikit-dynamics-gravity.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/unirate-icon.png": {
+		"ft": 32768,
+		"iS": 16749,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/unirate-icon.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/UniRate.jpg": {
+		"ft": 16384,
+		"iS": 54568,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/UniRate.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/unirate0.png": {
+		"ft": 32768,
+		"iS": 49334,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/unirate0.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/unirate1.png": {
+		"ft": 32768,
+		"iS": 23041,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/unirate1.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/unirate2.png": {
+		"ft": 32768,
+		"iS": 42982,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/unirate2.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/unity-xuporter-logo.jpg": {
+		"ft": 16384,
+		"iS": 14810,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/unity-xuporter-logo.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/VR_icon.png": {
+		"ft": 32768,
+		"iS": 19779,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/VR_icon.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/VVDocumenter.png": {
+		"ft": 32768,
+		"iS": 26016,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/VVDocumenter.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/warning-detail.png": {
+		"ft": 32768,
+		"iS": 15542,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/warning-detail.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/welcome-to-xcode.png": {
+		"ft": 32768,
+		"iS": 50797,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/welcome-to-xcode.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/weverything.png": {
+		"ft": 32768,
+		"iS": 62964,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/weverything.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode-warning.png": {
+		"ft": 32768,
+		"iS": 135254,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode-warning.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-add-ac.png": {
+		"ft": 32768,
+		"iS": 39856,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-add-ac.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-asset-catalog.png": {
+		"ft": 32768,
+		"iS": 17075,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-asset-catalog.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-capabilities.png": {
+		"ft": 32768,
+		"iS": 32616,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-capabilities.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-comment-doc.png": {
+		"ft": 32768,
+		"iS": 26894,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-comment-doc.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-debug-image.png": {
+		"ft": 32768,
+		"iS": 25253,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-debug-image.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-debug-mouseover.png": {
+		"ft": 32768,
+		"iS": 28058,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-debug-mouseover.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-debug-profiler.png": {
+		"ft": 32768,
+		"iS": 29175,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-debug-profiler.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-header.png": {
+		"ft": 32768,
+		"iS": 14226,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-header.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-quickhelp.png": {
+		"ft": 32768,
+		"iS": 17990,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-quickhelp.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-slicing-image.png": {
+		"ft": 32768,
+		"iS": 12830,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-slicing-image.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-slicing.png": {
+		"ft": 32768,
+		"iS": 27420,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-slicing.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-sourcecontrol.png": {
+		"ft": 32768,
+		"iS": 26044,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-sourcecontrol.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2013\/xcode5-title.png": {
+		"ft": 32768,
+		"iS": 22070,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2013\/xcode5-title.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/apl-layout.png": {
+		"ft": 32768,
+		"iS": 38104,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/apl-layout.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/bye-kayac.jpg": {
+		"ft": 16384,
+		"iS": 178928,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/bye-kayac.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/cat_big.jpg": {
+		"ft": 16384,
+		"iS": 238187,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/cat_big.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/cowsay-lolcat.png": {
+		"ft": 32768,
+		"iS": 77358,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/cowsay-lolcat.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/define-title.png": {
+		"ft": 32768,
+		"iS": 78693,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/define-title.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-demo-1.JPG": {
+		"ft": 16384,
+		"iS": 12801,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-demo-1.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-demo-2.JPG": {
+		"ft": 16384,
+		"iS": 31162,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-demo-2.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-demo-3.JPG": {
+		"ft": 16384,
+		"iS": 30733,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-demo-3.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-demo-4.JPG": {
+		"ft": 16384,
+		"iS": 30929,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-demo-4.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-demo-5.JPG": {
+		"ft": 16384,
+		"iS": 13837,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-demo-5.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-tutorial-2.jpg": {
+		"ft": 16384,
+		"iS": 17596,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-tutorial-2.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-tutorial-3.jpg": {
+		"ft": 16384,
+		"iS": 27407,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-tutorial-3.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-tutorial-4.jpg": {
+		"ft": 16384,
+		"iS": 37219,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-tutorial-4.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-tutorial-5.jpg": {
+		"ft": 16384,
+		"iS": 48418,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-tutorial-5.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-tutorial-6.jpg": {
+		"ft": 16384,
+		"iS": 32208,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-tutorial-6.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-tutorial-7.jpg": {
+		"ft": 16384,
+		"iS": 39066,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-tutorial-7.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-tutorial-8.jpg": {
+		"ft": 16384,
+		"iS": 17330,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-tutorial-8.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-tutorial-9.jpg": {
+		"ft": 16384,
+		"iS": 51483,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-tutorial-9.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/extension-tutorial.jpg": {
+		"ft": 16384,
+		"iS": 39216,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/extension-tutorial.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/ibdesign-1.png": {
+		"ft": 32768,
+		"iS": 32336,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/ibdesign-1.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/ibdesign-2.png": {
+		"ft": 32768,
+		"iS": 6321,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/ibdesign-2.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/ibdesign-3.png": {
+		"ft": 32768,
+		"iS": 13981,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/ibdesign-3.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/ibdesign-4.png": {
+		"ft": 32768,
+		"iS": 3938,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/ibdesign-4.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/ibdesign-5.png": {
+		"ft": 32768,
+		"iS": 4122,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/ibdesign-5.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/ibdesign-6.png": {
+		"ft": 32768,
+		"iS": 20908,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/ibdesign-6.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/ibdesign-7.png": {
+		"ft": 32768,
+		"iS": 85707,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/ibdesign-7.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/img001-mock-test.jpg": {
+		"ft": 16384,
+		"iS": 32279,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/img001-mock-test.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/kiwi-1-1.png": {
+		"ft": 32768,
+		"iS": 71215,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/kiwi-1-1.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/kiwi-1-2.png": {
+		"ft": 32768,
+		"iS": 16622,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/kiwi-1-2.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/kiwi-1-3.png": {
+		"ft": 32768,
+		"iS": 22606,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/kiwi-1-3.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/kiwi-1-4.png": {
+		"ft": 32768,
+		"iS": 7853,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/kiwi-1-4.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/kiwi-manga.png": {
+		"ft": 32768,
+		"iS": 32592,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/kiwi-manga.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/kiwi-title.jpg": {
+		"ft": 16384,
+		"iS": 236576,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/kiwi-title.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/lldb_optional-compressor.png": {
+		"ft": 32768,
+		"iS": 15479,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/lldb_optional-compressor.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/mock.jpg": {
+		"ft": 16384,
+		"iS": 51488,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/mock.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/multi-threading.jpg": {
+		"ft": 16384,
+		"iS": 115395,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/multi-threading.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/photocell.png": {
+		"ft": 32768,
+		"iS": 152261,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/photocell.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/shipit.png": {
+		"ft": 32768,
+		"iS": 33770,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/shipit.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/size-classes-1.jpg": {
+		"ft": 16384,
+		"iS": 39796,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/size-classes-1.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/size-classes-2.gif": {
+		"ft": 4194304,
+		"iS": 198288,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/size-classes-2.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/size-classes-3.gif": {
+		"ft": 4194304,
+		"iS": 173741,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/size-classes-3.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/size-classes-header.png": {
+		"ft": 32768,
+		"iS": 70730,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/size-classes-header.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/swift.png": {
+		"ft": 32768,
+		"iS": 28118,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/swift.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/swift_print_raw-compressor.png": {
+		"ft": 32768,
+		"iS": 17665,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/swift_print_raw-compressor.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/swift_substring-compressor.png": {
+		"ft": 32768,
+		"iS": 25691,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/swift_substring-compressor.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/swift_unshare_array.png": {
+		"ft": 32768,
+		"iS": 21722,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/swift_unshare_array.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/swifter-preview.zip": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/_site\/assets\/images\/2014\/swifter-preview.zip",
+		"oF": 0
+		},
+	"\/_site\/assets\/images\/2014\/watchkit-0.png": {
+		"ft": 32768,
+		"iS": 29365,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/watchkit-0.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/watchkit-1.png": {
+		"ft": 32768,
+		"iS": 66505,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/watchkit-1.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/watchkit-2.png": {
+		"ft": 32768,
+		"iS": 12866,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/watchkit-2.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/watchkit-3.png": {
+		"ft": 32768,
+		"iS": 29636,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/watchkit-3.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/watchkit-4.png": {
+		"ft": 32768,
+		"iS": 46546,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/watchkit-4.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/watchkit-5.png": {
+		"ft": 32768,
+		"iS": 14395,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/watchkit-5.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2014\/wwdc2014-badge.jpg": {
+		"ft": 16384,
+		"iS": 66735,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2014\/wwdc2014-badge.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-1.jpg": {
+		"ft": 16384,
+		"iS": 33266,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-1.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-10.jpg": {
+		"ft": 16384,
+		"iS": 87382,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-10.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-11.jpg": {
+		"ft": 16384,
+		"iS": 35400,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-11.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-12.jpg": {
+		"ft": 16384,
+		"iS": 81023,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-12.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-13.jpg": {
+		"ft": 16384,
+		"iS": 59016,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-13.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-14.jpg": {
+		"ft": 16384,
+		"iS": 67325,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-14.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-15.jpg": {
+		"ft": 16384,
+		"iS": 59497,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-15.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-2.jpg": {
+		"ft": 16384,
+		"iS": 54996,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-2.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-3.jpg": {
+		"ft": 16384,
+		"iS": 44074,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-3.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-4.jpg": {
+		"ft": 16384,
+		"iS": 43909,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-4.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-5.jpg": {
+		"ft": 16384,
+		"iS": 40484,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-5.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-6.jpg": {
+		"ft": 16384,
+		"iS": 64251,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-6.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-7.jpg": {
+		"ft": 16384,
+		"iS": 58835,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-7.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-8.jpg": {
+		"ft": 16384,
+		"iS": 46090,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-8.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/apple-tv-9.jpg": {
+		"ft": 16384,
+		"iS": 75150,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/apple-tv-9.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/cons2.png": {
+		"ft": 32768,
+		"iS": 3692,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/cons2.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/conss2.png": {
+		"ft": 32768,
+		"iS": 4452,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/conss2.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/cross-platform.png": {
+		"ft": 32768,
+		"iS": 40342,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/cross-platform.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/github-2015.png": {
+		"ft": 32768,
+		"iS": 82786,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/github-2015.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/hybrid-app.jpg": {
+		"ft": 16384,
+		"iS": 31630,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/hybrid-app.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/list2.png": {
+		"ft": 32768,
+		"iS": 7515,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/list2.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/manxia.jpg": {
+		"ft": 16384,
+		"iS": 200330,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/manxia.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/multitasking-1.jpg": {
+		"ft": 16384,
+		"iS": 105476,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/multitasking-1.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/multitasking-2.jpg": {
+		"ft": 16384,
+		"iS": 31670,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/multitasking-2.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/nativescript-architecture.png": {
+		"ft": 32768,
+		"iS": 11519,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/nativescript-architecture.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/nativescript-ui.png": {
+		"ft": 32768,
+		"iS": 34335,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/nativescript-ui.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/scheme-terminal.png": {
+		"ft": 32768,
+		"iS": 18463,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/scheme-terminal.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/size_classes.png": {
+		"ft": 32768,
+		"iS": 30502,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/size_classes.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-1.png": {
+		"ft": 32768,
+		"iS": 21697,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-1.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-10.png": {
+		"ft": 32768,
+		"iS": 50831,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-10.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-11.png": {
+		"ft": 32768,
+		"iS": 43333,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-11.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-12.png": {
+		"ft": 32768,
+		"iS": 24383,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-12.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-13.png": {
+		"ft": 32768,
+		"iS": 39338,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-13.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-14.png": {
+		"ft": 32768,
+		"iS": 24930,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-14.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-15.png": {
+		"ft": 32768,
+		"iS": 7004,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-15.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-16.png": {
+		"ft": 32768,
+		"iS": 12797,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-16.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-17.png": {
+		"ft": 32768,
+		"iS": 17240,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-17.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-18.png": {
+		"ft": 32768,
+		"iS": 9588,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-18.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-19.png": {
+		"ft": 32768,
+		"iS": 11348,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-19.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-2.png": {
+		"ft": 32768,
+		"iS": 19378,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-2.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-20.gif": {
+		"ft": 4194304,
+		"iS": 107538,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-20.gif",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-3.png": {
+		"ft": 32768,
+		"iS": 21151,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-3.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-4.png": {
+		"ft": 32768,
+		"iS": 33418,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-4.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/step-5.png": {
+		"ft": 32768,
+		"iS": 19580,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2015\/step-5.png",
+		"oF": 0,
+		"opt": 0
 		},
 	"\/_site\/assets\/images\/2015\/step-6.png": {
 		"ft": 32768,
@@ -6397,6 +8061,12 @@
 		"oAP": "\/_site\/assets\/images\/2015\/ui-testing-title.png",
 		"oF": 0,
 		"opt": 0
+		},
+	"\/_site\/assets\/images\/2015\/WatchWeatherImage.zip": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/_site\/assets\/images\/2015\/WatchWeatherImage.zip",
+		"oF": 0
 		},
 	"\/_site\/assets\/images\/2015\/wwdc15.jpg": {
 		"ft": 16384,
@@ -6664,6 +8334,22 @@
 		"oF": 0,
 		"opt": 0
 		},
+	"\/_site\/assets\/images\/2017\/compiling-sb.png": {
+		"ft": 32768,
+		"iS": 3970,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2017\/compiling-sb.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2017\/font-style.png": {
+		"ft": 32768,
+		"iS": 59698,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2017\/font-style.png",
+		"oF": 0,
+		"opt": 0
+		},
 	"\/_site\/assets\/images\/2017\/mail-me-1.mp4": {
 		"ft": 8192,
 		"oA": 2,
@@ -6688,6 +8374,22 @@
 		"oAP": "\/_site\/assets\/images\/2017\/mail-me-4.mp4",
 		"oF": 0
 		},
+	"\/_site\/assets\/images\/2017\/runtime-attribute.png": {
+		"ft": 32768,
+		"iS": 25018,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2017\/runtime-attribute.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/2017\/setting-localized-ib.png": {
+		"ft": 32768,
+		"iS": 11944,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/2017\/setting-localized-ib.png",
+		"oF": 0,
+		"opt": 0
+		},
 	"\/_site\/assets\/images\/avatar.jpg": {
 		"ft": 16384,
 		"iS": 12307,
@@ -6701,6 +8403,22 @@
 		"iS": 71456,
 		"oA": 0,
 		"oAP": "\/_site\/assets\/images\/background-cover.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/background-cover981.jpg": {
+		"ft": 16384,
+		"iS": 118068,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/background-cover981.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/_site\/assets\/images\/background-cover982.jpg": {
+		"ft": 16384,
+		"iS": 71456,
+		"oA": 0,
+		"oAP": "\/_site\/assets\/images\/background-cover982.jpg",
 		"oF": 0,
 		"opt": 0
 		},
@@ -7268,20 +8986,23 @@
 		"oAP": "\/_site\/feed.xml",
 		"oF": 0
 		},
+	"\/_site\/Gemfile": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/_site\/Gemfile",
+		"oF": 0
+		},
+	"\/_site\/Gemfile.lock": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/_site\/Gemfile.lock",
+		"oF": 0
+		},
 	"\/_site\/index.html": {
 		"ft": 8192,
 		"oA": 2,
 		"oAP": "\/_site\/index.html",
 		"oF": 0
-		},
-	"\/_site\/js\/highlight.pack.js": {
-		"ft": 64,
-		"mi": 1,
-		"oA": 0,
-		"oAP": "\/_site\/js\/highlight.pack-min.js",
-		"oF": 0,
-		"sC": 1,
-		"tS": 0
 		},
 	"\/_site\/js\/main.js": {
 		"ft": 64,
@@ -7291,6 +9012,12 @@
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
+		},
+	"\/_site\/keybase.txt": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/_site\/keybase.txt",
+		"oF": 0
 		},
 	"\/_site\/page\/10\/index.html": {
 		"ft": 8192,
@@ -9346,6 +11073,22 @@
 		"oF": 0,
 		"opt": 0
 		},
+	"\/assets\/images\/2017\/compiling-sb.png": {
+		"ft": 32768,
+		"iS": 3970,
+		"oA": 0,
+		"oAP": "\/assets\/images\/2017\/compiling-sb.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/assets\/images\/2017\/font-style.png": {
+		"ft": 32768,
+		"iS": 59698,
+		"oA": 0,
+		"oAP": "\/assets\/images\/2017\/font-style.png",
+		"oF": 0,
+		"opt": 0
+		},
 	"\/assets\/images\/2017\/mail-me-1.mp4": {
 		"ft": 8192,
 		"oA": 2,
@@ -9370,6 +11113,22 @@
 		"oAP": "\/assets\/images\/2017\/mail-me-4.mp4",
 		"oF": 0
 		},
+	"\/assets\/images\/2017\/runtime-attribute.png": {
+		"ft": 32768,
+		"iS": 25018,
+		"oA": 0,
+		"oAP": "\/assets\/images\/2017\/runtime-attribute.png",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/assets\/images\/2017\/setting-localized-ib.png": {
+		"ft": 32768,
+		"iS": 11944,
+		"oA": 0,
+		"oAP": "\/assets\/images\/2017\/setting-localized-ib.png",
+		"oF": 0,
+		"opt": 0
+		},
 	"\/assets\/images\/avatar.jpg": {
 		"ft": 16384,
 		"iS": 12307,
@@ -9383,6 +11142,22 @@
 		"iS": 71456,
 		"oA": 0,
 		"oAP": "\/assets\/images\/background-cover.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/assets\/images\/background-cover981.jpg": {
+		"ft": 16384,
+		"iS": 118068,
+		"oA": 0,
+		"oAP": "\/assets\/images\/background-cover981.jpg",
+		"oF": 0,
+		"opt": 0
+		},
+	"\/assets\/images\/background-cover982.jpg": {
+		"ft": 16384,
+		"iS": 71456,
+		"oA": 0,
+		"oAP": "\/assets\/images\/background-cover982.jpg",
 		"oF": 0,
 		"opt": 0
 		},
@@ -9971,15 +11746,6 @@
 		"oAP": "\/index.html",
 		"oF": 0
 		},
-	"\/js\/highlight.pack.js": {
-		"ft": 64,
-		"mi": 1,
-		"oA": 0,
-		"oAP": "\/js\/highlight.pack-min.js",
-		"oF": 0,
-		"sC": 1,
-		"tS": 0
-		},
 	"\/js\/main.js": {
 		"ft": 64,
 		"mi": 1,
@@ -9988,6 +11754,12 @@
 		"oF": 0,
 		"sC": 1,
 		"tS": 0
+		},
+	"\/keybase.txt": {
+		"ft": 8192,
+		"oA": 2,
+		"oAP": "\/keybase.txt",
+		"oF": 0
 		}
 	},
 "hooks": [
