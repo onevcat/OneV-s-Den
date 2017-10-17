@@ -116,7 +116,7 @@ class TableViewController: UITableViewController {
             // 返回 input cell
         case .todos:
             // 返回 todo item cell
-            let cell = tableView.dequeueReusableCell(withIdentifier: todoCellResueId, for: indexPath)
+            let cell = tableView.dequeueReusableCell(withIdentifier: todoCellReuseId, for: indexPath)
             cell.textLabel?.text = todos[indexPath.row]
             return cell
         default:
@@ -584,7 +584,9 @@ class TableViewControllerDataSource: NSObject, UITableViewDataSource {
 准备好必要的类型后，我们就可以实现核心的 `reducer` 了：
 
 ```swift
-func reducer(state: State, action: Action) -> (state: State, command: Command?) {
+lazy var reducer: (State, Action) -> (state: State, command: Command?) = {
+    [weak self] (state: State, action: Action) in
+    
     var state = state
     var command: Command? = nil
 
@@ -604,6 +606,8 @@ func reducer(state: State, action: Action) -> (state: State, command: Command?) 
     return (state, command)
 }
 ```
+
+> 为了避免 `reducer` 持有 `self` 而造成内存泄漏，这里我们所实现的是一个 lazy 的 `reducer` 成员。其中 `self` 被标记为弱引用，这样一来，我们就不需要担心 `store`，View Controller 和 `reducer` 之间的引用环了。
 
 对于 `.updateText`，`.addToDos` 和 `.removeToDo`，我们都只是根据已有状态衍生出新的状态。唯一值得注意的是 `.loadToDos`，它将让 `reducer` 函数返回非空的 `Command`。
 
@@ -679,16 +683,14 @@ class TableViewController: UITableViewController {
             }
         }
         
-        guard let previousState = previousState else { return }
-        
-        if previousState.dataSource.todos != state.dataSource.todos {
+        if previousState == nil || previousState!.dataSource.todos != state.dataSource.todos {
             let dataSource = state.dataSource
             tableView.dataSource = dataSource
             tableView.reloadData()
             title = "TODO - (\(dataSource.todos.count))"
         }
         
-        if (previousState.text != state.text) {
+        if previousState == nil || previousState!.text != state.text {
             let isItemLengthEnough = state.text.count >= 3
             navigationItem.rightBarButtonItem?.isEnabled = isItemLengthEnough
             
@@ -702,7 +704,9 @@ class TableViewController: UITableViewController {
 同时，我们就可以把之前 `Command.loadTodos` 的回调补全了：
 
 ```swift
-func reducer(state: State, action: Action) -> (state: State, command: Command?) {
+lazy var reducer: (State, Action) -> (state: State, command: Command?) = {
+    [weak self] (state: State, action: Action) in
+    
     var state = state
     var command: Command? = nil
 
@@ -711,7 +715,7 @@ func reducer(state: State, action: Action) -> (state: State, command: Command?) 
     case .loadToDos:
         command = Command.loadToDos { data in
             // 发送额外的 .addToDos
-            self.store.dispatch(.addToDos(items: data))
+            self?.store.dispatch(.addToDos(items: data))
         }
     }
     return (state, command)
@@ -774,7 +778,7 @@ func testUpdateView() {
 ```swift
 func testReducerUpdateTextFromEmpty() {
     let initState = TableViewController.State()
-    let state = controller.reducer(state: initState, action: .updateText(text: "123")).state
+    let state = controller.reducer(initState, .updateText(text: "123")).state
     XCTAssertEqual(state.text, "123")
 }
 ```
@@ -786,7 +790,7 @@ func testReducerUpdateTextFromEmpty() {
 ```swift
 func testLoadToDos() {
     let initState = TableViewController.State()
-    let (_, command) = controller.reducer(state: initState, action: .loadToDos)
+    let (_, command) = controller.reducer(initState, .loadToDos)
     XCTAssertNotNil(command)
     switch command! {
     case .loadToDos(let handler):
