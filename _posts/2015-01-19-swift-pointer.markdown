@@ -10,10 +10,10 @@ Apple 期望在 Swift 中指针能够尽量减少登场几率，因此在 Swift 
 
 在 Swift 中，指针都使用一个特殊的类型来表示，那就是 `UnsafePointer<T>`。遵循了 Cocoa 的一贯不可变原则，`UnsafePointer<T>` 也是不可变的。当然对应地，它还有一个可变变体，`UnsafeMutablePointer<T>`。绝大部分时间里，C 中的指针都会被以这两种类型引入到 Swift 中：C 中 const 修饰的指针对应 `UnsafePointer` (最常见的应该就是 C 字符串的 `const char *` 了)，而其他可变的指针则对应 `UnsafeMutablePointer`。除此之外，Swift 中存在表示一组连续数据指针的 `UnsafeBufferPointer<T>`，表示非完整结构的不透明指针 `COpaquePointer` 等等。另外你可能已经注意到了，能够确定指向内容的指针类型都是泛型的 struct，我们可以通过这个泛型来对指针指向的类型进行约束以提供一定安全性。
 
-对于一个 `UnsafePointer<T>` 类型，我们可以通过 `memory` 属性对其进行取值，如果这个指针是可变的 `UnsafeMutablePointer<T>` 类型，我们还可以通过 `memory` 对它进行赋值。比如我们想要写一个利用指针直接操作内存的计数器的话，可以这么做：
+对于一个 `UnsafePointer<T>` 类型，我们可以通过 `pointee` 属性对其进行取值，如果这个指针是可变的 `UnsafeMutablePointer<T>` 类型，我们还可以通过 `pointee` 对它进行赋值。比如我们想要写一个利用指针直接操作内存的计数器的话，可以这么做：
 
     func incrementor(ptr: UnsafeMutablePointer<Int>) {
-        ptr.memory += 1
+        ptr.pointee += 1
     }
 
     var a = 10
@@ -21,7 +21,7 @@ Apple 期望在 Swift 中指针能够尽量减少登场几率，因此在 Swift 
 
     a  // 11
 
-这里和 C 的指针使用类似，我们通过在变量名前面加上 `&` 符号就可以将指向这个变量的指针传递到接受指针作为参数的方法中去。在上面的 `incrementor` 中我们通过直接操作 `memory` 属性改变了指针指向的内容。
+这里和 C 的指针使用类似，我们通过在变量名前面加上 `&` 符号就可以将指向这个变量的指针传递到接受指针作为参数的方法中去。在上面的 `incrementor` 中我们通过直接操作 `pointee` 属性改变了指针指向的内容。
 
 与这种做法类似的是使用 Swift 的 `inout` 关键字。我们在将变量传入 `inout` 参数的函数时，同样也使用 `&` 符号表示地址。不过区别是在函数体内部我们不需要处理指针类型，而是可以对参数直接进行操作。
 
@@ -48,25 +48,25 @@ Apple 期望在 Swift 中指针能够尽量减少登场几率，因此在 Swift 
 * 内存进行了分配，但是值还没有被初始化
 * 内存进行了分配，并且值已经被初始化
 
-其中只有第三种状态下的指针是可以保证正常使用的。`UnsafeMutablePointer` 的初始化方法 (`init`) 完成的都是从其他类型转换到 `UnsafeMutablePointer` 的工作。我们如果想要新建一个指针，需要做的是使用 `alloc:` 这个类方法。该方法接受一个 `num: Int` 作为参数，将向系统申请 `num` 个数的对应泛型类型的内存。下面的代码申请了一个 `Int` 大小的内存，并返回指向这块内存的指针：
+其中只有第三种状态下的指针是可以保证正常使用的。`UnsafeMutablePointer` 的初始化方法 (`init`) 完成的都是从其他类型转换到 `UnsafeMutablePointer` 的工作。我们如果想要新建一个指针，需要做的是使用 `allocate(capacity:)` 这个类方法。该方法根据参数 `capacity: Int` 向系统申请 `capacity` 个数的对应泛型类型的内存。下面的代码申请了一个 `Int` 大小的内存，并返回指向这块内存的指针：
 
-    var intPtr = UnsafeMutablePointer<Int>.alloc(1)
+    var intPtr = UnsafeMutablePointer<Int>.allocate(capacity: 1)
     // "UnsafeMutablePointer(0x7FD3A8E00060)"
 
-接下来应该做的是对这个指针的内容进行初始化，我们可以使用 `initialize:` 方法来完成初始化：
+接下来应该做的是对这个指针的内容进行初始化，我们可以使用 `initialize(to:)` 方法来完成初始化：
 
-    intPtr.initialize(10)
-    // intPtr.memory 为 10
+    intPtr.initialize(to: 10)
+    // intPtr.pointee 为 10
 
-在完成初始化后，我们就可以通过 `memory` 来操作指针指向的内存值了。
+在完成初始化后，我们就可以通过 `pointee` 来操作指针指向的内存值了。
 
-在使用之后，我们最好尽快释放指针指向的内容和指针本身。与 `initialize:` 配对使用的 `destroy` 用来销毁指针指向的对象，而与 `alloc:` 对应的 `dealloc:` 用来释放之前申请的内存。它们都应该被配对使用：
+在使用之后，我们最好尽快释放指针指向的内容和指针本身。与 `initialize:` 配对使用的 `deinitialize:` 用来销毁指针指向的对象，而与 `allocate(capacity:)` 对应的 `deallocate(capacity:)` 用来释放之前申请的内存。它们都应该被配对使用：
 
-    intPtr.destroy()
-    intPtr.dealloc(1)
+    intPtr.deinitialize()
+    intPtr.deallocate(capacity: 1)
     intPtr = nil
 
-> 注意其实在这里对于 `Int` 这样的在 C 中映射为 int 的 “平凡值” 来说，`destroy` 并不是必要的，因为这些值被分配在常量段上。但是对于像类的对象或者结构体实例来说，如果不保证初始化和摧毁配对的话，是会出现内存泄露的。所以没有特殊考虑的话，不论内存中到底是什么，保证 `initialize:` 和 `destroy` 配对会是一个好习惯。
+> 注意其实在这里对于 `Int` 这样的在 C 中映射为 int 的 “平凡值” 来说，`deinitialize` 并不是必要的，因为这些值被分配在常量段上。但是对于像类的对象或者结构体实例来说，如果不保证初始化和摧毁配对的话，是会出现内存泄露的。所以没有特殊考虑的话，不论内存中到底是什么，保证 `initialize:` 和 `deinitialize` 配对会是一个好习惯。
 
 ## 指向数组的指针
 
@@ -84,31 +84,31 @@ Apple 期望在 Swift 中指针能够尽量减少登场几率，因此在 Swift 
 
 对于一般的接受 const 数组的 C API，其要求的类型为 `UnsafePointer`，而非 const 的数组则对应 `UnsafeMutablePointer`。使用时，对于 const 的参数，我们直接将 Swift 数组传入 (上例中的 `a` 和 `b`)；而对于可变的数组，在前面加上 `&` 后传入即可 (上例中的 `result`)。
 
-对于传参，Swift 进行了简化，使用起来非常方便。但是如果我们想要使用指针来像之前用 `memory` 的方式直接操作数组的话，就需要借助一个特殊的类型：`UnsafeMutableBufferPointer`。Buffer Pointer 是一段连续的内存的指针，通常用来表达像是数组或者字典这样的集合类型。
+对于传参，Swift 进行了简化，使用起来非常方便。但是如果我们想要使用指针来像之前用 `pointee` 的方式直接操作数组的话，就需要借助一个特殊的类型：`UnsafeMutableBufferPointer`。Buffer Pointer 是一段连续的内存的指针，通常用来表达像是数组或者字典这样的集合类型。
 
     var array = [1, 2, 3, 4, 5]
     var arrayPtr = UnsafeMutableBufferPointer<Int>(start: &array, count: array.count)
-    // baseAddress 是第一个元素的指针
-    var basePtr = arrayPtr.baseAddress as UnsafeMutablePointer<Int>
-
-    basePtr.memory // 1
-    basePtr.memory = 10
-    basePtr.memory // 10
-
-    //下一个元素
-    var nextPtr = basePtr.successor()
-    nextPtr.memory // 2
+    // baseAddress 是第一个元素的指针，类型为 UnsafeMutablePointer<Int>
+    if let basePtr = arrayPtr.baseAddress { 
+        print(basePtr.pointee)  // 1
+        basePtr.pointee = 10
+        print(basePtr.pointee) // 10
+        
+        //下一个元素
+        let nextPtr = basePtr.successor()
+        print(nextPtr.pointee) // 2
+    }
 
 ## 指针操作和转换
 
-### withUnsafePointer
+### withUnsafePointer / withUnsafeMutablePointer
 
-上面我们说过，在 Swift 中不能像 C 里那样使用 `&` 符号直接获取地址来进行操作。如果我们想对某个变量进行指针操作，我们可以借助 `withUnsafePointer` 这个辅助方法。这个方法接受两个参数，第一个是 `inout` 的任意类型，第二个是一个闭包。Swift 会将第一个输入转换为指针，然后将这个转换后的 `Unsafe` 的指针作为参数，去调用闭包。使用起来大概是这个样子：
+上面我们说过，在 Swift 中不能像 C 里那样使用 `&` 符号直接获取地址来进行操作。如果我们想对某个变量进行指针操作，我们可以借助 `withUnsafePointer` 或 `withUnsafeMutablePointer` 这两个辅助方法。这两个方法接受两个参数，第一个是 `inout` 的任意类型，第二个是一个闭包。Swift 会将第一个输入转换为指针，然后将这个转换后的 `Unsafe` 的指针作为参数，去调用闭包。`withUnsafePointer` 或 `withUnsafeMutablePointer` 的差别是前者转化后的指针不可变，后者转化后的指针可变。使用起来大概是这个样子：
 
     var test = 10
-    test = withUnsafeMutablePointer(&test, { (ptr: UnsafeMutablePointer<Int>) -> Int in
-        ptr.memory += 1
-        return ptr.memory
+    test = withUnsafeMutablePointer(to: &test, { (ptr: UnsafeMutablePointer<Int>) -> Int in
+        ptr.pointee += 1
+        return ptr.pointee
     })
 
     test // 11
@@ -120,7 +120,7 @@ Apple 期望在 Swift 中指针能够尽量减少登场几率，因此在 Swift 
 `unsafeBitCast` 是非常危险的操作，它会将一个指针指向的内存强制按位转换为目标的类型。因为这种转换是在 Swift 的类型管理之外进行的，因此编译器无法确保得到的类型是否确实正确，你必须明确地知道你在做什么。比如：
 
     let arr = NSArray(object: "meow")
-    let str = unsafeBitCast(CFArrayGetValueAtIndex(arr, 0), CFString.self)
+    let str = unsafeBitCast(CFArrayGetValueAtIndex(arr, 0), to: CFString.self)
     str // “meow”
 
 因为 `NSArray` 是可以存放任意 `NSObject` 对象的，当我们在使用 `CFArrayGetValueAtIndex` 从中取值的时候，得到的结果将是一个 `UnsafePointer<Void>`。由于我们很明白其中存放的是 `String` 对象，因此可以直接将其强制转换为 `CFString`。
@@ -128,14 +128,14 @@ Apple 期望在 Swift 中指针能够尽量减少登场几率，因此在 Swift 
 关于 `unsafeBitCast` 一种更常见的使用场景是不同类型的指针之间进行转换。因为指针本身所占用的的大小是一定的，所以指针的类型进行转换是不会出什么致命问题的。这在与一些 C API 协作时会很常见。比如有很多 C API 要求的输入是 `void *`，对应到 Swift 中为 `UnsafePointer<Void>`。我们可以通过下面这样的方式将任意指针转换为 UnsafePointer<Void>。
 
     var count = 100
-    var voidPtr = withUnsafePointer(&count, { (a: UnsafePointer<Int>) -> UnsafePointer<Void> in
-        return unsafeBitCast(a, UnsafePointer<Void>.self)
+    let voidPtr = withUnsafePointer(to: &count, { (a: UnsafePointer<Int>) -> UnsafePointer<Void> in
+        return unsafeBitCast(a, to: UnsafePointer<Void>.self)
     })
     // voidPtr 是 UnsafePointer<Void>。相当于 C 中的 void *
 
     // 转换回 UnsafePointer<Int>
-    var intPtr = unsafeBitCast(voidPtr, UnsafePointer<Int>.self)
-    intPtr.memory //100
+    let intPtr = unsafeBitCast(voidPtr, to: UnsafePointer<Int>.self)
+    intPtr.pointee //100
 
 ## 总结
 
