@@ -13,7 +13,7 @@ permalink: /:year/:month/:title/
 highlighter: rouge
 
 # supported colors: blue, green, purple, red, orange or slate. If you need clear, leave it empty.
-cover_color: green
+cover_color: 
 
 blog_button:
     title: 博客
@@ -22,7 +22,7 @@ blog_button:
 nav:
     - {title: 简历, description: 我的简历, url: 'https://onev.cat'}
     - {title: 关于, description: 了解更多关于我, url: 'http://about.onevcat.com/'}
-    - {title: 订阅, description: 邮件订阅本站, url: '//store.objccn.io/subscribe'}
+    - {title: 订阅, description: 邮件订阅本站, url: '//objccn.io/subscribe'}
 
 # Pagination
 plugins: [jekyll-paginate]
