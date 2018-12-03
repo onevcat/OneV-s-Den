@@ -1,11 +1,11 @@
 # Basic
 title: OneV's Den
 subtitle: 上善若水，人淡如菊
-welcome_message: ObjC 中国与 objc.io 合作最新作品<a href="https://objccn.io/products/" target="_blank">《函数式 Swift》,《Core Data》,《Swift 进阶》及《集合类型优化》已经发布</a>，<a href="https://www.boxueio.com/register/ec84c3dd183b0acc820d5eae474d499d">泊学网正在开展订阅赠书活动，也欢迎前往了解</a>
-description: 嗨，我是王巍 (@onevcat)，一名来自中国的 iOS / Unity 开发者。现居日本，就职于 LINE。正在修行，探求创意之源。
-creator: <a href="http://onev.cat">@onevcat</a>
+welcome_message: <a href="https://objccn.io/products/">我组织的 ObjC 中国与 objc.io 合作发布了一系列 iOS/Swift 相关图书，欢迎访问了解更多</a>
+description: 嗨，我是王巍 (@onevcat)，一名 iOS 开发者。
+creator: <a href="https://onev.cat">@onevcat</a>
 
-url: "http://onevcat.com"
+url: "https://onevcat.com"
 
 permalink: /:year/:month/:title/
 
@@ -13,20 +13,20 @@ permalink: /:year/:month/:title/
 highlighter: rouge
 
 # supported colors: blue, green, purple, red, orange or slate. If you need clear, leave it empty.
-cover_color: 
+cover_color: slate
 
 blog_button:
     title: 博客
     description: 访问博客
 
 nav:
-    - {title: 简历, description: 我的简历, url: 'https://onev.cat'}
-    - {title: 关于, description: 了解更多关于我, url: 'http://about.onevcat.com/'}
+    - {title: 简历, description: 我的简历, url: '//onev.cat'}
+    - {title: 工具, description: 我所使用的 app 们, url: '/apps'}
     - {title: 订阅, description: 邮件订阅本站, url: '//objccn.io/subscribe'}
 
 # Pagination
 plugins: [jekyll-paginate]
-paginate: 10
+paginate: 20
 paginate_path: "page/:num/"
 
 # Comment
