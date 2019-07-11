@@ -203,7 +203,7 @@
 @media (prefers-color-scheme: dark) {
     body {
       background-color: $dark-background-color;
-      color: $gray-dark;
+      color: $gray;
     }
 
     h1,
@@ -267,9 +267,7 @@
     }
 
     code {
-        background: none;
-        border: 1px solid darken($gray-dark, 5%);
-        color: $gray
+        background: lighten($gray-darkest, 7%);
     }
 
     pre {
