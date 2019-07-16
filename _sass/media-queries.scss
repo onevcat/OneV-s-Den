@@ -203,7 +203,7 @@
 @media (prefers-color-scheme: dark) {
     body {
       background-color: $dark-background-color;
-      color: $gray;
+      color: darken($gray, 5%);
     }
 
     h1,
