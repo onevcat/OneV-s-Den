@@ -295,4 +295,4 @@ light.preferredGreenLightColor = .turquoise
 
 Option Pattern 是一种受到 SwiftUI 的启发的模式，它帮助我们在不添加存储属性的前提下，提供了一种向已有类型中以类型安全的方式添加“存储”的手段。
 
-这种模式非常适合从外界对已有的类型进行功能上的添加，或者是自下而上地对类型的使用方式进行改造。这项技术可以对 Swift 开发和 API 设计的更新产生一定有益的影响。反过来，了解这种模式，相信对于理解 SwiftUI 中的很多概念，比如 `PreferenceKey` 和 `alignmentGuide` 等，也会有所帮助。
+这种模式非常适合从外界对已有的类型进行功能上的添加，或者是自下而上地对类型的使用方式进行改造。这项技术可以对 Swift 开发和 API 设计的更新产生一定有益的影响。反过来，了解这种模式，相信对于理解 SwiftUI 中的很多概念，比如 `PreferenceKey` 和 `alignmentGuide` 等，也会有所助益。
