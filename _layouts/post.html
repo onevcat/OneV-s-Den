@@ -18,16 +18,16 @@ layout: default
       <div class="post-meta text-muted d-flex flex-column">
         <!-- Published date and author -->
         <div>
-          Posted
-          {% include timeago.html date=page.date tooltip=true %}
-          by
+        　由
           <span class="author">
-          {% if page.author %}
-            {{ page.author }}
-          {% else %}
-            {{ site.author }}
-          {% endif %}
+            {% if page.author %}
+              {{ page.author }}
+            {% else %}
+              {{ site.author }}
+            {% endif %}
           </span>
+          发布于
+          {% include timeago.html date=page.date tooltip=true %}
         </div>
 
         <!-- lastmod -->
@@ -36,7 +36,7 @@ layout: default
         {%- endcapture -%}
 
         {% for item in site.data.updates %}
-          {% assign encode_filename = item.filename | url_encode %}
+          {% assign encode_filename = item.filename | split: "/" | last | url_encode %}
           {% if filename == encode_filename %}
             {% assign lastmod = item.lastmod %}
             {% break %}
@@ -45,7 +45,7 @@ layout: default
 
         {% if lastmod %}
         <div>
-          Updated
+          最后更新: 
           {% include timeago.html date=lastmod class="lastmod" tooltip=true %}
         </div>
         {% endif %}
@@ -109,9 +109,9 @@ layout: default
           d-flex justify-content-between align-items-center mt-3 pt-5 pb-2">
           {% if site.data.rights.license %}
           <div class="license-wrapper">
-            This post is licensed under
+            该博客文章由作者通过
             <a href="{{ site.data.rights.license.link }}">{{ site.data.rights.license.name }}</a>
-            by the author.
+            进行授权。
           </div>
           {% endif %}
 

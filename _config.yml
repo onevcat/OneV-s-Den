@@ -12,9 +12,12 @@ title: OneV's Den
 
 tagline: 上善若水，人淡如菊
 description: >-
-    我是王巍 (@onevcat)，一名 iOS 开发者。
+    王巍现在是一名专注于 iOS 的职业开发者。他拥有对于 Swift，Objective-C 以及网络程序设计方面的深厚知识及多年实践经验。
+    他将这些技术运用于创建应用程序和通用框架等解决方案，其中很多都被用户喜爱，并被开发者社区广泛使用来构建其他软件。同时，
+    他是 ObjC 中国组织的发起人和领导者，为将最佳 iOS 实践和进阶技术引入中国而不断努力。
+    这里是王巍 (onevcat) 的博客，用来记录一些想法。
 url: 'https://onevcat.com'
-author: onevcat
+author: 王巍 (onevcat)
 avatar: /assets/images/avatar.jpg
 
 github:
@@ -106,7 +109,7 @@ defaults:
       location: Post
       breadcrumb:
         -
-          label: Posts
+          label: 主页
           url: /
   -
     scope:
@@ -121,10 +124,10 @@ defaults:
       location: Tag
       breadcrumb:
         -
-          label: Home
+          label: 主页
           url: /
         -
-          label: Tags
+          label: 标签
           url: /tabs/tags/
   -
     scope:
@@ -134,10 +137,10 @@ defaults:
       location: Category
       breadcrumb:
         -
-          label: Home
+          label: 主页
           url: /
         -
-          label: Categories
+          label: 分类
           url: /tabs/categories/
   -
     scope:
@@ -147,7 +150,7 @@ defaults:
       dynamic_title: true    # Hide title in mobile screens.
       breadcrumb:
         -
-          label: Home
+          label: 主页
           url: /
 
 
@@ -182,8 +185,32 @@ sitemap_exclude:  # Sitemap will exclude the following items.
     - /categories/
     - /tags/
     - /posts/
+    - /2011/
+    - /2012/
+    - /2013/
+    - /2014/
+    - /2015/
+    - /2016/
+    - /2017/
+    - /2018/
+    - /2019/
+    - /2020/
+    - /2021/
+    - /2022/
+    - /2023/
+    - /2024/
+    - /2025/
+    - /2026/
+    - /2027/
+    - /2028/
+    - /2029/
+    - /2030/
     - 404.html
     - feed.xml
     - sitemap.xml
     - robots.txt
     - redirects.json
+    - Brewfile
+    - Brewfile.lock.json
+    - build.sh
+    - config.codekit3

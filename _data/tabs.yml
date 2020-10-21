@@ -6,25 +6,25 @@
 
 
 -
-  name: Home
+  name: 主页
   icon: "fas fa-home"
 -
-  name: Categories
+  name: 分类
   icon: "fas fa-stream"
   path: tabs
   url: categories
 -
-  name: "Tags"
+  name: 标签
   icon: "fas fa-tags"
   path: tabs
   url: tags
 -
-  name: "Archives"
+  name: 归档
   path: tabs
   url: archives
   icon: "fas fa-archive"
 -
-  name: "About"
+  name: 关于
   icon: "fas fa-info"
   path: tabs
   url: about
