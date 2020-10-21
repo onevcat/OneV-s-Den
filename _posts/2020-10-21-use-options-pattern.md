@@ -5,7 +5,7 @@ date: 2020-10-21 14:00:00.000000000 +09:00
 tags: 能工巧匠集
 ---
 
-SwiftUI 中提供了很多“新颖”的 API 设计思路和 Swift 的使用方式，我们可以进行借鉴，并反过来使用到普通的 Swift 代码中。[`PreferenceKey`](https://developer.apple.com/documentation/swiftui/preferencekey) 的处理方式就是其中之一：它通过 protocol 的方式，为子 view 们提供了一套模式，让它们能将自定义值以类型安全的方式，向上传到父 view 去。如果有机会，我会再专门介绍 `PreferenceKey`，但这种设计的模式其实和 UI 无关，在一般的 Swift 里，我们也能使用这种方法来美化 API 设计。
+SwiftUI 中提供了很多“新颖”的 API 设计思路和 Swift 的使用方式，我们可以进行借鉴，并反过来使用到普通的 Swift 代码中。[`PreferenceKey`](https://developer.apple.com/documentation/swiftui/preferencekey) 的处理方式就是其中之一：它通过 protocol 的方式，为子 view 们提供了一套模式，让它们能将自定义值以类型安全的方式，向上传到父 view 去。如果有机会，我会再专门介绍 `PreferenceKey`，但这种设计的模式其实和 UI 无关，在一般的 Swift 里，我们也能使用这种方法来改善 API 设计。
 
 在这篇文章里，我们就来看看要如何做。文中相关的代码可以[在这里找到](https://gist.github.com/onevcat/40f21b41a6b1ffa06ceb9f3ee0470bf3)。你可以将这些代码复制到 Playground 中执行并查看结果。
 
@@ -15,7 +15,7 @@ SwiftUI 中提供了很多“新颖”的 API 设计思路和 Swift 的使用方
 
 ![](/assets/images/2020/light-1.png)
 
-作为 Model 类型的 `TrafficLight` 类型定义了 `.stop`、`.proceed` 和 `.caution` 三种 `State`，它们分别代表停止、通行和注意三种状态 (当然，通俗来说就是“红绿黄”，但是 Model 不应该和颜色，也就是 View 相关)。它还持有一个 `state` 来表示当前的状态，并在设置时将这个状态通过 `onStateChanged` 发送出去：
+作为 Model 类型的 `TrafficLight` 类型定义了 `.stop`、`.proceed` 和 `.caution` 三种 `State`，它们分别代表停止、通行和注意三种状态 (当然，通俗来说就是“红绿黄”，但是 Model 不应该和颜色，也就是 View 层级相关)。它还持有一个 `state` 来表示当前的状态，并在设置时将这个状态通过 `onStateChanged` 发送出去：
 
 ```swift
 public class TrafficLight {
@@ -158,7 +158,7 @@ light.start()
 
 ![](/assets/images/2020/light-2.png)
 
-假设我们想要让 `TrafficLight` 支持青色的绿灯，一个能想到的最简单的方式，就是在 `TrafficLight` 里添加一个可选项：
+假设我们想要让 `TrafficLight` 支持青色的绿灯，一个能想到的最简单的方式，就是在 `TrafficLight` 里为“绿灯颜色”提供一个选项：
 
 ```swift
 public class TrafficLight {
@@ -202,7 +202,7 @@ light.onStateChanged = { [weak self, weak light] state in
 > 
 > 如果想要添加的属性不是像例子中这样简单的 enum，而是更加复杂的带有多个属性的类型的话，这一开销会更大。
 
-另外，如果我们还要添加其他属性，很容易想到的方法是继续在 `TrafficLight` 上加入更多的存储属性。这其实是很没有扩展性的方法：我们需要修改 `TrafficLight` 的源码，为添加的属性设置合适的初始值，甚至有时候还需要提供额外的 init 方法。最严重的问题在于，我们并不能在 extension 中添加存储属性：
+另外，如果我们还要添加其他属性，很容易想到的方法是继续在 `TrafficLight` 上加入更多的存储属性。这其实是很没有扩展性的方法，我们并不能在 extension 中添加存储属性：
 
 ```swift
 // 无法编译
@@ -214,11 +214,11 @@ extension TrafficLight {
 }
 ```
 
-如果我们不能直接修改 `TrafficLight` 的源码 (比如这个类型是别人封装到 framework 里的)，那么这样的添加选项的方式是无法实现的。
+需要修改 `TrafficLight` 的源码，才能添加这个选项，而且还需要为添加的属性设置合适的初始值，或者提供额外的 init 方法。如果我们不能直接修改 `TrafficLight` 的源码 (比如这个类型是别人的代码，或者是被封装到 framework 里的)，那么像这样的添加选项的方式其实是无法实现的。
 
 ### Option Pattern
 
-可以用 Option Pattern 来解决这个问题。在 `TrafficLight` 中，我们不去提供专用的 `preferredGreenLightColor`，而是定义一个泛用的 `options` 字典，来将需要的选项值放到里面。为了限定能放进字典中的值，新建一个 `TrafficLightOption`：
+可以用 Option Pattern 来解决这个问题。在 `TrafficLight` 中，我们不去提供专用的 `preferredGreenLightColor`，而是定义一个泛用的 `options` 字典，来将需要的选项值放到里面。为了限定能放进字典中的值，新建一个 `TrafficLightOption` 协议：
 
 ```swift
 public protocol TrafficLightOption {
@@ -254,7 +254,7 @@ public class TrafficLight {
 }
 ```
 
-1. 作为 `options` 字典的 key，我们需要选取一个满足 `Hashable` 的类型。`ObjectIdentifier` 通过给定的类型或者是 class 实例，可以生成一个唯一代表该类型和实例的值。它非常适合用来当作 `options` 的 key。
+1. 只有满足 `Hashable` 的类型，才能作为 `options` 字典的 key。[`ObjectIdentifier`](https://developer.apple.com/documentation/swift/objectidentifier) 通过给定的类型或者是 class 实例，可以生成一个唯一代表该类型和实例的值。它非常适合用来当作 `options` 的 key。
 2. 通过 key 在 `options` 中寻找设置的值。如果没有找到的话，返回默认值 `type.defaultValue`。
 
 现在，对 `TrafficLight.GreenLightColor` 进行扩展，让它满足 `TrafficLightOption`。如果 `TrafficLight` 已经被打包成 framework，我们甚至可以把这部分代码从 `TrafficLight` 所在的 target 中拿出来：
@@ -283,10 +283,16 @@ extension TrafficLight {
 }
 ```
 
-现在，你可以像之前那样，通过直接在 `light` 上设置 `preferredGreenLightColor` 来使用这个选项，而且它已经不是 `TrafficLight` 的存储属性了。只要不进行设置，它便不会带来额外的开销。同时，现在想要为 `TrafficLight` 添加选项时，也不需要对它本身的代码进行改动了，我们只需要声明一个满足 `TrafficLightOption` 的新类型，然后为它实现合适的计算属性就可以了。
+现在，你可以像之前那样，通过直接在 `light` 上设置 `preferredGreenLightColor` 来使用这个选项，而且它已经不是 `TrafficLight` 的存储属性了。只要不进行设置，它便不会带来额外的开销。
+
+```swift
+light.preferredGreenLightColor = .turquoise
+```
+
+有了 `TrafficLightOption`，现在想要为 `TrafficLight` 添加选项时，就不需要对类型本身的代码进行改动了，我们只需要声明一个满足 `TrafficLightOption` 的新类型，然后为它实现合适的计算属性就可以了。这大幅增加了原来类型的可扩展性。
 
 ### 总结
 
-Option Pattern 是一种受到 SwiftUI 的启发的模式，它帮助我们在不添加存储属性的前提下，实现了向已有类型中以类型安全的方式添加“存储”。
+Option Pattern 是一种受到 SwiftUI 的启发的模式，它帮助我们在不添加存储属性的前提下，提供了一种向已有类型中以类型安全的方式添加“存储”的手段。
 
-这种模式非常适合从外界对已有的类型进行功能添加，或者自下而上地对类型的使用方式进行改造。这项技术可以对 Swift 开发和 API 设计的更新产生一定有益的影响。反过来，了解这种模式，相信对于理解 SwiftUI 中的很多概念，比如 `PreferenceKey` 和 `alignmentGuide` 等，也会有所帮助。
+这种模式非常适合从外界对已有的类型进行功能上的添加，或者是自下而上地对类型的使用方式进行改造。这项技术可以对 Swift 开发和 API 设计的更新产生一定有益的影响。反过来，了解这种模式，相信对于理解 SwiftUI 中的很多概念，比如 `PreferenceKey` 和 `alignmentGuide` 等，也会有所帮助。
