@@ -16,7 +16,7 @@
   --text-color: #333333;
   --blockquote-border-color: #eee;
   --blockquote-text-color: #9a9a9a;
-  --link-color: #2a408e;
+  --link-color: #8e2a2a;
   --link-underline-color: #dee2e6;
   --text-muted-color: gray;
   --tb-odd-bg: #fbfcfd;
@@ -29,8 +29,8 @@
   /* Sidebar */
   --sidebar-bg: radial-gradient(
     circle,
-    rgba(42, 30, 107, 1) 0%,
-    rgba(35, 37, 46, 1) 100%);
+    rgb(155, 42, 50) 0%,
+    rgb(46, 35, 35) 100%);
   --nav-cursor-color: #fcfcfc;
 
   /* Topbar */
@@ -45,22 +45,22 @@
   --post-list-text-color: dimgray;
   --btn-patinator-text-color: #555555;
   --btn-paginator-hover-color: #e9ecef;
-  --btn-active-bg: #2a408e;
-  --btn-active-border-color: #007bff;
+  --btn-active-bg: #8e2a2a;
+  --btn-active-border-color: #ff0000;
   --btn-text-color: #f8f8f8;
   --btn-paginator-border-color: #f1f1f1;
-  --btn-paginator-shadow: #4b92d2;
+  --btn-paginator-shadow: #d24b4b;
 
   /* Posts */
   --btn-share-hover-color: var(--link-color);
   --card-border-color: #f1f1f1;
   --card-box-shadow: rgba(234, 234, 234, 0.7686274509803922);
   --label-color: #808080;
-  --relate-post-date: rgba(30, 55, 70, 0.4);
+  --relate-post-date: rgba(70, 30, 30, 0.4);
   --tag-bg: rgba(0, 0, 0, 0.075);
   --tag-border: #dee2e6;
   --tag-shadow: var(--btn-border-color);
-  --tag-hover: rgb(222, 226, 230);
+  --tag-hover: rgb(230, 222, 222);
   --categories-hover-bg: var(--btn-border-color);
   --dash-color: silver;
 
