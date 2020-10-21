@@ -38,13 +38,35 @@ public class TrafficLight {
 
 <details>
   <summary>TrafficLight 的其他部分</summary>
-  <p>为了能让信号灯进行状态转换，我们可以在 <code class="highlighter-rouge">TrafficLight</code> 里定义各个阶段的时间：</p>
-<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="k">var</span> <span class="nv">stopDuration</span> <span class="o">=</span> <span class="mf">4.0</span>
+<p>为了能让信号灯进行状态转换，我们可以在 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 里定义各个阶段的时间：</p>
+<div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre></td><td class="rouge-code"><pre><span class="kd">public</span> <span class="k">var</span> <span class="nv">stopDuration</span> <span class="o">=</span> <span class="mf">4.0</span>
 <span class="kd">public</span> <span class="k">var</span> <span class="nv">proceedDuration</span> <span class="o">=</span> <span class="mf">6.0</span>
 <span class="kd">public</span> <span class="k">var</span> <span class="nv">cautionDuration</span> <span class="o">=</span> <span class="mf">1.5</span>
-</code></pre></div></div>
-<p>然后用一个 <code class="highlighter-rouge">Timer</code> 计时，并进行控制状态的转换：</p>
-<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">private</span> <span class="k">var</span> <span class="nv">timer</span><span class="p">:</span> <span class="kt">Timer</span><span class="p">?</span>
+</pre></td></tr></tbody></table></code></div></div>
+<p>然后用一个 <code class="language-plaintext highlighter-rouge">Timer</code> 计时，并进行控制状态的转换：</p>
+<div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class="rouge-code"><pre><span class="kd">private</span> <span class="k">var</span> <span class="nv">timer</span><span class="p">:</span> <span class="kt">Timer</span><span class="p">?</span>
 
 <span class="kd">private</span> <span class="kd">func</span> <span class="nf">turnState</span><span class="p">(</span><span class="n">_</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">State</span><span class="p">)</span> <span class="p">{</span>
     <span class="k">switch</span> <span class="n">state</span> <span class="p">{</span>
@@ -63,9 +85,18 @@ public class TrafficLight {
     <span class="p">}</span>
     <span class="k">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
 <span class="p">}</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></div></div>
 <p>最后，向外提供开启和结束的方法就可以了：</p>
-<div class="language-swift highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kd">public</span> <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="p">{</span>
+<div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="p">{</span>
     <span class="k">guard</span> <span class="n">timer</span> <span class="o">==</span> <span class="kc">nil</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">}</span>
     <span class="nf">turnState</span><span class="p">(</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
 <span class="p">}</span>
@@ -74,7 +105,7 @@ public class TrafficLight {
     <span class="n">timer</span><span class="p">?</span><span class="o">.</span><span class="nf">invalidate</span><span class="p">()</span>
     <span class="n">timer</span> <span class="o">=</span> <span class="kc">nil</span>
 <span class="p">}</span>
-</code></pre></div></div>
+</pre></td></tr></tbody></table></code></div></div>
 </details>
 
 <!--
