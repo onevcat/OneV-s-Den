@@ -1,15 +1,15 @@
 ---
 layout: post
 title: "Swift 中使用 Option Pattern 改善可选项的 API 设计"
-date: 2020-10-21 14:00:00.000000000 +09:00
-tags: 能工巧匠集
+date: 2020-10-21 14:00:00 +0900
+tags: [能工巧匠集]
 ---
 
 SwiftUI 中提供了很多“新颖”的 API 设计思路和 Swift 的使用方式，我们可以进行借鉴，并反过来使用到普通的 Swift 代码中。[`PreferenceKey`](https://developer.apple.com/documentation/swiftui/preferencekey) 的处理方式就是其中之一：它通过 protocol 的方式，为子 view 们提供了一套模式，让它们能将自定义值以类型安全的方式，向上传到父 view 去。如果有机会，我会再专门介绍 `PreferenceKey`，但这种设计的模式其实和 UI 无关，在一般的 Swift 里，我们也能使用这种方法来改善 API 设计。
 
 在这篇文章里，我们就来看看要如何做。文中相关的代码可以[在这里找到](https://gist.github.com/onevcat/40f21b41a6b1ffa06ceb9f3ee0470bf3)。你可以将这些代码复制到 Playground 中执行并查看结果。
 
-### 红绿灯
+## 红绿灯
 
 用一个交通信号灯作为例子。
 
@@ -148,7 +148,7 @@ light.start()
 
 ![](/assets/images/2020/light-running.gif)
 
-### 青色信号
+## 青色信号
 
 世界很大，有些地方 (比如日本) 会使用倾向于青色，或者实际上应该是[绿松色 (turquoise)](https://www.color-hex.com/color/40e0d0)，来表示“可以通行”。有时候这也是技术的[限制或者进步](http://www.reuk.co.uk/wordpress/news/uk-traffic-lights-57000-tonnes-of-co2/)所带来的结果。
 
@@ -216,7 +216,7 @@ extension TrafficLight {
 
 需要修改 `TrafficLight` 的源码，才能添加这个选项，而且还需要为添加的属性设置合适的初始值，或者提供额外的 init 方法。如果我们不能直接修改 `TrafficLight` 的源码 (比如这个类型是别人的代码，或者是被封装到 framework 里的)，那么像这样的添加选项的方式其实是无法实现的。
 
-### Option Pattern
+## Option Pattern
 
 可以用 Option Pattern 来解决这个问题。在 `TrafficLight` 中，我们不去提供专用的 `preferredGreenLightColor`，而是定义一个泛用的 `options` 字典，来将需要的选项值放到里面。为了限定能放进字典中的值，新建一个 `TrafficLightOption` 协议：
 
