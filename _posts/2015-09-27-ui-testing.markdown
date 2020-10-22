@@ -2,7 +2,8 @@
 layout: post
 title: WWDC15 Session笔记 - Xcode 7 UI 测试初窥
 date: 2015-09-27 20:58:47.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, WWDC]
+tags: [wwdc, xcode, 开发者体验, 测试]
 ---
 ![](/assets/images/2015/ui-testing-title.png)
 

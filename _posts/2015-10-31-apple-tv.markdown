@@ -2,7 +2,8 @@
 layout: post
 title: 当 App Store 遇上电视，开发者的第四代 Apple TV 开箱体验
 date: 2015-10-31 16:49:46.000000000 +09:00
-tags: 南箕北斗集
+categories: [南箕北斗集]
+tags: [照片, 物览, tvOS]
 ---
 
 ### 引子

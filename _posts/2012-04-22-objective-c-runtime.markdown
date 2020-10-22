@@ -2,7 +2,8 @@
 layout: post
 title: 深入Objective-C的动态特性
 date: 2012-04-22 23:18:44.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Objective-C]
+tags: [xcode, objc, runtime, 编程语言]
 ---
 
 Objective-C具有相当多的动态特性，基本的，也是经常被提到和用到的有动态类型（Dynamic typing），动态绑定（Dynamic binding）和动态加载（Dynamic loading）。

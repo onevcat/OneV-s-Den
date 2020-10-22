@@ -2,7 +2,8 @@
 layout: post
 title: 如何打造一个让人愉快的框架
 date: 2016-01-19 15:32:24.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Swift]
+tags: [swift, 开发者体验, api, 讲稿]
 ---
 
 > 这是我在今年 1 月 10 日 [@Swift 开发者大会](http://atswift.io) 上演讲的文字稿。相关的视频还在制作中，没有到现场的朋友可以通过这个文字稿了解到这个 session 的内容。

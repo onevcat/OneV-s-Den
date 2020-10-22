@@ -2,7 +2,8 @@
 layout: post
 title: "关于 Backpressure 和 Combine 中的处理"
 date: 2019-12-01 12:32:00.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Combine]
+tags: [combine, 设计模式, 用户体验]
 ---
 
 > 本文是对我的《SwiftUI 和 Combine 编程》书籍的补充，对一些虽然很重要，但和书中上下文内容相去略远，或者一些不太适合以书本的篇幅详细展开解释的内容进行了追加说明。如果你对 SwiftUI 和 Combine 的更多话题有兴趣的话，可以考虑[参阅原书](https://objccn.io/products/swift-ui)。

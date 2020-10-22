@@ -2,7 +2,8 @@
 layout: post
 title: 手把手教你ARC——iOS/Mac开发ARC入门和使用
 date: 2012-06-04 23:30:00.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Objective-C]
+tags: [wwdc, xcode, objc, 内存管理, 开发者体验, 编程语言]
 ---
 
 ![Revolution of Objective-c](/assets/images/2012/arctitle.png)

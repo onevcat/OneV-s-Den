@@ -2,12 +2,12 @@
 layout: post
 title: UIViewController的误用
 date: 2012-02-02 22:50:53.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [ios, 最佳实践]
 ---
-![](http://www.onevcat.com/wp-content/uploads/2012/02/vc.jpg)
 
 转载本文请保留以下原作者信息:
-原作：OneV [http://www.onevcat.com/2012/02/uiviewcontroller/](http://www.onevcat.com/2012/02/uiviewcontroller/)
+原作：OneV [https://onevcat.com/2012/02/uiviewcontroller/](https://onevcat.com/2012/02/uiviewcontroller/)
 
 ## 什么是UIViewController的误用
 
@@ -21,7 +21,7 @@ UIViewController是iOS开发中最常见也最重要的部件之一，可以说�
 
 一般来说，只要你的代码中含有类似这样的语句，那你一定是误用UIViewController了
 
-```
+```objc
 viewController.view.bounds = CGRectMake(50, 50, 100, 200);
 [viewController.view addSubview:someOtherViewController.view];
 ```
@@ -36,7 +36,7 @@ viewController.view.bounds = CGRectMake(50, 50, 100, 200);
 
 如果你已经在一个app里这样误用了大量的viewController，那可能的办法也许是尽力去自行处理各种非正常的状况，比如在addSubview之后手动调用加入的vc的viewWillAppear:，以及在收到didReceiveMemoryWarning后顺次调用子VC的didReceiveMemoryWarning(显然都是很蛋疼的做法啊)。但是需要注意的是iOS5中这些方法的调用似乎是没有问题的（至少我测试是这样），因此需要对不同版本系统进行分别处理。可以用UIDevice的方法确定运行环境的系统版本：
 
-```
+```objc
 // System Versioning Preprocessor Macros
 #define SYSTEM_VERSION_EQUAL_TO(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedSame)
 #define SYSTEM_VERSION_GREATER_THAN(v) ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedDescending)
@@ -47,7 +47,7 @@ viewController.view.bounds = CGRectMake(50, 50, 100, 200);
 
 在合适的时机判定判定系统版本，手动调用对应方法：
 
-```
+```objc
 if (SYSTEM_VERSION_LESS_THAN(@“5.0”))
 { 
 	//viewWillAppear或didReceiveMemoryWarning或其他

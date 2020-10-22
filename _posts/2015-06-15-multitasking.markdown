@@ -2,7 +2,8 @@
 layout: post
 title: WWDC15 Session笔记 - iOS 9 多任务分屏要点
 date: 2015-06-15 16:25:07.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, WWDC]
+tags: [wwdc, iOS, 多任务]
 ---
 本文是我的 [WWDC15 笔记](http://onevcat.com/2015/06/ios9-sdk/)中的一篇，涉及的 Session 有
 

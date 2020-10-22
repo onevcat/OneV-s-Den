@@ -2,8 +2,11 @@
 layout: post
 title: 常见的后台实践
 date: 2014-03-22 01:07:50.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, iOS]
+tags: [objc, 多线程, gcd, api]
+
 ---
+
 ## 题外
 
 [objc.io](http://www.objc.io) 是一个非常棒的iOS进阶学习的网站，上面有很多超赞的学习资源和例子。最近我和 [@方一雄](http://weibo.com/fangyixiong)，[@answer-huang](http://weibo.com/u/1623064627) 和社区的另外几名小伙伴在主持做一个 objc.io 的译文整理汇总和后续翻译跟进的项目，我暂时略自我狂妄地把它叫做 `objc中国`（[objccn.io](http://objccn.io)） 项目，希望它能给现在已经很红火的中国objc社区锦上添花。现在上面已经有一些文章，您可以时不时地访问我们的[首页](http://objccn.io)来查看新的动态。如果有兴趣，也可以考虑[加入我们](https://github.com/objccn/articles)，来为中国objc社区的发展贡献一点力量。
@@ -14,7 +17,7 @@ tags: 能工巧匠集
 
 ---
 
-本文主要探讨一些常用后台任务的最佳实践。我们将会看看如何并发地使用 Core Data ，如何并行绘制 UI ，如何做异步网络请求等。最后我们将研究如何异步处理大型文件，以保持较低的内存占用。  因为在异步编程中非常容易犯错误，所以，本文中的例子都将使用很简单的方式。因为使用简单的结构可以帮助我们看透代码，抓住问题本质。如果你最后把代码写成了复杂的嵌套回调的话，那么你很可能应该重新考虑自己当初的设计选择了。
+本文主要探讨一些常用后台任务的最佳实践。我们将会看看如何并发地使用 Core Data ，如何并行绘制 UI ，如何做异步网络请求等。最后我们将研究如何异步处理大型文件，以保持较低的内存占用。因为在异步编程中非常容易犯错误，所以，本文中的例子都将使用很简单的方式。因为使用简单的结构可以帮助我们看透代码，抓住问题本质。如果你最后把代码写成了复杂的嵌套回调的话，那么你很可能应该重新考虑自己当初的设计选择了。
 
 
 ## 操作队列 (Operation Queues) 还是 GCD ?
@@ -66,7 +69,7 @@ context.undoManager = nil;
   ^(NSString* line, NSUInteger idx, BOOL* shouldStop)
   {
       NSArray* components = [line csvComponents];
-      if(components.count &lt; 5) {
+      if(components.count < 5) {
           NSLog(@"couldn't parse: %@", components);
           return;
       }

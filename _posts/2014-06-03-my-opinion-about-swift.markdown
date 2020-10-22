@@ -2,9 +2,10 @@
 layout: post
 title: 关于 Swift 的一点初步看法
 date: 2014-06-03 12:05:44.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Swift]
+tags: [wwdc, swift, 开发者体验, 编程语言]
+image: /assets/images/2014/swift.png
 ---
-![](/assets/images/2014/swift.png)
 
 虽然四点半就起床去排队等入场，结果还是只能坐在了蛮后面的位置看着大屏幕参加了今年的 Keynote。其实今年 OS X 和 iOS 的更新亮点都不少，但是显然风头和光芒都让横空出世的 Swift 给抢走了。这部分内容因为不是 NDA，所以可以提前说一说。
 

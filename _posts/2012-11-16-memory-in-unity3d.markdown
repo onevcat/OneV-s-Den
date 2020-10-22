@@ -2,12 +2,11 @@
 layout: post
 title: Unity 3D中的内存管理
 date: 2012-11-16 00:16:54.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Unity]
+tags: [unity, 内存管理]
 ---
 
-![](http://www.onevcat.com/wp-content/uploads/2012/11/unity-technologies-870x531.jpg)
-
-本文欢迎转载，但烦请保留此行出处信息：[http://www.onevcat.com/2012/11/memory-in-unity3d/](http://www.onevcat.com/2012/11/memory-in-unity3d/)
+本文欢迎转载，但烦请保留此行出处信息：[https://www.onevcat.com/2012/11/memory-in-unity3d/](https://www.onevcat.com/2012/11/memory-in-unity3d/)
 
 Unity3D在内存占用上一直被人诟病，特别是对于面向移动设备的游戏开发，动辄内存占用飙上一两百兆，导致内存资源耗尽，从而被系统强退造成极差的体验。类似这种情况并不少见，但是绝大部分都是可以避免的。虽然理论上Unity的内存管理系统应当为开发者分忧解难，让大家投身到更有意义的事情中去，但是对于Unity对内存的管理方式，官方文档中并没有太多的说明，基本需要依靠自己摸索。最近在接手的项目中存在严重的内存问题，在参照文档和Unity Answer众多猜测和证实之后，稍微总结了下Unity中的内存的分配和管理的基本方式，在此共享。
 

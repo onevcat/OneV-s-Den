@@ -2,11 +2,9 @@
 layout: post
 title: Unity3D中暂停时的动画及粒子效果实现
 date: 2013-01-26 00:23:34.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Unity]
+tags: [unity, 插件, 例子效果, 动画]
 ---
-
-
-![](http://www.onevcat.com/wp-content/uploads/2013/01/big副本.png)
 
 暂停是游戏中经常出现的功能，而Unity3D中对于暂停的处理并不是很理想。一般的做法是将`Time.timeScale`设置为0。Unity的文档中对于这种情况有以下描述；
 
@@ -48,7 +46,7 @@ while (isPlaying) {
 
 对于粒子效果，同样进行计时，并通过粒子系统的Simulate方法来模拟对应时间的粒子状态来完成效果，比如对于Legacy粒子，使Emitter在`timeScale＝0`暂停时继续有效发射并显示效果：
 
-```
+```csharp
 _deltaTime = Time.realtimeSinceStartup - _timeAtLastFrame;
 _timeAtLastFrame = Time.realtimeSinceStartup;
 if (Time.timeScale == 0 ){

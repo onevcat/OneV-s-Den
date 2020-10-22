@@ -2,7 +2,8 @@
 layout: post
 title: 带边框的UIImage缩放
 date: 2011-12-21 00:46:41.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [wwdc, ios, uiimage]
 ---
 一个带边框的UIImage如果使用常规的缩放，边框部分将被按照缩放比例拉伸或压缩，有些时候这并不是我们所期望的..比如这个边框是根据图片大小变化的外框。比如下面的类似按钮的不明物体图片：主体为渐变蓝色，边框为外圈白色，灰色底板为背景。
 
@@ -10,7 +11,7 @@ tags: 能工巧匠集
 
 常见的按钮添加和背景设置如下：
 
-```
+```objc
 UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(80, 130, 160, 44)];
 [button setTitle:@”Test Button” forState:UIControlStateNormal];
 // Image with without cap insets
@@ -29,7 +30,7 @@ iOS5中提供了一个新的UIImage方法，[resizableImageWithCapInsets:](http:
 
 用法引述如下：
 
-```
+```objc
 resizableImageWithCapInsets:
   Creates and returns a new image object with the specified cap insets.
   - (UIImage *)resizableImageWithCapInsets:(UIEdgeInsets)capInsets
@@ -46,7 +47,7 @@ resizableImageWithCapInsets:
 
 输入参数为一个capInsets结构体：
 
-```
+```objc
 //Defines inset distances for views.
 typedef struct {
 CGFloat top, left, bottom, right;
@@ -55,7 +56,7 @@ CGFloat top, left, bottom, right;
 
 分别表示上左下右四个方向的偏移量。于是把上面按钮的UIImage改为如下形式：
 
-```
+```objc
 // Image with cap insets
 UIImage *buttonImage = [[UIImage imageNamed:@”blueButton”]
 resizableImageWithCapInsets:UIEdgeInsetsMake(0, 16, 0, 16)];

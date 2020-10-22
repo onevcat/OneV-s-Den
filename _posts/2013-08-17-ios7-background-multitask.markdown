@@ -2,10 +2,10 @@
 layout: post
 title: WWDC 2013 Session笔记 - iOS7中的多任务
 date: 2013-08-17 00:56:02.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, WWDC]
+tags: [wwdc, iOS, 多任务, 用户体验]
+image: /assets/images/2013/ios7-multitasking.jpg
 ---
-
-![iOS7的后台多任务特性](/assets/images/2013/ios7-multitasking.jpg)
 
 这是我的WWDC2013系列笔记中的一篇，完整的笔记列表请参看[这篇总览](http://onevcat.com/2013/06/developer-should-know-about-ios7/)。本文仅作为个人记录使用，也欢迎在[许可协议](http://creativecommons.org/licenses/by-nc/3.0/deed.zh)范围内转载或使用，但是还烦请保留原文链接，谢谢您的理解合作。如果您觉得本站对您能有帮助，您可以使用[RSS](http://onevcat.com/atom.xml)或[邮件](http://eepurl.com/wNSkj)方式订阅本站，这样您将能在第一时间获取本站信息。
 

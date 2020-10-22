@@ -2,11 +2,10 @@
 layout: post
 title: Xcode4.2的debug小技巧
 date: 2011-11-26 23:58:57.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Objective-C]
+tags: [objc, debug, logger, xcode]
 ---
-<a href="http://en.wikipedia.org/wiki/Gdb">GNU Debugger(gdb)</a>
-
-一直是UNIX下最为流行的调试器，而在Cocoa框架中也一直被作为默认的调试工具。在gcc都被LLVM取代了的如今，gdb还是作为默认调试器，更可见其优秀特性。
+[GNU Debugger(gdb)](https://en.wikipedia.org/wiki/Gdb)一直是UNIX下最为流行的调试器，而在Cocoa框架中也一直被作为默认的调试工具。在gcc都被LLVM取代了的如今，gdb还是作为默认调试器，更可见其优秀特性。
 
 最近在调试过程中发现了一些小窍门或者说是小技巧，不敢独飨。也许调试在大多数人看来不过是切断点，run程序，断住，然后开始分析。很多时候我们需要在gdb中一行行敲命令去控制gdb的运行，而如果我们右击代码段左侧的断点标记，可以发现一个很有趣的菜单，那就是Edit Breakponit。
 

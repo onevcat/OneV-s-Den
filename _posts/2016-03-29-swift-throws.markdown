@@ -2,7 +2,8 @@
 layout: post
 title: Swift 2 throws 全解析 - 从原理到实践
 date: 2016-03-29 15:37:24.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Swift]
+tags: [swift, 错误处理, 异常, 开发者体验, 最佳实践]
 ---
 
 

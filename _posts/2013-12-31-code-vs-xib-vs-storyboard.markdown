@@ -2,10 +2,10 @@
 layout: post
 title: 代码手写UI，xib和StoryBoard间的博弈，以及Interface Builder的一些小技巧
 date: 2013-12-31 01:02:21.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, iOS]
+tags: [wwdc, storyboard, 开发者体验, xcode, ui]
+image: /assets/images/2013/code-xib-sb.png
 ---
-
-![Code-vs-Xibs-vs-StroyBoard](/assets/images/2013/code-xib-sb.png)
 
 最近接触了几个刚入门的iOS学习者，他们之中存在一个普遍和困惑和疑问，就是应该如何制作UI界面。iOS应用是非常重视用户体验的，可以说绝大多数的应用成功与否与交互设计以及UI是否漂亮易用有着非常大的关系。而随着iOS开发发展至今，可以说在UI制作上大家逐渐分化为了三种主要流派：使用代码手写UI及布局；使用单个xib文件组织viewController或者view；使用StoryBoard来通过单个或很少的几个（关于这点稍后会进行展开）文件构建全部UI。应该使用哪种方式来制作UI已经是iOS开发中亘古不变的争论话题了，或许永远不会有一个统一的结论。但是首先需要知道的是三种方式各有优劣，所以也各有自己最适用的场合，而不会有完全的孰优孰劣。对于初学iOS开发来说，一时间其实是很难判定最适合自己的UI架构方式的。在这篇文章里我希望能够通过自己的经验给出一些意见，以期能帮助入门者来挑选最适合自己应用场景的方案。对于老鸟的话，也不妨对照自己平日的使用习惯和运用场景，看看有没有可以改进或变化的地方。最后，因为我本人现在最习惯和喜欢的是用Interface Builder(之后简称IB)及xib来做UI，所以文末附上了一些IB使用时候的小技巧，算是做个总结。
 

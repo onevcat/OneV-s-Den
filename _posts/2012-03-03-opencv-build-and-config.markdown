@@ -2,7 +2,8 @@
 layout: post
 title: OpenCV 在 iOS 开发环境下的编译和配置
 date: 2012-03-03 23:06:23.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [iOS, opencv, 计算机图形]
 ---
 
 转载本文请保留以下原作者信息:

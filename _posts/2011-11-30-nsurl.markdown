@@ -2,11 +2,13 @@
 layout: post
 title: 关于 NSURL 的解析和编码
 date: 2011-11-30 00:06:37.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Objective-C]
+tags: [objc, 编码]
 ---
+
 NSURL毫无疑问是常用类，有时候我们需要对一个url进行分析整理，当然是可以按照RFC 1808的定义去自己分析，但是万能的Apple大大已经在SDK里扔了不少方法来帮助解析一个url了…方便又快捷呐～比如下面的输入：
 
-```
+```objc
 NSURL *url = [NSURL URLWithString:
  @"http://www.onevcat.com/2011/11/debug/;param?p=307#more-307"];
 NSLog(@“Scheme: %@”, [url scheme]);
@@ -29,6 +31,6 @@ NSLog(@“Fragment: %@”, [url fragment]);
 `stringByAddingPercentEscapesUsingEncoding:`
 将其转换为合法的url字符串（其实目的就是保证非法字符用UTF8编码..） 比如这样：
 
-```
+```objc
 NSString *fixedStr = [reqStr stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 ```

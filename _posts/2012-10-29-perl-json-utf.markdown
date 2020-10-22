@@ -2,8 +2,10 @@
 layout: post
 title: Perl中JSON的解析和utf-8乱码的解决
 date: 2012-10-29 00:08:28.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [perl, server, json, 编码]
 ---
+
 最近在做一个带有网络通讯和同步功能的app，需要自己写一些后台的东西。因为是半路入门，所以从事开发以来就没有做过后台相关的工作，属于绝对的小白菜鸟。而因为公司在入职前给新员工提过学习Perl的要求，所以还算是稍微看过一些。这次的后台也直接就用Perl来写了。
 
 ### 基本使用
@@ -12,7 +14,7 @@ tags: 能工巧匠集
 
 使用也很简单，安装完模块后，use之后使用encode_json命令即可将perl的array或者dic转换为标准的JSON字符串了：
 
-```
+```perl
 use JSON qw/encode_json decode_json/;
 my $data = [
     {
@@ -29,13 +31,13 @@ my $json_out = encode_json($data);
 
 得到的字符串为
 
-```
+```json
 [{"name":"Ken","age":19},{"name":"Ken","age":25}]
 ```
 
 相对应地，解析也很容易
 
-```
+```perl
 my $array = decode_json($json_out);
 ```
 
@@ -53,7 +55,7 @@ use Encode;
 
 另外，如果使用非UTF8进行编码的内容的话，最好先使用Encode的from_to命令转换成UTF8，之后再进行JSON编码。比如使用GBK编码的简体字（一般来自比较早的Windows的文件等会偶尔变成非UTF8编码），先进性如下转换：
 
-```
+```perl
 use JSON;
 use Encode 'from_to';
  

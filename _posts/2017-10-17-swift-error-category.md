@@ -2,7 +2,8 @@
 layout: post
 title: "关于 Swift Error 的分类"
 date: 2017-10-17 12:15:00.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Swift]
+tags: [swift, 错误处理, 异常, 开发者体验, 最佳实践]
 ---
 
 在去年我应 IBM 编辑的邀请写过一篇关于 [Swift 2 中 throws 的文章](https://onevcat.com/2016/03/swift-throws/)。现在回头看，Swift 2 其实是 Swift 语言发展的一个挺重要的节点：如果说 Swift 1 是一个更偏向于验证阶段的产品的话，Swift 2 中加入的特性为这门语言的基石进行了补足。在那篇文章里我们主要深入探索了新的 throw 关键字背后的事情，而同一时期其实 Swift 官方有过一次关于错误处理的讨论。随着 Swift 3 的开源，这些原始文档也被一同公开，展示了 Swift 设计的过程和轨迹。如果你对这篇 Swift 2 中的错误处理的宣言感兴趣的话，可以在 GitHub 上 Swift 项目文档中[找到原文](https://github.com/apple/swift/blob/master/docs/ErrorHandling.rst)。
