@@ -2,7 +2,8 @@
 layout: post
 title: "Package.swift toolchain 版本的选择"
 date: 2020-09-05 12:00:00.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Swift]
+tags: [swift, spm, 工具链, 最佳实践, wwdc]
 ---
 
 WWDC 2020 上 Swift Package Manager (SPM) 开始支持 [Resource bundle](https://developer.apple.com/videos/play/wwdc2020/10169/) 和 [Binary Framework](https://developer.apple.com/videos/play/wwdc2020/10147/)。对于 Package 的维护者来说，如果有需求，当然是应该尽快适配这些内容。首先要做的，就是将 Package.swift 中的 Swift Toolchain 版本改到最新的 5.3：只有最新的 tool chain 才具备这些功能。

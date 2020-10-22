@@ -2,7 +2,8 @@
 layout: post
 title: "Swift 中使用 Option Pattern 改善可选项的 API 设计"
 date: 2020-10-21 14:00:00 +0900
-tags: [能工巧匠集]
+categories: [能工巧匠集, Swift]
+tags: [swift, api, 设计模式]
 ---
 
 SwiftUI 中提供了很多“新颖”的 API 设计思路和 Swift 的使用方式，我们可以进行借鉴，并反过来使用到普通的 Swift 代码中。[`PreferenceKey`](https://developer.apple.com/documentation/swiftui/preferencekey) 的处理方式就是其中之一：它通过 protocol 的方式，为子 view 们提供了一套模式，让它们能将自定义值以类型安全的方式，向上传到父 view 去。如果有机会，我会再专门介绍 `PreferenceKey`，但这种设计的模式其实和 UI 无关，在一般的 Swift 里，我们也能使用这种方法来改善 API 设计。

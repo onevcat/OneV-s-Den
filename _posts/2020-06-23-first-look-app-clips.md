@@ -2,7 +2,8 @@
 layout: post
 title: "一些关于 App Clips 的笔记"
 date: 2020-06-23 12:00:00.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, WWDC]
+tags: [app clips, wwdc, 用户体验]
 ---
 
 App clips 是今天 WWDC 上 iOS 14 的一个重要“卖点”，它提供了一种“即时使用”的方式，让用户可以在特定时间、特定场景，在不下载完整 app 的前提下，体验到你的 app 的核心功能。

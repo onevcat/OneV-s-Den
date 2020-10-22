@@ -2,7 +2,8 @@
 layout: post
 title: "@StateObject 和 @ObservedObject 的区别和使用"
 date: 2020-06-25 12:00:00.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, SwiftUI]
+tags: [swift, swiftui, 设计模式, 最佳实践, 状态管理]
 ---
 
 > WWDC 2020 中，SwiftUI 迎来了非常多的变更。相比于 2019 年的初版，可以说 SwiftUI 达到了一个相对可用的状态。从这篇文章开始，我打算写几篇文章来介绍一些重要的变化和新追加的内容。如果你需要 SwiftUI 的入门和基本概念的材料，我参与的两本书籍[《SwiftUI 与 Combine 编程》](https://objccn.io/products/swift-ui)和[《SwiftUI 编程思想》](https://objccn.io/products/thinking-in-swiftui)依然会是很好的选择。
