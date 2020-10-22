@@ -45,19 +45,8 @@ baseurl: ''
 # Change to your timezone › http://www.timezoneconverter.com/cgi-bin/findzone/findzone
 timezone: Asia/Tokyo
 
-google_analytics:
-  id: 'UA-25719337-1'
-  pv:
-    # The Google Analytics pageviews switch.
-    # DO NOT enable it unless you know how to deploy the Google Analytics superProxy.
-    enabled: false
-    # the next options only valid when `google_analytics.pv` is enabled.
-    proxy_url: ''
-    proxy_endpoint: ''
-    cache: false  # pv data local cache, good for the users from GFW area.
-
 disqus:
-  comments: true  # boolean type, the global switch for posts comments.
+  comments: false  # boolean type, the global switch for posts comments.
   shortname: 'onevcat'    # Fill with your Disqus shortname. › https://help.disqus.com/en/articles/1717111-what-s-a-shortname
 
 
