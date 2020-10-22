@@ -323,7 +323,7 @@ light.preferredGreenLightColor = .turquoise
 
 有了 `TrafficLightOption`，现在想要为 `TrafficLight` 添加选项时，就不需要对类型本身的代码进行改动了，我们只需要声明一个满足 `TrafficLightOption` 的新类型，然后为它实现合适的计算属性就可以了。这大幅增加了原来类型的可扩展性。
 
-### 总结
+## 总结
 
 Option Pattern 是一种受到 SwiftUI 的启发的模式，它帮助我们在不添加存储属性的前提下，提供了一种向已有类型中以类型安全的方式添加“存储”的手段。
 
