@@ -3,7 +3,7 @@ layout: post
 title: 赴日半年的一些杂感
 date: 2013-04-01 00:35:58.000000000 +09:00
 categories: [一得之愚集]
-tag: [日本, 生活]
+tags: [日本, 生活]
 image: /assets/images/2013/sakura.jpg
 ---
 
