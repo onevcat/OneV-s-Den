@@ -2,10 +2,10 @@
 layout: post
 title: iOS内购实现及测试Check List
 date: 2013-11-18 01:01:16.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, iOS]
+tags: [内购, xcode, app store, 最佳实践]
+image: /assets/images/2013/cannot-connect-its.png
 ---
-
-![image](/assets/images/2013/cannot-connect-its.png)
 
 免费+应用内购买的模式已经被证明了是最有效的盈利模式，所以实现内购功能可能是很多开发者必做的工作和必备的技能了。但是鉴于内购这块坑不算少，另外因为sandbox测试所需要特定的配置也很多，所以对于经验不太多的开发者来说很容易就遇到各种问题，并且测试时出错Apple给出的也只有“Can not connect iTunes Store”或者"Invalid Product IDs"之类毫无价值的错误提示，并没有详细的错误说明，因此调试起来往往没有方向。有老前辈在[这里](http://troybrant.net/blog/2010/01/invalid-product-ids/)整理过一个相对完整的check list了，但是因为年代已经稍微久远，所以内容上和现在的情况已经有一些出入。趁着在最近两个项目里做内购这块遇到的新问题，顺便在此基础上总结整理了一份比较新的中文Check list，希望能帮到后来人。
 

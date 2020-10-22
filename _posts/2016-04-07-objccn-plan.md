@@ -2,10 +2,10 @@
 layout: post
 title: "ObjC 中国的工作回顾和之后的计划"
 date: 2016-04-07 10:51:24.000000000 +09:00
-tags: 南箕北斗集
+categories: [南箕北斗集]
+tags: [objccn, 物览]
+image: /assets/images/2016/functional-swift-header.png
 ---
-
-![](/assets/images/2016/functional-swift-header.png)
 
 小时候因为成绩还算凑合，所以经常会被任命做个班干部什么的。其实这并不是一份很有意思的工作，除了上课要被老师重点“关照”点名起来回答问题以外，最烦人的事情就是开学要写工作计划，期末要写工作总结了。耗时耗力不说，写出来的东西也并不会有什么人看。
 

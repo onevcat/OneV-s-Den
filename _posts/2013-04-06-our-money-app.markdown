@@ -2,10 +2,12 @@
 layout: post
 title: 两个人一起记账吧～ Our Money
 date: 2013-04-06 00:37:13.000000000 +09:00
-tags: 南箕北斗集
+categories: [南箕北斗集]
+tags: [硬广]
+image: /assets/images/2013/ourmoney-banner.jpg
 ---
 
-[![image](/assets/images/2013/ourmoney-banner.jpg)](https://itunes.apple.com/cn/app/our-money/id562520527?ls=1&mt=8)
+## 已下架
 
 Our Money是一款能够协助多人在云端记账的iOS应用，可以帮助您简单地记录和整理日常开销，您可以邀请您的朋友和家人与您一起记账，免去每日汇报总结之苦。
 

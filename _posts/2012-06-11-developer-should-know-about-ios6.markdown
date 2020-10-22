@@ -2,10 +2,9 @@
 layout: post
 title: 开发者所需要知道的iOS6 SDK新特性
 date: 2012-06-11 23:35:11.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, WWDC]
+tags: [wwdc, ios]
 ---
-
-欢迎转载本文，但是转载请注明本文出处： **[http://2.gy/erSp](http://2.gy/erSp)**
 
 iOS6 beta和相应的SDK已经放出了，WWDC2012要进入session环节了。iOS6无疑是这届WWDC的重点，在keynote上面对消费者展示了很多新鲜的特性，而之后的seesion对于开发者来说应该是更为重要。这里先大概把iOS6里新增的开发者可能用到的特性做个简单的整理。之后我也会挑一些自己感兴趣的session做一些整理和翻译工作，也算是对自己的一种锻炼吧～相关的笔记整理如下：
 

@@ -2,7 +2,8 @@
 layout: post
 title: 跨平台开发时代的 (再次) 到来？
 date: 2015-03-27 18:56:08.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [跨平台, 技术概览, javascript, 大前端]
 ---
 
 ![cross-platform](/assets/images/2015/cross-platform.png)

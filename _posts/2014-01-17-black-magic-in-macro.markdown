@@ -2,10 +2,11 @@
 layout: post
 title: 宏定义的黑魔法 - 宏菜鸟起飞手册
 date: 2014-01-17 01:03:36.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [宏, 开发者体验, objc, c, 编程语言]
+image: /assets/images/2014/define-title.png
 ---
 
-![Happy define :)](/assets/images/2014/define-title.png)
 
 宏定义在C系开发中可以说占有举足轻重的作用。底层框架自不必说，为了编译优化和方便，以及跨平台能力，宏被大量使用，可以说底层开发离开define将寸步难行。而在更高层级进行开发时，我们会将更多的重心放在业务逻辑上，似乎对宏的使用和依赖并不多。但是使用宏定义的好处是不言自明的，在节省工作量的同时，代码可读性大大增加。如果想成为一个能写出漂亮优雅代码的开发者，宏定义绝对是必不可少的技能（虽然宏本身可能并不漂亮优雅XD）。但是因为宏定义对于很多人来说，并不像业务逻辑那样是每天会接触的东西。即使是能偶尔使用到一些宏，也更多的仅仅只停留在使用的层级，却并不会去探寻背后发生的事情。有一些开发者确实也有探寻的动力和意愿，但却在点开一个定义之后发现还有宏定义中还有其他无数定义，再加上满屏幕都是不同于平时的代码，既看不懂又不变色，于是乎心生烦恼，怒而回退。本文希望通过循序渐进的方式，通过几个例子来表述C系语言宏定义世界中的一些基本规则和技巧，从0开始，希望最后能让大家至少能看懂和还原一些相对复杂的宏。考虑到我自己现在objc使用的比较多，这个站点的读者应该也大多是使用objc的，所以有部分例子是选自objc，但是本文的大部分内容将是C系语言通用。
 
@@ -397,9 +398,9 @@ NSLog(@"Hello");
 
 另外，在这里一定要宣传一下关注了很久的[@hangcom](http://weibo.com/hangcom) 吴航前辈的新书《iOS应用逆向工程》。很荣幸能够在发布之前得到前辈的允许拜读了整本书，可以说看的畅快淋漓。我之前并没有越狱开发的任何基础，也对相关领域知之甚少，在这样的前提下跟随书中的教程和例子进行探索的过程可以说是十分有趣。我也得以能够用不同的眼光和高度来审视这几年所从事的iOS开发行业，获益良多。可以说《iOS应用逆向工程》是我近期所愉快阅读到的很cool的一本好书。现在这本书还在预售中，但是距离1月28日的正式发售已经很近，有兴趣的同学可以前往[亚马逊](http://www.amazon.cn/gp/product/B00HQW9AA6/ref=s9_simh_gw_p14_d0_i6?pf_rd_m=A1AJ19PSB66TGU&pf_rd_s=center-2&pf_rd_r=1KY5VBPQDKMCCWC07ANV&pf_rd_t=101&pf_rd_p=108773272&pf_rd_i=899254051)或者[ChinaPub](http://product.china-pub.com/3769262)的相关页面预定，相信这本书将会是iOS技术人员非常棒的春节读物。
 
-最后是我们说好的留给大家玩的练习，我加了一点注释帮助大家稍微理解每个宏是做什么的，在文章后面留了一块试验田，大家可以随便填写玩弄。总之，加油！
+最后是我们说好的留给大家玩的练习，请加油展开 `RACObserve`，看看它到底做了什么。(我加了一点注释帮助大家稍微理解每个宏是做什么的，希望能有帮助。总之，加油！)
 
-```
+```objc
 //调用 RACSignal是类的名字
 RACSignal *signal = RACObserve(self, currentLocation);
 
@@ -457,13 +458,3 @@ RACSignal *signal = RACObserve(self, currentLocation);
 #define metamacro_dec(VAL) \
         metamacro_at(VAL, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
 ```
-
-<div id="editor">//调用 RACSignal是类的名字
-RACSignal *signal = RACObserve(self, currentLocation);</div>
-    
-<script src="/javascripts/src-min/ace.js" type="text/javascript" charset="utf-8"></script>
-<script>
-    var editor = ace.edit("editor");
-    editor.setTheme("ace/theme/github");
-    editor.getSession().setMode("ace/mode/objectivec");
-</script>

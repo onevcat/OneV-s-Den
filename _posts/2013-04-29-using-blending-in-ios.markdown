@@ -2,10 +2,11 @@
 layout: post
 title: iOS中使用blend改变图片颜色
 date: 2013-04-29 00:41:33.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [iOS, 渲染, 计算机图形]
+image: /assets/images/2013/blend_title.png
 ---
 
-![使用Blend处理图片颜色](/assets/images/2013/blend_title.png)
 
 最近对`Core Animation`和`Core Graphics`的内容东西比较感兴趣，自己之前也在这块相对薄弱，趁此机会也想补习一下这块的内容，所以之后几篇可能都会是对CA和CG学习的记录的文章。
 

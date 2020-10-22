@@ -2,7 +2,8 @@
 layout: post
 title: AppCode，Objective-C IDE的另一选择
 date: 2012-03-24 23:10:06.000000000 +09:00
-tags: 南箕北斗集
+categories: [能工巧匠集, 杂谈]
+tags: [xcode, appcode, 开发者体验]
 ---
 
 ###Xcode or AppCode

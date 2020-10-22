@@ -2,7 +2,8 @@
 layout: post
 title: WWDC 2012 Session笔记——405 Modern Objective-C
 date: 2012-06-24 23:39:08.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, WWDC]
+tags: [wwdc, xcode, objc, 最佳实践, 开发者体验, 编程语言, arc]
 ---
 
 这是博主的WWDC2012笔记系列中的一篇，完整的笔记列表可以参看[这里](http://onevcat.com/2012/06/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%80%E9%9C%80%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84ios6-sdk%E6%96%B0%E7%89%B9%E6%80%A7/)。如果您是首次来到本站，也许您会有兴趣通过[RSS](http://onevcat.com/atom.xml)，或者通过页面左侧的邮件订阅的方式订阅本站。

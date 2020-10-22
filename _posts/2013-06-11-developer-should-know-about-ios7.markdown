@@ -2,10 +2,11 @@
 layout: post
 title: 开发者所需要知道的iOS7 SDK新特性
 date: 2013-06-11 00:45:02.000000000 +09:00
-tags: 能工巧匠集
----
+categories: [能工巧匠集, WWDC]
+tags: [wwdc, xcode, objc, iOS, ui]
+image: /assets/images/2013/ios-7-logo.png
 
-![iOS 7](/assets/images/2013/ios-7-logo.png)
+---
 
 春风又绿加州岸，物是人非又一年。WWDC 2013 keynote落下帷幕，新的iOS开发旅程也由此开启。在iOS7界面重大变革的背后，开发者们需要知道的又有哪些呢。同去年一样，我会先简单纵览地介绍iOS7中我个人认为开发者需要着重关注和学习的内容，之后再陆续对自己感兴趣章节进行探索。计划继承类似[WWDC2012的笔记](http://onevcat.com/2012/06/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%80%E9%9C%80%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84ios6-sdk%E6%96%B0%E7%89%B9%E6%80%A7/)的形式，希望对国内开发者有所帮助。
 

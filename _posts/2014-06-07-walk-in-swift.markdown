@@ -2,9 +2,10 @@
 layout: post
 title: 行走于 Swift 的世界中
 date: 2014-06-07 18:23:44.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Swift]
+tags: [wwdc, swift, 开发者体验, 编程语言]
+image: /assets/images/2014/swift.png
 ---
-![](/assets/images/2014/swift.png)
 
 > 2014 年 7 月 13 日更新：根据 beta 3 的情况修正了文中过时的部分
 

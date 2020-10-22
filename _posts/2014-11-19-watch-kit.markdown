@@ -2,7 +2,8 @@
 layout: post
 title: Apple WatchKit 初探
 date: 2014-11-19 17:40:22.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [watchOS, api]
 ---
 ![](/assets/images/2014/watchkit-0.png)
 

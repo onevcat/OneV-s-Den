@@ -2,7 +2,8 @@
 layout: post
 title: "活久见的重构 - iOS 10 UserNotifications 框架解析"
 date: 2016-08-08 10:22:11.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, WWDC]
+tags: [开发者体验, api, 推送, wwdc]
 ---
 
 ## TL;DR

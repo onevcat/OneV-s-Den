@@ -2,10 +2,10 @@
 layout: post
 title: 猫都能学会的Unity3D Shader入门指南（二）
 date: 2013-08-31 00:57:34.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Unity]
+tags: [unity, shader, 计算机图形, 渲染]
+image: /assets/images/2013/shader-tutorial2-light.jpg
 ---
-
-![Unity Shader教程](/assets/images/2013/shader-tutorial2-light.jpg)
 
 ## 关于本系列
 

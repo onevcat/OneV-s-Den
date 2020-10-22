@@ -2,7 +2,8 @@
 layout: post
 title: "写给初次参加 WWDC 的开发者的简明攻略"
 date: 2016-04-19 21:10:11.000000000 +09:00
-tags: 南箕北斗集
+categories: [一得之愚集]
+tags: [wwdc, 机器学习, arkit, xcode, 开发者体验]
 ---
 
 ![](/assets/images/2016/wwdc-2016-logo.jpg)

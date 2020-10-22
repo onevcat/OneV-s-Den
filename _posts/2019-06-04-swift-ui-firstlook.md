@@ -2,7 +2,8 @@
 layout: post
 title: "SwiftUI 的一些初步探索 (一)"
 date: 2019-06-04 15:32:00.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, SwiftUI]
+tags: [swift, swiftui, wwdc]
 ---
 
 ![](/assets/images/2019/swift-ui.png)

@@ -2,7 +2,8 @@
 layout: post
 title: Scheme 初步
 date: 2015-05-08 12:59:45.000000000 +09:00
-tags: 南箕北斗集
+categories: [能工巧匠集, 杂谈]
+tags: [scheme, 编程语言, 函数式编程]
 ---
 之前定了[每年学习一门语言](http://onevcat.com/2014/09/bye-kayac/)的目标，自然不能轻言放弃。今年目标：简单掌握 Scheme。
 

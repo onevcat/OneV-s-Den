@@ -2,7 +2,8 @@
 layout: post
 title: WWDC 2014 Session笔记 - iOS界面开发的大一统
 date: 2014-07-29 10:54:18.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, WWDC]
+tags: [wwdc, ui, 最佳实践, 适配, storyboard]
 ---
 ![size-classes](/assets/images/2014/size-classes-header.png)
 
@@ -40,7 +41,7 @@ iOS 8 和 OS X 10.10 中一个被强调了多次的主题就是大一统，Apple
 
 和 UIKit 中的响应者链正好相反，`traitCollection` 将会在 view hierarchy 中自上而下地进行传递。对于没有指定 `traitCollection` 的 UI 部件，将使用其父节点的 `traitCollection`。这在布局包含 childViewController 的界面的时候会相当有用。在 `UITraitEnvironment` 这个接口中另一个非常有用的是 `-traitCollectionDidChange:`。在 `traitCollection` 发生变化时，这个方法将被调用。在实际操作时，我们往往会在 ViewController 中重写 `-traitCollectionDidChange:` 或者 `-willTransitionToTraitCollection:withTransitionCoordinator:` 方法 (对于 ViewController 来说的话，后者也许是更好的选择，因为提供了转场上下文方便进行动画；但是对于普通的 View 来说就只有前面一个方法了)，然后在其中对当前的 `traitCollection` 进行判断，并进行重新布局以及动画。代码看起来大概会是这个样子：
 
-```
+```objc
 - (void)willTransitionToTraitCollection:(UITraitCollection *)newCollection 
               withTransitionCoordinator:(id <UIViewControllerTransitionCoordinator>)coordinator
 {
@@ -96,10 +97,11 @@ Image Asset 里也加入了对 Size Classes 的支持，也就是说，我们可
 
 另外，在 iOS 7 中 UIImage 添加了一个 `renderingMode` 属性。我们可以使用 `imageWithRenderingMode:` 并传入一个合适的 `UIImageRenderingMode` 来指定这个 image 要不要以 [Template 的方式进行渲染](https://developer.apple.com/library/ios/documentation/UserExperience/Conceptual/UIKitUICatalog/index.html#//apple_ref/doc/uid/TP40012857-UIView-SW7)。在新的 Xcode 中，我们可以直接在 Image Asset 里的 `Render As` 选项来指定是不是需要作为 template 使用。而相应的，在 `UIApperance` 中，Apple 也为我们对于 Size Classes 添加了相应的方法。使用 `+appearanceForTraitCollection:` 方法，我们就可以针对不同 trait 下的应用的 apperance 进行很简单的设定。比如在上面的例子中，我们想让笑脸是绿色，而哭脸是红色的话，不要太简单。首先在 Image Asset 里的渲染选项设置为 `Template Image`，然后直接在 `AppDelegate` 里加上这样两行：
 
-```
+```objc
 UIView.appearanceForTraitCollection(UITraitCollection(verticalSizeClass:.Compact)).tintColor = UIColor.redColor()
 UIView.appearanceForTraitCollection(UITraitCollection(verticalSizeClass:.Regular)).tintColor = UIColor.greenColor()
 ```
+
 ![image](/assets/images/2014/size-classes-3.gif)
 
 完成，只不过拖拖鼠标，两行简单的代码，随后还能随喜换色，果然是大快所有人心的大好事。
@@ -130,7 +132,7 @@ iOS 7 中加入了一套实现非常漂亮的自定义转场动画的方法 (如
 
 比起原来的类，新的方式有什么优点呢？最大的优势是自适应，这和 `UISplitViewController` 在 iOS 8 下的表现是类似的。在 Compact 的宽度条件下，`UIPopoverPresentationController` 的呈现将会直接变成 modal 出来。这样我们基本就不再需要去判断 iPhone 还是 iPad (其实相关的判定方法也已经被标记成弃用了)，就可以对应不同的设备了。以前我们可能要写类似这样的代码：
 
-```
+```swift
 if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
     let popOverController = UIPopoverController(contentViewController: nextVC)
     popOverController.presentPopoverFromRect(aRect, inView: self.view, permittedArrowDirections: .Any, animated: true)
@@ -141,7 +143,7 @@ if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
 
 而现在需要做的是：
 
-```
+```swift
 nextVC.modalPresentationStyle = .Popover
 let popover = nextVC.popoverPresentationController
 popover.sourceRect = aRect
@@ -154,7 +156,7 @@ presentViewController(nextVC, animated: true, completion: nil)
 
 除了自适应之外，新方式的另一个优点是非常容易自定义。我们可以通过继承 `UIPopoverPresentationController` 来实现我们自己想要的呈现方式。其实更准确地说，我们应该继承的是 `UIPresentationController`，主要通过实现 `-presentationTransitionWillBegin` 和 `-presentationTransitionDidEnd:` 来自定义我们的展示。像以前我们想要实现只占半个屏幕，后面原来的 view 还可见的 modal，或者是将从下到上的动画改为百叶窗或者渐隐渐现，那都是可费劲儿的事情。而在 `UIPresentationController` 的帮助下，一切变得十分自然和简单。在自己的 `UIPresentationController` 子类中：
 
-```
+```swift
 override func presentationTransitionWillBegin() {
     let transitionCoordinator = self.presentingViewController.transitionCoordinator()
     transitionCoordinator.animateAlongsideTransition({context in
@@ -177,7 +179,7 @@ override func presentationTransitionDidEnd(completed: Bool)  {
 
 而作为替代品的 `UIAlertController` 正是为了解决这些问题而出现的，值得注意的是，这是一个 `UIViewController` 的子类。可能你会问 `UIAlertController` 对应替代 `UIAlertView`，这很好，但是 `UIActionSheet` 怎么办呢？哈..答案是也用 `UIAlertController`，在 `UIAlertController` 中有一个 `preferredStyle` 的属性，暂时给我们提供了两种选择 `ActionSheet` 和 `Alert`。在实际使用时，这个类的 API 还是很简单的，使用工厂方法创建对象，进行配置后直接 present 出来：
 
-```
+```swift
 let alert = UIAlertController(title: "Test", message: "Msg", preferredStyle: .Alert)
 
 let okAction = UIAlertAction(title: "OK", style: .Default) {

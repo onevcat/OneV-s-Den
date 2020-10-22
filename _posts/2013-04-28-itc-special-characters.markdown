@@ -2,10 +2,10 @@
 layout: post
 title: 苹果应用描述中不能使用特殊字符的对应方法
 date: 2014-04-28 00:40:39.000000000 +09:00
-tags: 南箕北斗集
+categories: [南箕北斗集]
+tags: [app store, 用户体验]
+image: /assets/images/2013/itc-special-character.png
 ---
-
-![就是不让你用就是不让你用～](/assets/images/2013/itc-special-character.png)
 
 ### 该文章内容在iOS7中已经失效，请乖乖遵循苹果的规则写吧
 

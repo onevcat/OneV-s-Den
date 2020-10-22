@@ -2,7 +2,8 @@
 layout: post
 title: MGTwitterEngine中Twitter API 1.1的使用
 date: 2013-03-24 00:34:48.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [twitter, api]
 ---
 在iOS5中使用Twitter framework或者在iOS6中使用Social framework来完成Twitter的集成是非常简单和轻松的，但是如果应用要针对iOS5之前的系统版本，那么就不能使用iOS提供的框架了。一个比较常见也是使用最广泛的选择是[MGTwitterEngine](https://github.com/mattgemmell/MGTwitterEngine)，比如[PomodoroDo](http://www.onevcat.com/showcase/pomodoro_do/)选择使用的就是该框架。
 

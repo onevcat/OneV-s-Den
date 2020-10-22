@@ -2,10 +2,11 @@
 layout: post
 title: Xcode 4 插件制作入门
 date: 2013-02-02 00:32:39.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [xcode, 插件, 开发者体验]
 ---
 
-本文欢迎转载，但烦请保留此行出处信息：[http://www.onevcat.com/2013/02/xcode-plugin/](http://www.onevcat.com/2013/02/xcode-plugin/)
+本文欢迎转载，但烦请保留此行出处信息：[https://onevcat.com/2013/02/xcode-plugin/](https://onevcat.com/2013/02/xcode-plugin/)
 
 ## 2014.5.4更新
 
@@ -35,11 +36,11 @@ Xcode本身作为一个IDE来说已经可以算上优秀，但是依然会有很
 
 ![image][5] 创建工程，OSX，Framework & Library，选择Bundle，点击Next。
 
-   [5]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-1.png
+   [5]: /assets/images/2013/xcode-plugin-1.png
 
 ![image][6]
 
-   [6]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-2.png
+   [6]: /assets/images/2013/xcode-plugin-2.png
 
 在Project信息页面中，填入插件名字，在这个例子里，就叫做DemoPlugin，Framework使用默认的Cocoa就行。另外一定记住将Use Automatic Reference Counting前的勾去掉，由于插件只能使用GC来进行内存管理，因此不需要使用ARC。
 
@@ -49,7 +50,7 @@ Xcode本身作为一个IDE来说已经可以算上优秀，但是依然会有很
 
 ![image][7]
 
-   [7]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-3.png
+   [7]: /assets/images/2013/xcode-plugin-3.png
 
 首先，在编辑工程的Info.plist文件（直接编辑plist文件或者是修改TARGETS下对应target的Info都行），加入以下三个布尔值：
 
@@ -63,7 +64,7 @@ XC4Compatible = YES
 
 ![image][8]
 
-   [8]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-4.png
+   [8]: /assets/images/2013/xcode-plugin-4.png
 
   * Installation Build Products Location 设置为 ${HOME} 
 
@@ -87,7 +88,7 @@ XC4Compatible = YES
 
 ![image][9]
 
-   [9]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-5.png
+   [9]: /assets/images/2013/xcode-plugin-5.png
 
   * GCC_ENABLE_OBJC_GC 设置为 supported
 
@@ -107,7 +108,7 @@ Build（对于OS X 10.8的SDK可能会有提示GC已经废弃的警告，不用�
 
 ![image][10]
 
-   [10]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-6.png
+   [10]: /assets/images/2013/xcode-plugin-6.png
 
 太好了。有句话叫做，写出一个Hello World，就说明你已经掌握了一半…那么，剩下的一半内容，将对开发插件时可能面临的问题和一些常用的手段进行介绍。
 
@@ -175,7 +176,7 @@ Build（对于OS X 10.8的SDK可能会有提示GC已经废弃的警告，不用�
 
 ![image][11]
 
-   [11]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-8.png
+   [11]: /assets/images/2013/xcode-plugin-8.png
 
 ### 完成Demo插件
 
@@ -219,7 +220,7 @@ Build，重启Xcode，随便选中一段文本，然后点击Edit中的What is s
 
 ![image][13]
 
-   [13]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-7.png
+   [13]: /assets/images/2013/xcode-plugin-7.png
 
 至此，您应该已经掌握了基本的Xcode插件制作方法了。接下来的就是根据您的需求实践了～但是在此之前，还有一些重要的技巧和常用方法可能您会有兴趣。
 
@@ -256,7 +257,7 @@ Build，重启Xcode，随便选中一段文本，然后点击Edit中的What is s
 
 ![image][15]
 
-   [15]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-9.png
+   [15]: /assets/images/2013/xcode-plugin-9.png
 
 当然如果只是打印名字的话可能帮助不大，也许你需要从noti的object或者userinfo中获得更多的信息。按条件打印，配合控制台的搜索进行寻找会是一个不错的方法。
 
@@ -295,13 +296,13 @@ Build，重启Xcode，随便选中一段文本，然后点击Edit中的What is s
 
 ![image][22]
 
-   [22]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-10.png
+   [22]: /assets/images/2013/xcode-plugin-10.png
 
 最后便是加入方法交换了～新建一个DVTTextCompletionController的Category，命名为PluginDemo
 
 ![image][23]
 
-   [23]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-13.png
+   [23]: /assets/images/2013/xcode-plugin-13.png
 
 import之前定义的header和MethodSwizzle.h，在DVTTextCompletionController+PluginDemo.m中加入下面实现：
 
@@ -326,7 +327,7 @@ return [self swizzledAcceptCurrentCompletion];
 
 ![image][24]
 
-   [24]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-12.png
+   [24]: /assets/images/2013/xcode-plugin-12.png
 
 太棒了，有了对私有API的注入，能做的事情大为扩展了。
 
@@ -375,7 +376,7 @@ return [self swizzledAcceptCurrentCompletion];
 
 ![image][26]
 
-   [26]: http://i758.photobucket.com/albums/xx224/onevcat/QQ20130202-14.png
+   [26]: /assets/images/2013/xcode-plugin-14.png
 
 根据自己需要去去相应的view吧～然后配合方法交换，基本可以做到尽情做想做的事情了。
 

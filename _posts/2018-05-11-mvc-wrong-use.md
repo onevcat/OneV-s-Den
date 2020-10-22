@@ -2,7 +2,8 @@
 layout: post
 title: "关于 MVC 的一个常见的误用"
 date: 2018-05-11 09:15:00.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [mvc, mvvm, 设计模式, api, uitableview, 最佳实践, 状态管理]
 ---
 
 > 写在前面：[ObjC 中国](https://objccn.io) (或者说我个人) 现在正和 objc.io 合作打造一本关于 [app 架构](https://www.objc.io/books/app-architecture/)的书籍。英文版本已经提前预售，书本身也进入了最后的 review 阶段。我们也将在第一时间进行本书中文版的工作，还请大家关注。

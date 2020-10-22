@@ -2,7 +2,8 @@
 layout: post
 title: "再看关于 Storyboard 的一些争论"
 date: 2017-04-27 10:45:00.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [开发者体验, storyboard, xcode, 最佳实践, ui]
 ---
 
 从 iOS 5 的时代 Apple 推出 Storyboard (以下简称 SB) 后，关于使用这种方式构建 UI 的争论就在 Cocoa 开发者社区里一直发生着。我在 2013 年写过一篇关于[代码手写 UI，xib 和 SB 之间的取舍](https://onevcat.com/2013/12/code-vs-xib-vs-storyboard/)的文章。在四五年后的今天，SB 得到了多次进化，大家也积攒了很多关于使用 SB 进行开发的经验，我们不妨再回头看看当初的忧虑，并结合 SB 开发的现状，来提取一些现阶段被认为比较好的实践。

@@ -2,10 +2,11 @@
 layout: post
 title: Kiwi 使用进阶 Mock, Stub, 参数捕获和异步测试
 date: 2014-05-09 11:48:33.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, 杂谈]
+tags: [xcode, objc, kiwi, 开发者体验, 测试, bdd]
+image: /assets/images/2014/img001-mock-test.jpg
 ---
 
-![test](/assets/images/2014/img001-mock-test.jpg)
 
 Kiwi 是 iOS 的一个行为驱动开发 (Behavior Driven Development, BDD) 的测试框架，我们在[上一篇入门介绍](http://onevcat.com/2014/02/ios-test-with-kiwi/)中简单了解了一些 iOS 中测试的概念以及 Kiwi 的基本用法。其实 Kiwi 的强大远不止如此，它不仅包含了基本的期望和断言，也集成了一些相对高级的测试方法。在本篇中我们将在之前的基础上，来看看 Kiwi 的这些相对高级的用法，包括模拟对象 (mock)，桩程序 (stub)，参数捕获和异步测试等内容。这些方法都是在测试中会经常用到的，用来减少我们测试的难度的手段，特别是在耦合复杂的情况下的测试以及对于 UI 事件的测试。
 
@@ -17,7 +18,7 @@ Kiwi 是 iOS 的一个行为驱动开发 (Behavior Driven Development, BDD) 的�
 
 解决的方法之一是我们用一种最简单的语言来“描述”那些依赖类的行为，而避免对它们进行具体实现，这样就能最大限度地避免出错。比如我们有一个复杂的算法通过输入的温度和湿度来预测明天的天气，现在我们在存储类中暴露了一个方法，它接受输入的温度和湿度，通过之前复杂算法的计算后将结果写入到数据库中。相关的代码大概是下面这个样子，假设我们有个 `WeatherRecorder` 类来做这件事：
 
-```
+```objc
 //WeatherRecorder.m
 -(void) writeResultToDatabaseWithTemprature:(NSInteger)temprature 
 								   humidity:(NSInteger)humidity
@@ -33,21 +34,21 @@ Kiwi 是 iOS 的一个行为驱动开发 (Behavior Driven Development, BDD) 的�
 
 在 Kiwi 中写一个 stub 非常简单，比如我们有一个 `Person` 类的实例，我们想要 stub 让它返回一个固定的名字，可以这么写：
 
-```
+```objc
 Person *person = [Person somePerson];
 [person stub:@selector(name) andReturn:@“Tom”];
 ```
 
 在这个 stub 下，如下测试将会通过，而不论 person 到底具体是谁：
 
-```
+```objc
 NSString *testName = [person name];
 [ testName should] equal:@“Tom”];
 ```
 
 另外，对于我们之前天气预报例子中的带有参数的方法，我们可以使用 Kiwi stub 的带参数版本来进行替换，比如：
 
-```
+```objc
 [weatherForecaster stub:@selector(resultWithTemprature:humidity:) 
 			  andReturn:someResult 
 		  withArguments:theValue(23),theValue(50)];
@@ -69,7 +70,7 @@ NSString *testName = [person name];
 
 还是举上面的天气预报的例子。我们在 stub 时将 `weatherForecaster` 的方法替换处理了。细心的读者可能会有疑惑，问这个 `weatherForecaster` 是怎么来的。因为这个对象其实只是 `WeatherRecorder` 中一个属性，而且很有可能在测试时我们并不能拥有一个恰好合适的 `weatherForecaster`。`WeatherRecorder` 是不需要将 `weatherForecaster` 暴露在头文件中的，VC 是不需要知道它的实现细节的），而我们在上面的 stub 的前提是我们能在测试代码中拿到这个 `weatherForecaster`，很多时候只能修改代码将其暴露，但是这并不是好的实践，很多时候也并不现实。现在有了 mock 后，我们就可以自创一个虚拟的 `weatherForecaster`，并为其设定期望的调用来确保我们输入温度和湿度确实经过了计算然后存入了数据库中了。mock 所使用的期望和普通对象的调用期望类似：
 
-```
+```objc
 id weatherForecasterMock = [WeatherForecaster mock];
 [[weatherForecasterMock should] receive:@selector(resultWithTemprature:humidity:) 
 						  andReturn:someResult 
@@ -79,7 +80,7 @@ id weatherForecasterMock = [WeatherForecaster mock];
 
 然后，对于要测试的 `weatherRecorder` 实例，用 stub 将 -weatherForecaster 的返回换为我们的 mock：
 
-```
+```objc
 [weatherRecorder stub:@selector(weatherForecaster) andReturn:weatherForecasterMock];
 ```
 
@@ -89,13 +90,13 @@ id weatherForecasterMock = [WeatherForecaster mock];
 
 有时候我们会对 mock 对象的输入参数感兴趣，比如期望某个参数符合一定要求，但是对于 mock 而言一般我们是通过调用别的方法来验证 mock 是否被调用的，所以很可能无法拿到传给 mock 对象的参数。这种情况下我们就可以使用参数捕获来获取输入的参数。比如对于上面的 `weatherForecasterMock`，如果我们想捕获温度参数，可以在调用测试前使用
 
-```
+```objc
 KWCaptureSpy *spy = [weatherForecasterMock captureArgument:@selector(resultWithTemprature:humidity:) atIndex:0];
 ```
 
 来加一个参数捕获。这样，当我们在测试中使用 stub 将 `weatherForecaster` 替换为我们的 mock 后，再进行如下调用
 
-```
+```objc
 [weatherRecorder writeResultToDatabaseWithTemprature:23 humidity:50]
 ```
 
@@ -107,7 +108,7 @@ KWCaptureSpy *spy = [weatherForecasterMock captureArgument:@selector(resultWithT
 
 异步测试是为了对后台线程的结果进行期望检验时所需要的，Kiwi 可以对某个对象的未来的状况书写期望，并进行检验。通过将要检验的对象加上 `expectFutureValue`，然后使用 `shouldEventually` 即可。就像这样：
 
-```
+```objc
 [[expectFutureValue(myObject) shouldEventually] beNonNil];
 
 [[expectFutureValue(theValue(myBool)) shouldEventually] beYes];
@@ -115,7 +116,7 @@ KWCaptureSpy *spy = [weatherForecasterMock captureArgument:@selector(resultWithT
 
 比如在 REST 网络测试中，我们可能大部分情况下会选择用一组 mock 来替代服务器的返回进行验证，但是也不排除会有直接访问服务器进行测试的情况。在这种情况下我们就可以使用延时来进行异步测试。这里直接照抄一个官方 Wiki 的例子进行说明：
 
-```
+```objc
  context(@"Fetching service data", ^{
 		it(@"should receive data within one second", ^{
 
@@ -149,7 +150,7 @@ KWCaptureSpy *spy = [weatherForecasterMock captureArgument:@selector(resultWithT
 
 测试用例关键代码如下：
 
-```
+```objc
 TableViewCellConfigureBlock block = ^(UITableViewCell *a, id b){
     configuredCell = a;
     configuredObject = b;
@@ -183,7 +184,7 @@ ViewController 一般被认为是最难测试甚至不可测试的部分。而�
 
 要测试的是 `PhotosViewController` 的实例，因此我们生成一个。对于它的 `UINavigationController`，因为其没有在导航栈中，也这不是我们要测试的对象（保持测试的单一性），所以用一个 mock 对象来代替。然后为其设定 `-pushViewController:animated:` 需要被调用的期望。然后再用输入参数捕获将被 push 的对象抓出来，进行判断。关键部分代码如下：
 
-```
+```objc
 UINavigationController *mockNavController = [UINavigationController mock];
 [photosViewController stub:@selector(navigationController) andReturn:mockNavController];
 
