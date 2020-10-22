@@ -81,6 +81,9 @@ $prompt-newer: "{{ site.data.label.post.button.next }}";
         border-color: none;
       }
     }
+    &.btn-outline-primary:active {
+        background: #b63030;
+    }
     &.btn-outline-primary.disabled:focus {
       box-shadow: none;
     }
