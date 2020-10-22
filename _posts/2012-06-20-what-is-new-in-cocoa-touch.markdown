@@ -3,7 +3,7 @@ layout: post
 title: WWDC 2012 Session笔记——200 What is new in Cocoa Touch
 date: 2012-06-20 23:37:08.000000000 +09:00
 categories: [能工巧匠集, WWDC]
-tags: [wwdc, xcode, ios, table view]
+tags: [wwdc, xcode, iOS, table view]
 ---
 
 这是博主的WWDC2012笔记系列中的一篇，完整的笔记列表可以参看[这里](http://onevcat.com/2012/06/%E5%BC%80%E5%8F%91%E8%80%85%E6%89%80%E9%9C%80%E8%A6%81%E7%9F%A5%E9%81%93%E7%9A%84ios6-sdk%E6%96%B0%E7%89%B9%E6%80%A7/)。如果您是首次来到本站，也许您会有兴趣通过[RSS](http://onevcat.com/atom.xml)，或者通过页面下方的邮件订阅的方式订阅本站。

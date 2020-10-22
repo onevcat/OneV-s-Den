@@ -3,7 +3,7 @@ layout: post
 title: UIViewController的误用
 date: 2012-02-02 22:50:53.000000000 +09:00
 categories: [能工巧匠集, 杂谈]
-tags: [ios, 最佳实践]
+tags: [iOS, 最佳实践]
 ---
 
 转载本文请保留以下原作者信息:

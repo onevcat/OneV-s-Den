@@ -3,7 +3,7 @@ layout: post
 title: 符合iOS系统兼容性需求的方法
 date: 2012-02-25 22:54:42.000000000 +09:00
 categories: [能工巧匠集, 杂谈]
-tags: [ios, 兼容性, 开发者体验, xcode]
+tags: [iOS, 兼容性, 开发者体验, xcode]
 ---
 
 转载本文请保留以下原作者信息:

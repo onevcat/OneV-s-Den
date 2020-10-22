@@ -3,7 +3,7 @@ layout: post
 title: TestFlight——完美的iOS app测试方案
 date: 2012-01-17 22:17:25.000000000 +09:00
 categories: [能工巧匠集, 杂谈]
-tags: [ios, testflight, 测试, app store]
+tags: [iOS, testflight, 测试, app store]
 ---
 转载本文请保留以下原作者信息:  
 原作：onevcat [http://www.onevcat.com/2012/01/testflight/](http://www.onevcat.com/2012/01/testflight/)
