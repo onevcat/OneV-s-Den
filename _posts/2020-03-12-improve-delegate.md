@@ -2,7 +2,8 @@
 layout: post
 title: "使用 protocol 和 callAsFunction 改进 Delegate"
 date: 2020-03-12 10:00:00.000000000 +09:00
-tags: 能工巧匠集
+categories: [能工巧匠集, Swift]
+tags: [swift, 设计模式, 最佳实践, pop]
 ---
 
 2018 年 3 月的时候我写过一篇在 Swift 中如何[改进 Delegate Pattern](https://xiaozhuanlan.com/topic/6104325798) 的文章，主要思想是用遮蔽变量 (shadow variable) 声明的方式，来保证 `self` 变量可以被常时地标记为 `weak`。本文中，为了保证没有看过原文的读者能处在同一频道，我会先 (再次) 简单介绍一下这种方法。然后，结合 Swift 5.2 的新特性提出一些小的改进方式。
