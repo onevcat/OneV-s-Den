@@ -3,7 +3,7 @@ layout: post
 title: Unity3D中暂停时的动画及粒子效果实现
 date: 2013-01-26 00:23:34.000000000 +09:00
 categories: [能工巧匠集, Unity]
-tags: [unity, 插件, 例子效果, 动画]
+tags: [unity, 插件, 粒子效果, 动画]
 ---
 
 暂停是游戏中经常出现的功能，而Unity3D中对于暂停的处理并不是很理想。一般的做法是将`Time.timeScale`设置为0。Unity的文档中对于这种情况有以下描述；
