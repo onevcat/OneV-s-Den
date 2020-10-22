@@ -217,3 +217,4 @@ struct MyView: View {
 而对于那些从外界接受 `ObservableObject` 的 `View`，究竟是使用 `@ObservedObject` 还是 `@StateObject`，则需要根据情况和需要确定。像是那些存在于 `NavigationLink` 的 `destination` 中的 `View`，由于 SwiftUI 对它们的构建时机并没有做 lazy 处理，在处理它们时，需要格外小心。
 
 不论哪种情况，彻底弄清楚两者的区别和背后的逻辑，可以帮助我们更好地理解一个 SwiftUI app 的行为模式。
+
