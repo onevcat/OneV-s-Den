@@ -134,6 +134,10 @@ layout: default
       {% include disqus.html %}
     {% endif %}
 
+    {% if site.utterances.comments and page.comments %}
+      {% include utterances.html %}
+    {% endif %}
+
     </div> <!-- #post-extend-wrapper -->
 
   </div> <!-- .col-* -->

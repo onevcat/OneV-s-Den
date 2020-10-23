@@ -74,16 +74,37 @@
 
     get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; }
 
-    get isLightkMode() { return this.mode == ModeToggle.LIGHT_MODE; }
+    get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; }
 
     get hasMode() { return this.mode != null; }
 
     get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); }
 
+    get isResolvedDarkMode() {
+        if (this.isLightMode) {
+            return false;
+        }
+        return this.isSysDarkPrefer;
+    }
+
+    updateCommentStyle() { 
+      var theme = "{{ site.utterances.light_theme }}";
+      if (this.isResolvedDarkMode) {
+          theme = "{{ site.utterances.dark_theme }}";
+      }
+      let comment = document.querySelector("iframe.utterances-frame");
+      if (comment == null) {
+          return;
+      }
+      comment.contentWindow.postMessage(
+        { type: "set-theme", theme: theme }, "https://utteranc.es/"
+      );
+    }
+
     flipMode() {
       if (this.hasMode) {
         if (this.isSysDarkPrefer) {
-          if (this.isLightkMode) {
+          if (this.isLightMode) {
             this.clearMode();
           } else {
             this.setLight();
@@ -104,7 +125,7 @@
           this.setDark();
         }
       }
-
+      this.updateCommentStyle();
     } /* flipMode() */
 
   } /* ModeToggle */
