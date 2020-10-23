@@ -1,0 +1,20 @@
+<div class="utterances-container">
+  <script src="https://utteranc.es/client.js"
+        repo="{{ site.utterances.repo }}"
+        issue-term="pathname"
+        theme="{{ site.utterances.dark_theme }}"
+        crossorigin="anonymous"
+        async>
+  </script>
+</div>
+
+<script type="text/javascript">
+    $(function() {
+      window.onmessage = evt => {
+        if (evt.origin === 'https://utteranc.es') {
+          toggle.updateCommentStyle();
+          window.onmessage = null;
+        }
+      }        
+    });
+</script>
