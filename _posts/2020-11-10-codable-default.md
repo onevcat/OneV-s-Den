@@ -126,12 +126,12 @@ struct Video: Decodable {
 ```js
 {"id": 12345, "title": "My First Video", "state": "archived"}
 
-> Video(
->   id: 12345, 
->   title: "My First Video",
->   commentEnabled: nil, 
->   state: Video.State.archived
-> )
+// Video(
+//   id: 12345, 
+//   title: "My First Video",
+//   commentEnabled: nil, 
+//   state: Video.State.archived
+// )
 ```
 
 看起来很美好，但是考虑一下，如果将来服务器新增了一个状态，比如 up 主“提前预约”了一次直播时，服务器将返回 `"reserved"`。毫无疑问，我们上面的代码无法将 `"reserved"` 解析为 `State` 中的任何一个值，于是整个 `Video` 类型的解析就都挂掉了：
@@ -139,8 +139,8 @@ struct Video: Decodable {
 ```js
 {"id": 12345, "title": "My First Video", "state": "reserved"}
 
-> error: Swift.DecodingError.dataCorrupted
-> Cannot initialize State from invalid String value reserved
+// error: Swift.DecodingError.dataCorrupted
+// Cannot initialize State from invalid String value reserved
 ```
 
 根据你想要实现的效果，在 client app 中，这可能是一个非常严重的问题。更麻烦的是，即使你将 `state` 声明为可选值的 `State?`，依然还是解决不了这个情况：可选值的解码所表达的是“如果不存在，则置为 nil”，而**不是**“如果解码失败，则置为 nil”。所以下面的改变不会对问题有任何帮助：
@@ -152,8 +152,8 @@ struct Video: Decodable {
 }
 
 // {"id": 12345, "title": "My First Video", "state": "reserved"}
-> error: Swift.DecodingError.dataCorrupted
-> Cannot initialize State from invalid String value reserved
+// error: Swift.DecodingError.dataCorrupted
+// Cannot initialize State from invalid String value reserved
 ```
 
 只要 "state" key 在 JSON 中存在，那么解码就会发生；只要等待解码的数据无法初始化一个 `State`，那么整个值的解码就会失败。
@@ -344,8 +344,11 @@ extension KeyedDecodingContainer {
 
 有了这个，对于 JSON 中 `commentEnabled` 缺失的情况，也可以正确解码了：
 
-> {"id": 12345, "title": "My First Video"}
-> Video(id: 12345, title: "My First Video", commentEnabled: false)
+```js
+{"id": 12345, "title": "My First Video"}
+
+// Video(id: 12345, title: "My First Video", commentEnabled: false)
+```
 
 相比对于每个类型编写单独的默认值解码代码，这套方式具有很好的扩展性。比如，如果想要为 `Video.State` 也添加默认行为，只需要让它满足 `DefaultValue` 即可：
 
