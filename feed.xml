@@ -50,10 +50,11 @@ layout: compress
   {% if post.summary %}
     <summary>{{ post.summary | strip }}</summary>
   {% else %}
+
     <summary>
-      {% assign content = post.content %}
       {% include no-linenos.html %}
-      {{ content | strip_html | truncate: 200 }}</summary>
+      {{ post.content | strip_html | truncate: 500 }}
+    </summary>
   {% endif %}
 
   </entry>
