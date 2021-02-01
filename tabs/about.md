@@ -50,9 +50,9 @@ iOS 开发中的一些技术和实践带到中国。
 
 #### $30 每月
 
-- platoapp
+- [platoapp](https://github.com/platoapp)
 
-[![](https://avatars3.githubusercontent.com/u/75399012?s=60&v=4)](https://github.com/platoapp)
+    [![](https://avatars3.githubusercontent.com/u/75399012?s=60&v=4)](https://github.com/platoapp)
 
 #### $5 每月
 
