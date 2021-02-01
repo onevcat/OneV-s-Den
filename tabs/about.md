@@ -42,3 +42,22 @@ iOS 开发中的一些技术和实践带到中国。
 大抵都收了一些没什么营养的吐槽和牢骚，应该是纯粹增加了世界的熵。
 
 > 维南有箕，不可以簸扬；维北有斗，不可以挹酒浆。
+
+## 支持
+
+我的社区工作离不开大家的支持，也正是这些支持，成为了我继续努力的动力。感谢以下捐助和支持者，
+如果您也有心帮助我的各个项目，请访问 [GitHub Sponsor 页面](https://github.com/sponsors/onevcat)，非常感谢！
+
+#### $30 每月
+
+- platoapp
+
+[![](https://avatars3.githubusercontent.com/u/75399012?s=60&v=4)](https://github.com/platoapp)
+
+#### $5 每月
+
+- [David Hunt (foscomputerservices)](https://github.com/foscomputerservices)
+- [Kevin (kevinzhow)](https://github.com/kevinzhow)
+- [Sindre Sorhus (sindresorhus)](https://github.com/sindresorhus)
+- [Zhao Wang (zwang)](https://github.com/zwang)
+
