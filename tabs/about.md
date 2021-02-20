@@ -15,9 +15,9 @@ title: 关于
 
 #### $30 每月
 
-- [plato-app](https://github.com/plato-app)
-
-    [![](https://avatars.githubusercontent.com/u/24393376?s=64&v=4)](https://github.com/plato-app)
+| [plato-app](https://github.com/plato-app) |
+| ---- |
+| ![](https://avatars.githubusercontent.com/u/24393376?s=64&v=4) |
 
 #### $5 每月
 
