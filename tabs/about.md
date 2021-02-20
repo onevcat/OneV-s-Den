@@ -15,9 +15,9 @@ title: 关于
 
 #### $30 每月
 
-- [platoapp](https://github.com/platoapp)
+- [plato-app](https://github.com/plato-app)
 
-    [![](https://avatars3.githubusercontent.com/u/75399012?s=60&v=4)](https://github.com/platoapp)
+    [![](https://avatars.githubusercontent.com/u/24393376?s=64&v=4)](https://github.com/plato-app)
 
 #### $5 每月
 
@@ -25,6 +25,7 @@ title: 关于
 - [Kevin (kevinzhow)](https://github.com/kevinzhow)
 - [Sindre Sorhus (sindresorhus)](https://github.com/sindresorhus)
 - [Zhao Wang (zwang)](https://github.com/zwang)
+- [たつぞう (arakitatsuzou)](https://github.com/arakitatsuzou)
 
 ---
 
