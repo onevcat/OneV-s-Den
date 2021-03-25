@@ -8,7 +8,7 @@
 
 @mixin dark-syntax {
   /* -----  My styles ------ */
-  --highlight-bg-color: #1a1515;
+  --highlight-bg-color: #282828;
   --highlighter-rouge-color: #de6b18;
   --highlight-lineno-color: #6c6c6d;
   --highlight-lineno-border-color: #3c4042;
@@ -22,7 +22,6 @@
   kbd { background-color: black; }
 
   /* syntax highlight colors from https://raw.githubusercontent.com/jwarby/pygments-css/master/monokai.css */
-  .highlight pre { background-color: #1a1515; }
   .highlight .hll { background-color: #1a1515; }
   .highlight .c { color: #75715e; } /* Comment */
   .highlight .err { color: #960050; background-color: #1e0010; } /* Error */
