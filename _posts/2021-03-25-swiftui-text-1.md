@@ -258,4 +258,4 @@ mutating func appendInterpolation<T>(_ value: T) where T : _FormatSpecifiable
 - `LocalizedStringKey` 不接受 `Bool` 或者自定义类型的插值参数。我们可以添加相关方法，不过这会带来副作用。
 
 
-[next]: #
+[next]: https://onevcat.com/2021/03/swiftui-text-2/
