@@ -84,6 +84,8 @@ extension Text {
 因为 `LocalizedStringKey` 满足 `ExpressibleByStringInterpolation` (以及其父协议 `ExpressibleByStringLiteral`)，它可以直接由字符串的字面量转换而来。也就是说，在上面例子中，不论被插值的是 `Image` 还是 `Date`，最后得到的，作为 `Text` 初始化方法的输入的，其实都是 `LocalizedStringKey` 实例。
 
 > 对于字符串字面量来说，`Text` 会使用上面这个 `LocalizedStringKey` 重载。如果先把字符串存储在一个 `String` 里，比如 `let s = "hello"`，那么 `Text(s)` 将会选取另一个，接受 `StringProtocol` 的初始化方法：`init<S>(_ content: S) where S : StringProtocol`。
+> 
+> `Text` 的另一个重要的初始化方法是 `init(verbatim:)`。如果你完全不需要本地化对应，那么使用这个方法将让你直接使用输入的字符串，从而完全跳过 `LocalizedStringKey`。
 
 我们可以证明一下这一点：当按照普通字符串插值的方法，尝试简单地打印上面的插值字符串时，得到的结果如下：
 
