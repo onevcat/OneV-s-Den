@@ -30,7 +30,7 @@ Text("Hello \(Image(systemName: "globe"))")
 ```swift
 Text("Date: \(Date(), style: .date)")
 Text("Time: \(Date(), style: .time)")
-Text("Metting: \(DateInterval(start: Date(), end: Date(timeIntervalSinceNow: 3600)))")
+Text("Meeting: \(DateInterval(start: Date(), end: Date(timeIntervalSinceNow: 3600)))")
 
 let fomatter: NumberFormatter = {
     let f = NumberFormatter()
