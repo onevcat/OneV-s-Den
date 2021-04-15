@@ -12,10 +12,7 @@ title: OneV's Den
 
 tagline: 上善若水，人淡如菊
 description: >-
-    王巍现在是一名专注于 iOS 的职业开发者。他拥有对于 Swift，Objective-C 以及网络程序设计方面的深厚知识及多年实践经验。
-    他将这些技术运用于创建应用程序和通用框架等解决方案，其中很多都被用户喜爱，并被开发者社区广泛使用来构建其他软件。同时，
-    他是 ObjC 中国组织的发起人和领导者，为将最佳 iOS 实践和进阶技术引入中国而不断努力。
-    这里是王巍 (onevcat) 的博客，用来记录一些想法。
+    上善若水，人淡如菊。这里是王巍 (onevcat) 的博客，用来记录一些技术和想法，主要专注于 Swift 和 iOS 开发。
 url: 'https://onevcat.com'
 author: 王巍 (onevcat)
 avatar: /assets/images/avatar.jpg
@@ -32,6 +29,8 @@ social:
   links:
     - https://github.com/onevcat
     - https://twitter.com/onevcat
+
+lang: zh-Hans
 
 google_site_verification: 1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw
 
