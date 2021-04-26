@@ -58,7 +58,7 @@ Shader "Custom/Normal Mapping" {
 			half4 c = tex2D (_MainTex, IN.uv_MainTex);
 			
 			//4
-            o.Normal = UnpackNormal(tex2D(_Bump, IN.uv_Bump);
+            o.Normal = UnpackNormal(tex2D(_Bump, IN.uv_Bump));
             
 			o.Albedo = c.rgb;
 			o.Alpha = c.a;
