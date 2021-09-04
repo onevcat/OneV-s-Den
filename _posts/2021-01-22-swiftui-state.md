@@ -6,6 +6,12 @@ categories: [能工巧匠集, SwiftUI]
 tags: [swift, swiftui]
 ---
 
+> ### 2021 年 9 月更新
+>
+> 在评论区里，[@CrystDragon 指出](https://github.com/onevcat/OneV-s-Den-Comments/issues/7#issuecomment-906893521)原文章的部分
+> 内容已经在新版本 SwiftUI 中发生了变化。不过这也带来了另一方面更加让人迷惑的问题。因此我对部分内容进行了更新和额外说明，更新部分会作为评注内
+> 容写在相关原文的后面。
+
 ## @State 基础
 
 在 SwiftUI 中，我们使用 `@State` 进行私有状态管理，并驱动 `View` 的显示，这是基础中的基础。比如，下面的 `ContentView` 将在点击加号按钮时将显示的数字 +1：
@@ -88,6 +94,12 @@ struct DetailView1: View {
 但这会给出一个编译错误！
 
 > Variable 'self.number' used before being initialized
+
+> ### 2021 年 9 月更新
+>
+> 在最新的 Xcode 中，上面的方法已经不会报错了：对于初始化方法中类型匹配的情况，Swift 编译时会将其映射到内部底层存储的值，并完成设置。
+> 不过，对于类型不匹配的情况，这个映射依然暂时不成立。比如下面的 `var number: Int?` 和输入参数的 `number: Int` 就是一个例子。因此，我决定
+> 还是把下面的讨论再保留一段时间。
 
 一开始你可能对这个错误一头雾水。我们会在本文后面的部分再来看这个错误的原因。现在先把它放在一边，想办法让编译通过。最简单的方式就是把 `number` 声明为 `Int?`：
 
@@ -289,6 +301,13 @@ struct DetailView4: View {
 ```
 
 虽然 `ContentView`中每次 `body` 被求值时，`DetailView4.init` 都会将 `tempNumber` 设置为最新的传入值，但是 `DetailView4.body` 中的 `onAppear` 只在最初出现在屏幕上时被调用一次。在拥有一定初始化逻辑的同时，避免了多次设置。
+
+> ### 2021 年 9 月更新
+>
+> 如果一定要从外部给 `@State` 一个初始值，这种方式是笔者比较推荐的方式：从外部在 initializer 中直接对 `@State` 直接进行初始化，
+> 是反模式的做法：一方面它事实上违背了 `@State` 应该是纯私有状态这一假设，另一方面由于 SwiftUI 中 View 只是一个“虚拟”的结构，而非真实的渲染
+> 对象，即使表现为同一个视图，它在别的 view 的 `body` 中是可能被重复多次创建的。在初始化方法中做 `@State` 赋值，很可能导致已经改变的现有状态
+> 被意外覆盖，这往往不是我们想要的结果。
 
 ## State, Binding, StateObject, ObservedObject
 
