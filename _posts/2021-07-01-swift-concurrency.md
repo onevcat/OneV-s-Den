@@ -7,7 +7,7 @@ tags: [swift, 编程语言, 并发]
 typora-root-url: ..
 ---
 
-> 本文是我的新书[《Swift 异步和并发》](https://objccn.io/products/async-swift)中第一章的初稿，主要从概览的方向上介绍了 Swift 5.5 中引入的 Swift 并发特性的使用方法。这本书籍正在预购阶段，我也正随着 Xcode 13 和 Swift 5.5 的 beta 发布对剩余章节“锐意撰写”中，预计在今年晚些时候 Swift 5.5 正式发布后发售。如果你对学习 Swift 并发有兴趣，也许可以作为参考读物。
+> 本文是我的新书[《Swift 异步和并发》](https://objccn.io/products/async-swift)中第一章内容，主要从概览的方向上介绍了 Swift 5.5 中引入的 Swift 并发特性的使用方法。如果你对学习 Swift 并发有兴趣，也许可以作为参考读物。
 
 > 你可以在这里找到本文中的[参考代码](/assets/samples/async-swift-chapter02.zip)。在本文写作的 Xcode 13 beta 2 环境下，你需要额外安装[最新的 Swift 5.5 toolchain](https://swift.org/download/#swift-55-development) 来运行这些代码。
 
