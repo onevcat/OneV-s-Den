@@ -188,11 +188,11 @@ Task {
   let t1 = Task {
     print("t1: \(Task.isCancelled)")
   }
-    
+
   let t2 = Task {
     print("t2: \(Task.isCancelled)")
   }
-    
+
   t1.cancel()
   print("t: \(Task.isCancelled)")
 }
@@ -317,9 +317,9 @@ await withTaskGroup(of: Int.self) { group in
         }
     }
     print("Task added")
-    
+
     // for await...
-    
+
     print("Task ended")
 }
 
@@ -413,7 +413,7 @@ let v: Int = await withTaskGroup(of: Int.self) { group in
       return result
     }
   }
-   
+
   // 等待所有子任务完成
   await group.waitForAll()
   return value
@@ -497,7 +497,7 @@ class TaskGroupSample {
       }
     }
   }
-        
+
   // ...
   }
 }
@@ -589,7 +589,7 @@ let result = result0 + result1 + result2
 ```swift
 func start() async {
   async let v0 = work(0)
-    
+
   print("End")
 }
 ```
@@ -604,7 +604,7 @@ func start() async {
 
   // 下面是编译器自动生成的伪代码
   // 注意和 Task group 的不同
-  
+
   // v0 绑定的任务被取消
   // 伪代码，实际上绑定中并没有 `task` 这个属性
   v0.task.cancel()
@@ -648,7 +648,7 @@ func start() async {
   // 第一层任务组
   await withTaskGroup(of: Int.self) { group in
     group.addTask {
-    
+
       // 第二层任务组
       await withTaskGroup(of: Int.self) { innerGroup in
         innerGroup.addTask {
@@ -663,7 +663,7 @@ func start() async {
           result + value
         }
       }
-      
+
     }
     group.addTask {
       await work(1)
@@ -688,7 +688,7 @@ func start() async {
     async let v2 = work(2)
     return await v0 + v2
   }()
-    
+
   async let v1 = work(1)
   _ = await v02 + v1
   print("End")
@@ -815,7 +815,7 @@ func start() async {
     await work(1)
     print("Cancelled: \(Task.isCancelled)")
   }.value
-        
+
   async let t2 = Task.detached {
     await work(2)
     print("Cancelled: \(Task.isCancelled)")
@@ -836,4 +836,3 @@ func start() async {
 Swift 是当前少数几个在语言和标准库层面对结构化并发进行支持的语言之一。得益于 Swift 语言默认安全的特性，只要我们遵循一些简单的规定 (比如不在闭包外传递和持有 task group 等)，就可以写出正确、安全和非常易于理解的结构化并发代码。这为简化并发复杂度提供了有效的工具。`withTaskGroup` 和 `async let` 在创建结构化并发上是等效的，但是它们并非可以完全互相代替。两者有各自最适用的情景，在超出作用域的隐式行为细节上也略有不同。切实理解这些不同，可以帮助我们在面对任务时选取最合适的工具。
 
 本章中我们只讨论了结构化并发的完成特性：父任务在子任务全部完成之前，是不会完成的。对于结构化并发来说，这只是其中一部分内容，对于另一个大的话题，任务取消，本章中鲜有涉及。在下一章里，我们会仔细探讨任务取消的相关话题，这会让我们对结构化并发在简化并发编程模型中所带来的优势，有更加深刻的理解。
-
