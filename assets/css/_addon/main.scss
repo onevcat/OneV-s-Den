@@ -62,6 +62,10 @@ body {
   font-family: 'Source Sans Pro', 'Microsoft Yahei', sans-serif;
 }
 
+b, strong {
+  color: var(--strong-text-color);
+}
+
 /*--- sidebar layout ---*/
 
 $tab-count: {{ site.data.tabs | size }};
