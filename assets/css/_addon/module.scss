@@ -73,6 +73,11 @@
   height: $diameter;
 }
 
+@mixin icon-plain($diameter) {
+  width: $diameter;
+  height: $diameter;
+}
+
 @mixin ml-mr($value) {
   margin-left: $value;
   margin-right: $value;

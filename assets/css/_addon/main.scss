@@ -1459,10 +1459,10 @@ div.post-content .table-wrapper {
         letter-spacing: 3px;
       }
       > i {
-        @include icon-round(1.65rem);
+        @include icon-plain(1.65rem);
         line-height: 1rem;
-        font-size: 0.6rem;
-        padding: 0.5em 0 0 .1em;
+        font-size: 1rem;
+        padding: 0.3em 0 0 .1em;
         display: inline-block!important;
       }
     }
@@ -1472,8 +1472,6 @@ div.post-content .table-wrapper {
       margin-right: 3rem;
       font-size: 1.3rem;
       a {
-        border: 1px solid;
-        border-radius: 50%;
         font-size: 1rem;
         width: 2rem;
         height: 2rem;
@@ -1488,7 +1486,7 @@ div.post-content .table-wrapper {
       #mode-toggle-wrapper {
         font-size: 0.9rem;
         i {
-          @include icon-round(2rem);
+          @include icon-plain(2rem);
           padding-top: 0.44rem;
           bottom: 0;
         }
