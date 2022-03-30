@@ -25,8 +25,8 @@ _read_yaml() {
 
 read_categories() {
   local _yaml="$(_read_yaml "$1")"
-  local _categories="$(echo "$_yaml" | yq r - "categories.*")"
-  local _category="$(echo "$_yaml" | yq r - "category")"
+  local _categories="$(echo "$_yaml" | yq e ".categories | .." -)"
+  local _category="$(echo "$_yaml" | yq e ".category" -)"
 
   if [[ -n $_categories ]]; then
     echo "$_categories"
@@ -37,8 +37,8 @@ read_categories() {
 
 read_tags() {
   local _yaml="$(_read_yaml "$1")"
-  local _tags="$(echo "$_yaml" | yq r - "tags.*")"
-  local _tag="$(echo "$_yaml" | yq r - "tag")"
+  local _tags="$(echo "$_yaml" | yq e ".tags | .." -)"
+  local _tag="$(echo "$_yaml" | yq e ".tag" -)"
 
   if [[ -n $_tags ]]; then
     echo "$_tags"

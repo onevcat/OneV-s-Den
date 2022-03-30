@@ -1,3 +1,3 @@
 brew "coreutils"
-brew "yq@3"
+brew "yq"
 brew "fswatch"
