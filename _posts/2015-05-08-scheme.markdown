@@ -27,7 +27,7 @@ tags: [scheme, 编程语言, 函数式编程]
 
 成为 Scheme Hacker 的第一步，当然是安装和配置运行环境，同时这也是最难跨过去的一步。想想有多少次你决心学习一门新语言的时候，在配置好开发环境后就再也没有碰过吧。所以我们需要尽快跨过这个步骤。
 
-最简单的开发环境点击这个[链接](http://repl.it/languages/Scheme)，然后你就可以开始用 Scheme 编程了。如果你更喜欢在本地环境和终端里操作的话，可以下载 [MIT/GUN Scheme](https://www.gnu.org/software/mit-scheme/)。在 OS X 上解包后是一个 .app 文件，运行 .app 包里的 `/Contents/Resources/mit-scheme` 就可以打开一个解释器了。
+最简单的开发环境点击这个[链接](http://repl.it/languages/Scheme)，然后你就可以开始用 Scheme 编程了。如果你更喜欢在本地环境和终端里操作的话，可以下载 [MIT/GNU Scheme](https://www.gnu.org/software/mit-scheme/)。在 OS X 上解包后是一个 .app 文件，运行 .app 包里的 `/Contents/Resources/mit-scheme` 就可以打开一个解释器了。
 
 ![](/assets/images/2015/scheme-terminal.png)
 
