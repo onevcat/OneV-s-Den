@@ -352,9 +352,7 @@ func someSyncMethod() {
       }
       group.addTask(priority: .low) {
         try await self.processFromScratch()
-      }
-    }          
-        }          
+      }    
     }          
     print("Done: \(results)")
   }
