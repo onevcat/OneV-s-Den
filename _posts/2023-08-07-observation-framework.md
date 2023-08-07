@@ -15,6 +15,7 @@ SwiftUI 遵循 Single Source of Truth 的原则，只有修改 View 所订阅的
 
 - 理解 Observation 框架的实质和实现机制
 - 比较其与之前解决方案的优势所在
+- 介绍一种把 Observation 前向兼容到 iOS 14 的方式
 - 探讨在处理 SwiftUI 状态管理时的一些权衡与考虑
 
 通过阅读本文，您将对 SwiftUI 中的新 Observation 框架有更清晰的认识，了解它为开发者带来的好处，并掌握在实际应用中做出明智选择的能力。
