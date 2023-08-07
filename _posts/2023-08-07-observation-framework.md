@@ -454,12 +454,6 @@ struct PersonAgeView: View {
 ## 总结
 
 1. 从 iOS 17 开始，使用 Observation 框架和 `@Observable` 宏将会是 SwiftUI 进行状态管理的最佳方式。它们不仅提供了简洁的语法，也带来了性能的提升。
-2. Observation 框架可以单独使用，它通过宏来改写属性的 setter 和 getter，并使用一个 access tracking list 完成单次的 `willSet` 观察。不过，限于 Observation 框架所暴露的选项不足，当前暂时没有太多 SwiftUI 之外的使用场景。
-3. 将 Observation 框架 back port 到早期版本并不存在技术上的困难，但是开发者难以提供透明的 SwiftUI wrapper。由于 SwiftUI 是该框架最大的用户，且 SwiftUI 的版本与系统版本绑定，因此 Observation 框架也被设计为与系统版本绑定。
-4. 使用新的框架写法会带来新的性能优化实践，理解 Observation 的原理，会有助于我们写出性能更加优秀的 SwiftUI app。
-
-
-1. 从 iOS 17 开始，使用 Observation 框架和 `@Observable` 宏将会是 SwiftUI 进行状态管理的最佳方式。它们不仅提供了简洁的语法，也带来了性能的提升。
 2. Observation 框架可以单独使用，通过宏来改写属性的 setter 和 getter，并使用一个 access tracking list 完成单次的 `willSet` 观察。不过，由于目前 Observation 框架所暴露的选项有限，它的使用场景主要集中在 SwiftUI 内部，在 SwiftUI 之外的使用场景相对较少。
 3. 虽然当前只支持 `willSet`，但 `didSet` 和 `full` 的支持已经实现，仅仅只是没有将接口暴露出来。所以未来某一天 Observation 支持其他属性设置时机的观察，并不足为奇。
 4. 将 Observation 框架 back port 到早期版本并不存在技术上的困难，但是由于开发者难以提供透明的 SwiftUI wrapper，这使得将其应用于旧版本的 SwiftUI 有一定挑战。同时，考虑到 SwiftUI 是该框架的主要用户，并且与系统版本绑定，因此 Observation 框架也被设计为与系统版本绑定的特性。
