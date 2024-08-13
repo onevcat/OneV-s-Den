@@ -121,14 +121,19 @@ $sidebar-display: "sidebar-display";
   }
   .nav-item {
     height: $tab-height;
+    padding: 4px;
     &:hover {
       .nav-link {
         color: #f8f9facf;
+        background-color: var(--sidebar-active-bg);
+        border-radius: 0.75rem;
       }
     }
     &.active {
       .nav-link {
         color: #fcfcfc;
+        background-color: var(--sidebar-active-bg);
+        border-radius: 0.75rem;
       }
     }
   }
@@ -136,49 +141,7 @@ $sidebar-display: "sidebar-display";
     height: $tab-height * $tab-count;
     display: -webkit-box;
     display: -ms-flexbox;
-
-    > li:last-child {
-      > a {
-        margin-right: -3px;
-        max-width: calc(100% - 3px);
-      }
-      &::after { // the cursor
-        visibility: hidden;
-        content: "";
-        position: relative;
-        right: 1px;
-        width: 3px;
-        height: $tab-cursor-height;
-        background-color: var(--nav-cursor-color);
-        pointer-events: none;
-      }
-    }
-
-    @mixin fix-cursor($top) {
-      top: $top;
-      visibility: visible;
-    }
-
-    @for $i from 1 through $tab-count {
-      $offset: $tab-count - $i;
-      $top: -$offset * $tab-height + calc($tab-cursor-height / 2);
-
-      @if $i < $tab-count {
-        > li.active:nth-child(#{$i}),
-        > li.nav-item:nth-child(#{$i}):hover {
-          ~li:last-child::after {
-            @include fix-cursor($top);
-          }
-        }
-      } @else {
-        > li.active:nth-child(#{$i}):last-child::after,
-        > li.nav-item:nth-child(#{$i}):last-child:hover::after {
-          @include fix-cursor($top);
-        }
-      }
-
-    } // @for
-
+    margin: 8px;
   } // ul
 
   .sidebar-bottom {
@@ -1445,7 +1408,7 @@ div.post-content .table-wrapper {
     }
 
     ul {
-      margin-left: 3%;
+      margin: 10px;
       > li > a {
         padding-left: 2.5rem;
         -webkit-box-pack: start!important;
