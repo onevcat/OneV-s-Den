@@ -2,7 +2,7 @@
 layout: post
 title: "DeepSeek，大国竞争，以及国运"
 date: 2025-01-31 00:15:00.000000000 +09:00
-categories: [南箕北斗集]
+categories: [一得之愚集]
 tags: [AI,大模型,国际关系,算法]
 typora-root-url: ..
 ---
