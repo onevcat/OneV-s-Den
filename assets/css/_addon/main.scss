@@ -34,19 +34,47 @@
 
 html:not([mode]), html[mode=light] {
   @include mode-toggle();
+  .dark-theme {
+    display: none;
+  }
+  
+  .light-theme {
+    display: block;
+  }
 }
 
 html[mode=dark] {
   @include mode-toggle(true);
+  .dark-theme {
+    display: block;
+  }
+
+  .light-theme {
+    display: none;
+  }
 }
 
 @media (prefers-color-scheme: dark) {
   html:not([mode]), html[mode=dark] {
     @include mode-toggle(true);
+    .dark-theme {
+        display: block;
+      }
+    
+      .light-theme {
+        display: none;
+      }
   }
 
   html[mode=light] {
     @include mode-toggle();
+    .dark-theme {
+        display: none;
+      }
+      
+      .light-theme {
+        display: block;
+      }
   }
 }
 
