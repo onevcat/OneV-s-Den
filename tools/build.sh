@@ -61,6 +61,42 @@ _init() {
   mv "$_temp" "$CONTAINER"
 }
 
+_copy_markdown_sources() {
+  echo -e "\nCopying Markdown source files..."
+  
+  # 确保在容器目录中操作
+  cd "$CONTAINER"
+  
+  # 遍历所有 _posts 目录下的 markdown 文件
+  for md_file in _posts/*.md; do
+    # 获取文件名（不含路径）
+    filename=$(basename "$md_file")
+    
+    # 解析文件名格式：YYYY-MM-DD-title.md
+    if [[ $filename =~ ^([0-9]{4})-([0-9]{2})-([0-9]{2})-(.*).md$ ]]; then
+      year="${BASH_REMATCH[1]}"
+      month="${BASH_REMATCH[2]}"
+      title="${BASH_REMATCH[4]}"
+      
+      # 构造目标路径
+      target_dir="$dest/$year/$month/$title"
+      
+      # 确认目标目录存在
+      if [ -d "$target_dir" ]; then
+        # 复制 markdown 文件到目标目录并重命名
+        cp "$md_file" "$target_dir/index.html.md"
+        echo "Copied $md_file to $target_dir/index.html.md"
+      else
+        echo "Warning: Target directory $target_dir does not exist, skipping $md_file"
+      fi
+    else
+      echo "Warning: File $filename does not match expected format, skipping"
+    fi
+  done
+  
+  echo "Markdown source files copying completed."
+}
+
 _build() {
   cd "$CONTAINER"
   echo "$ cd $(pwd)"
@@ -77,7 +113,10 @@ _build() {
   echo "\$ $cmd"
   eval "$cmd"
   echo -e "\nBuild success, the site files have been placed in '${dest}'."
-
+  
+  # 在构建完成后复制 Markdown 源文件
+  _copy_markdown_sources
+  
   if [[ -d "${dest}/.git" ]]; then
     if [[ -n $(git -C "$dest" status -s) ]]; then
       git -C "$dest" add .

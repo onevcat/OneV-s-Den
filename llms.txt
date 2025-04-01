@@ -1,0 +1,23 @@
+---
+# The llms.txt
+# https://llmstxt.org/
+layout: null
+permalink: llms.txt
+---
+
+# OneV's Den
+
+> The blog of @onevcat. Writing about technology (mainly iOS), design, and life.
+>
+> onevcat 的博客，关于技术（主要是 iOS）、设计和生活。
+
+## 文章
+{% for post in site.posts %}
+- [{{ post.title }}](https://onevcat.com{{ post.url }}): {{ post.excerpt | strip_html | strip_newlines | truncatewords: 20 }}{% if post.tags %} {% for tag in post.tags %}#{{ tag }} {% endfor %}{% endif %}{% endfor %}
+
+## 可选资源
+
+- [分类](https://onevcat.com/tabs/categories/): 文章分类
+- [标签](https://onevcat.com/tabs/tags/): 所有文章标签
+- [归档](https://onevcat.com/tabs/archives/): 文章归档列表
+- [关于](https://onevcat.com/about/): 关于我

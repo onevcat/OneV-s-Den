@@ -1,0 +1,16 @@
+---
+# The llms-full.txt
+# https://llmstxt.org/
+layout: null
+permalink: llms-full.txt
+---
+
+{% for post in site.posts %}
+URL: https://onevcat.com{{ post.url }}
+Published At: {{ post.date }}
+
+# {{ post.title }}
+
+{{ post.raw_content }}
+
+{% endfor %}
