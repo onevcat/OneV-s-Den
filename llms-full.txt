@@ -6,7 +6,7 @@ permalink: llms-full.txt
 ---
 
 {% for post in site.posts %}
-URL: https://onevcat.com{{ post.url }}
+URL: https://onevcat.com{{ post.url }}index.html.md
 Published At: {{ post.date }}
 
 # {{ post.title }}

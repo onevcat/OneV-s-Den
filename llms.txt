@@ -13,7 +13,7 @@ permalink: llms.txt
 
 ## 文章
 {% for post in site.posts %}
-- [{{ post.title }}](https://onevcat.com{{ post.url }}): {{ post.excerpt | strip_html | strip_newlines | truncatewords: 20 }}{% if post.tags %} {% for tag in post.tags %}#{{ tag }} {% endfor %}{% endif %}{% endfor %}
+- [{{ post.title }}](https://onevcat.com{{ post.url }}index.html.md): {{ post.excerpt | strip_html | strip_newlines | truncatewords: 20 }}{% if post.tags %} {% for tag in post.tags %}#{{ tag }} {% endfor %}{% endif %}{% endfor %}
 
 ## 可选资源
 
