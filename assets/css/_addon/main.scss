@@ -806,7 +806,26 @@ div.post-content .table-wrapper {
   overflow-wrap: break-word;
   word-wrap: break-word;
 
+  > video,
+  video {
+    border-radius: 0.35rem;
+    overflow: hidden;
+    display: block;
+    margin: 0.5rem 0;
+  }
+
   @mixin img($caption: false) {
+    > img,
+    > video {
+      border-radius: 0.35rem;
+      overflow: hidden;
+    }
+
+    > video {
+      display: block;
+      margin: 0.5rem 0;
+    }
+
     > img:not([style]) {
       margin: 0.5rem 0;
 
