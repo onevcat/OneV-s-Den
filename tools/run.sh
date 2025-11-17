@@ -17,11 +17,16 @@ WORK_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
 CONTAINER="${WORK_DIR}/.container"
 SYNC_TOOL=_scripts/sh/sync_monitor.sh
 
-cmd="bundle exec jekyll s"
+RUN_DIR="$WORK_DIR"
+USE_CONTAINER=false
+
+cmd_base="bundle exec jekyll s"
+cmd="$cmd_base"
 JEKYLL_DOCKER_HOME="/srv/jekyll"
 
 realtime=false
 docker=false
+incremental=true
 
 _help() {
   echo "Usage:"
@@ -35,11 +40,14 @@ _help() {
   echo "     -h, --help              Print the help information"
   echo "     -t, --trace             Show the full backtrace when an error occurs"
   echo "     -r, --realtime          Make the modified content updated in real time"
+  echo "         --no-incremental   Disable Jekyll incremental build"
   echo "         --docker            Run within docker"
 }
 
 _cleanup() {
-  rm -rf "$CONTAINER"
+  if $USE_CONTAINER && [[ -d $CONTAINER ]]; then
+    rm -rf "$CONTAINER"
+  fi
   ps aux | grep fswatch | awk '{print $2}' | xargs kill -9 > /dev/null 2>&1
 }
 
@@ -55,22 +63,31 @@ _setup_docker() {
 _init() {
   cd "$WORK_DIR"
 
-  if [[ -d $CONTAINER ]]; then
-    rm -rf "$CONTAINER"
+  if $docker; then
+    USE_CONTAINER=true
   fi
 
-  mkdir "$CONTAINER"
-  cp -r ./* "$CONTAINER"
-  cp -r ./.git "$CONTAINER"
-
-  if $docker; then
-    local _image_user=$(stat -c "%U" "$JEKYLL_DOCKER_HOME"/.)
-
-    if [[ $_image_user != $(whoami) ]]; then
-      # under Docker for Linux
-      chown -R "$(stat -c "%U:%G" "$JEKYLL_DOCKER_HOME"/.)" "$CONTAINER"
+  if $USE_CONTAINER; then
+    if [[ -d $CONTAINER ]]; then
+      rm -rf "$CONTAINER"
     fi
 
+    mkdir "$CONTAINER"
+    cp -r ./* "$CONTAINER"
+    cp -r ./.git "$CONTAINER"
+    RUN_DIR="$CONTAINER"
+
+    if $docker; then
+      local _image_user=$(stat -c "%U" "$JEKYLL_DOCKER_HOME"/.)
+
+      if [[ $_image_user != $(whoami) ]]; then
+        # under Docker for Linux
+        chown -R "$(stat -c "%U:%G" "$JEKYLL_DOCKER_HOME"/.)" "$CONTAINER"
+      fi
+
+    fi
+  else
+    RUN_DIR="$WORK_DIR"
   fi
 
   trap _cleanup INT
@@ -92,11 +109,11 @@ _check_command() {
 }
 
 _run() {
-  cd "$CONTAINER"
+  cd "$RUN_DIR"
   bash _scripts/sh/create_pages.sh
   bash _scripts/sh/dump_lastmod.sh
 
-  if $realtime; then
+  if $realtime && $USE_CONTAINER; then
 
     exclude_regex="\/\..*"
 
@@ -109,6 +126,8 @@ _run() {
       --event Updated --event Renamed \
       --event MovedFrom --event MovedTo \
       "$WORK_DIR" | xargs -0 -I {} bash "./${SYNC_TOOL}" {} "$WORK_DIR" . &
+  elif $realtime; then
+    echo "[INFO] Realtime mode is always on when working directly in the repo; '-r' is ignored."
   fi
 
   if $docker; then
@@ -127,6 +146,11 @@ main() {
   fi
 
   _init
+
+  if $incremental; then
+    cmd+=" --incremental"
+  fi
+
   _run
 }
 
@@ -163,6 +187,10 @@ while (($#)); do
     -r | --realtime)
       _check_command fswatch "http://emcrisostomo.github.io/fswatch/"
       realtime=true
+      shift
+      ;;
+    --no-incremental)
+      incremental=false
       shift
       ;;
     --docker)

@@ -4,3 +4,6 @@ _site
 .container/
 .DS_Store
 ads.txt
+categories/
+tags/
+_data/updates.yml
