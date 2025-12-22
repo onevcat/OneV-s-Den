@@ -6,5 +6,9 @@
  * MIT License
 */
 $(function () {
+  if (typeof $.fn.tooltip !== "function") {
+    return;
+  }
+
   $("[data-toggle=\"tooltip\"]").tooltip();
 });

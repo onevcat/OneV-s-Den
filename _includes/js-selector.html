@@ -8,11 +8,11 @@
 
 {% if page.layout == 'home' %}
 
-  <script async src="{{ '/assets/js/home.min.js' | relative_url }}"></script>
+  <script defer src="{{ '/assets/js/home.min.js' | relative_url }}"></script>
 
 {% elsif page.layout == 'post' %}
 
-  <script async src="{{ '/assets/js/post.min.js' | relative_url }}"></script>
+  <script defer src="{{ '/assets/js/post.min.js' | relative_url }}"></script>
 
   {% if page.math %}
     <!-- MathJax -->
@@ -23,13 +23,13 @@
 {% elsif page.layout == 'page' %}
 
   {% if page.type == 'categories' %}
-    <script async src="{{ '/assets/js/categories.min.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/categories.min.js' | relative_url }}"></script>
   {% else %}
-    <script async src="{{ '/assets/js/page.min.js' | relative_url }}"></script>
+    <script defer src="{{ '/assets/js/page.min.js' | relative_url }}"></script>
   {% endif %}
 
 {% else %}
 
-  <script async src="{{ '/assets/js/page.min.js' | relative_url }}"></script>
+  <script defer src="{{ '/assets/js/page.min.js' | relative_url }}"></script>
 
 {% endif %}
