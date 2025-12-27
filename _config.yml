@@ -34,6 +34,10 @@ lang: zh-Hans
 
 google_site_verification: 1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw
 
+# Google Analytics (GA4)
+google_analytics:
+  id: G-5MVTMV6B6Y
+
 #--------------------------
 
 

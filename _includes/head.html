@@ -52,4 +52,8 @@
 
   {% include js-selector.html %}
 
+  {% if site.google_analytics.id and jekyll.environment == 'production' %}
+    {% include google-analytics.html %}
+  {% endif %}
+
 </head>
