@@ -168,6 +168,10 @@ exclude:
   - vendor        # Avoid Jekyll mistakenly read the vendor directory on Travis-CI's VM .
   - Gemfile.lock
   - Gemfile
+  - Brewfile
+  - Brewfile.lock.json
+  - build.sh
+  - config.codekit3
   - tools
   - docs
   - README.md

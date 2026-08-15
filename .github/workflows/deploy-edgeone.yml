@@ -1,0 +1,49 @@
+name: Deploy EdgeOne
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: edgeone-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
+
+      - name: Build
+        run: bash tools/build.sh --destination "$RUNNER_TEMP/site"
+
+      - name: Test
+        run: bash tools/test.sh "$RUNNER_TEMP/site"
+
+      - name: Publish static branch
+        env:
+          DEPLOY_DIRECTORY: ${{ runner.temp }}/edgeone-pages
+          SITE_DIRECTORY: ${{ runner.temp }}/site
+        run: |
+          git worktree add --detach "$DEPLOY_DIRECTORY"
+          cd "$DEPLOY_DIRECTORY"
+          git checkout --orphan edgeone-pages
+          git rm -rf .
+          cp -a "$SITE_DIRECTORY/." .
+          git add --all
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Deploy $GITHUB_SHA"
+          git push --force origin HEAD:edgeone-pages

@@ -1,0 +1,39 @@
+{
+  "redirects": [
+    {
+      "source": "$wwwhost",
+      "destination": "$host",
+      "statusCode": 301
+    },
+    {
+      "source": "/feed",
+      "destination": "/feed.xml",
+      "statusCode": 301
+    },
+    {
+      "source": "/feed/",
+      "destination": "/feed.xml",
+      "statusCode": 301
+    },
+    {
+      "source": "/atom.xml",
+      "destination": "/feed.xml",
+      "statusCode": 301
+    },
+    {
+      "source": "/rss",
+      "destination": "/feed.xml",
+      "statusCode": 301
+    },
+    {
+      "source": "/rss/",
+      "destination": "/feed.xml",
+      "statusCode": 301
+    },
+    {
+      "source": "/myapp.json",
+      "destination": "http://img.onevcat.com/myapp.json",
+      "statusCode": 301
+    }
+  ]
+}

@@ -1,186 +1,102 @@
-#!/bin/bash
-#
-# Build jekyll site and store site files in ./_site
-# v2.0
-# https://github.com/cotes2020/jekyll-theme-chirpy
-# © 2019 Cotes Chung
-# Published under MIT License
+#!/usr/bin/env bash
 
-set -eu
+set -euo pipefail
 
-WORK_DIR="$(dirname "$(dirname "$(realpath "$0")")")"
-
-CONTAINER="${WORK_DIR}/.container"
-
-dest="${WORK_DIR}/_site"
-
-cmd="JEKYLL_ENV=production bundle exec jekyll b"
-
-docker=false
-
+WORK_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+destination="$WORK_DIR/_site"
+baseurl=""
 config=""
 
-_help() {
-  echo "Usage:"
-  echo
-  echo "   bash build.sh [options]"
-  echo
-  echo "Options:"
-  echo "  -b, --baseurl     <URL>                  The site relative url that start with slash, e.g. '/project'"
-  echo "  -h, --help                               Print the help information"
-  echo "  -d, --destination <DIR>                  destination directory (defaults to ./_site)"
-  echo "      --docker                             Build site within docker"
-  echo "      --config      <CONFIG_a[,CONFIG_b]>  Specify config files"
+usage() {
+  cat <<'EOF'
+Usage: bash tools/build.sh [options]
+
+Options:
+  -b, --baseurl <URL>       Site-relative URL prefix.
+  -d, --destination <DIR>   Output directory (default: ./_site).
+      --config <PATH>       Additional Jekyll config file.
+  -h, --help                Show this help.
+EOF
 }
 
-_install_tools() {
-  # docker image `jekyll/jekyll` based on Alpine Linux
-  echo "http://dl-cdn.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-  apk update
-  apk add yq
-}
+copy_markdown_sources() {
+  local source_root="$1"
+  local output_root="$2"
+  local source filename year month title target
 
-_init() {
-  cd "$WORK_DIR"
-
-  if [[ -f Gemfile.lock ]]; then
-    rm -f Gemfile.lock
-  fi
-
-  if [[ -d $CONTAINER ]]; then
-    rm -rf "$CONTAINER"
-  fi
-
-  if [[ -d $dest ]]; then
-    bundle exec jekyll clean
-  fi
-
-  local _temp="$(mktemp -d)"
-  cp -r ./* "$_temp"
-  cp -r ./.git "$_temp"
-  mv "$_temp" "$CONTAINER"
-}
-
-_copy_markdown_sources() {
-  echo -e "\nCopying Markdown source files..."
-  
-  # 确保在容器目录中操作
-  cd "$CONTAINER"
-  
-  # 遍历所有 _posts 目录下的 markdown 文件
-  for md_file in _posts/*.md; do
-    # 获取文件名（不含路径）
-    filename=$(basename "$md_file")
-    
-    # 解析文件名格式：YYYY-MM-DD-title.md
-    if [[ $filename =~ ^([0-9]{4})-([0-9]{2})-([0-9]{2})-(.*).md$ ]]; then
+  shopt -s nullglob
+  for source in "$source_root"/_posts/*.md; do
+    filename="$(basename "$source")"
+    if [[ "$filename" =~ ^([0-9]{4})-([0-9]{2})-([0-9]{2})-(.*)\.md$ ]]; then
       year="${BASH_REMATCH[1]}"
       month="${BASH_REMATCH[2]}"
       title="${BASH_REMATCH[4]}"
-      
-      # 构造目标路径
-      target_dir="$dest/$year/$month/$title"
-      
-      # 确认目标目录存在
-      if [ -d "$target_dir" ]; then
-        # 复制 markdown 文件到目标目录并重命名
-        cp "$md_file" "$target_dir/index.html.md"
-        echo "Copied $md_file to $target_dir/index.html.md"
-      else
-        echo "Warning: Target directory $target_dir does not exist, skipping $md_file"
+      target="$output_root/$year/$month/$title/index.html.md"
+      if [[ -d "$(dirname "$target")" ]]; then
+        cp "$source" "$target"
       fi
-    else
-      echo "Warning: File $filename does not match expected format, skipping"
     fi
   done
-  
-  echo "Markdown source files copying completed."
 }
 
-_build() {
-  cd "$CONTAINER"
-  echo "$ cd $(pwd)"
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -b|--baseurl)
+      baseurl="${2:?missing base URL}"
+      shift 2
+      ;;
+    -d|--destination)
+      destination="${2:?missing destination}"
+      shift 2
+      ;;
+    --config)
+      config="${2:?missing config path}"
+      shift 2
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
 
-  bash "_scripts/sh/create_pages.sh"
-  bash "_scripts/sh/dump_lastmod.sh"
+destination_parent="$(cd "$(dirname "$destination")" && pwd)"
+destination="$destination_parent/$(basename "$destination")"
+staging_root="$(mktemp -d "$destination_parent/.onev-den-build.XXXXXX")"
+workspace="$(mktemp -d "${TMPDIR:-/tmp}/onev-den-source.XXXXXX")"
 
-  cmd+=" -d $dest"
-
-  if [[ -n $config ]]; then
-    cmd+=" --config $config"
-  fi
-
-  echo "\$ $cmd"
-  eval "$cmd"
-  echo -e "\nBuild success, the site files have been placed in '${dest}'."
-  
-  # 在构建完成后复制 Markdown 源文件
-  _copy_markdown_sources
-  
-  if [[ -d "${dest}/.git" ]]; then
-    if [[ -n $(git -C "$dest" status -s) ]]; then
-      git -C "$dest" add .
-      git -C "$dest" commit -m "[Automation] Update site files." -q
-      echo -e "\nPlease push the changes of $dest to remote master branch.\n"
-    fi
-  fi
-
-  cd .. && rm -rf "$CONTAINER"
+cleanup() {
+  rm -rf "$staging_root" "$workspace"
 }
+trap cleanup EXIT
 
-_check_unset() {
-  if [[ -z ${1:+unset} ]]; then
-    _help
-    exit 1
-  fi
-}
+rsync -a \
+  --exclude '.container' \
+  --exclude '_site' \
+  --exclude 'vendor' \
+  --exclude '.sass-cache' \
+  "$WORK_DIR/" "$workspace/source/"
 
-main() {
-  while [[ $# -gt 0 ]]; do
-    opt="$1"
-    case $opt in
-      -b | --baseurl)
-        local _baseurl="$2"
-        if [[ -z $_baseurl ]]; then
-          _baseurl='""'
-        fi
-        cmd+=" -b $_baseurl"
-        shift
-        shift
-        ;;
-      -d | --destination)
-        _check_unset "$2"
-        dest="$(realpath "$2")"
-        shift
-        shift
-        ;;
-      --docker)
-        docker=true
-        shift
-        ;;
-      --config)
-        _check_unset "$2"
-        config="$(realpath "$2")"
-        shift
-        shift
-        ;;
-      -h | --help)
-        _help
-        exit 0
-        ;;
-      *) # unknown option
-        _help
-        exit 1
-        ;;
-    esac
-  done
+source_root="$workspace/source"
+output_root="$staging_root/site"
 
-  if $docker; then
-    _install_tools
-  fi
+(
+  cd "$source_root"
+  bash _scripts/sh/create_pages.sh
+  bash _scripts/sh/dump_lastmod.sh
 
-  _init
-  _build
-}
+  args=(--destination "$output_root")
+  [[ -n "$baseurl" ]] && args+=(--baseurl "$baseurl")
+  [[ -n "$config" ]] && args+=(--config "$config")
+  JEKYLL_ENV=production bundle exec jekyll build "${args[@]}"
+)
 
-main "$@"
+copy_markdown_sources "$source_root" "$output_root"
+rm -rf "$destination"
+mv "$output_root" "$destination"
+
+echo "Build succeeded: $destination"
