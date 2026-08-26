@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate EdgeOne redirect rules required by the legacy nginx configuration."""
+"""Validate EdgeOne redirect and header rules required by the legacy nginx configuration."""
 
 import json
 import sys
@@ -13,6 +13,11 @@ EXPECTED_REDIRECTS = {
     ("/rss", "/feed.xml", 301),
     ("/rss/", "/feed.xml", 301),
     ("/myapp.json", "http://img.onevcat.com/myapp.json", 301),
+}
+
+# The legacy nginx vhost sent HSTS with a six-month max-age.
+EXPECTED_HEADERS = {
+    ("/*", "Strict-Transport-Security", "max-age=15768000"),
 }
 
 
@@ -40,7 +45,16 @@ def main() -> None:
     if missing:
         fail(f"missing redirect rules: {sorted(missing)}")
 
-    print("EdgeOne redirect contract is valid")
+    headers = {
+        (rule.get("source"), header.get("key"), header.get("value"))
+        for rule in config.get("headers", [])
+        for header in rule.get("headers", [])
+    }
+    missing = EXPECTED_HEADERS - headers
+    if missing:
+        fail(f"missing header rules: {sorted(missing)}")
+
+    print("EdgeOne redirect and header contract is valid")
 
 
 if __name__ == "__main__":

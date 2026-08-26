@@ -35,5 +35,16 @@
       "destination": "http://img.onevcat.com/myapp.json",
       "statusCode": 301
     }
+  ],
+  "headers": [
+    {
+      "source": "/*",
+      "headers": [
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=15768000"
+        }
+      ]
+    }
   ]
 }
