@@ -1,0 +1,549 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="关于 MVC 的一个常见的误用" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="写在前面：ObjC 中国 (或者说我个人) 现在正和 objc.io 合作打造一本关于 app 架构的书籍。英文版本已经提前预售，书本身也进入了最后的 review 阶段。我们也将在第一时间进行本书中文版的工作，还请大家关注。 本文的内容也是有关 app 架构的一些思考，如果你对架构方面的话题有兴趣的话，我之前还写过一篇利用 reducer 的单向数据流动的函数式 View Controller 的文章可供参考。" /><meta property="og:description" content="写在前面：ObjC 中国 (或者说我个人) 现在正和 objc.io 合作打造一本关于 app 架构的书籍。英文版本已经提前预售，书本身也进入了最后的 review 阶段。我们也将在第一时间进行本书中文版的工作，还请大家关注。 本文的内容也是有关 app 架构的一些思考，如果你对架构方面的话题有兴趣的话，我之前还写过一篇利用 reducer 的单向数据流动的函数式 View Controller 的文章可供参考。" /><link rel="canonical" href="https://onevcat.com/2018/05/mvc-wrong-use/" /><meta property="og:url" content="https://onevcat.com/2018/05/mvc-wrong-use/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2018-05-11T09:15:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="关于 MVC 的一个常见的误用" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"写在前面：ObjC 中国 (或者说我个人) 现在正和 objc.io 合作打造一本关于 app 架构的书籍。英文版本已经提前预售，书本身也进入了最后的 review 阶段。我们也将在第一时间进行本书中文版的工作，还请大家关注。 本文的内容也是有关 app 架构的一些思考，如果你对架构方面的话题有兴趣的话，我之前还写过一篇利用 reducer 的单向数据流动的函数式 View Controller 的文章可供参考。","url":"https://onevcat.com/2018/05/mvc-wrong-use/","@type":"BlogPosting","headline":"关于 MVC 的一个常见的误用","dateModified":"2018-05-11T09:15:00+09:00","datePublished":"2018-05-11T09:15:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2018/05/mvc-wrong-use/"},"@context":"https://schema.org"}</script><title>关于 MVC 的一个常见的误用 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>关于 MVC 的一个常见的误用</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>关于 MVC 的一个常见的误用</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Fri, May 11, 2018, 9:15 AM +0900" > 2018-05-11 <i class="unloaded">2018-05-11T09:15:00+09:00</i> </span></div><div> 最后更新: <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Thu, Oct 22, 2020, 5:03 PM +0900" > 2020-10-22 <i class="unloaded">2020-10-22T17:03:49+09:00</i> </span></div></div><div class="post-content"><blockquote><p>写在前面：<a href="https://objccn.io">ObjC 中国</a> (或者说我个人) 现在正和 objc.io 合作打造一本关于 <a href="https://www.objc.io/books/app-architecture/">app 架构</a>的书籍。英文版本已经提前预售，书本身也进入了最后的 review 阶段。我们也将在第一时间进行本书中文版的工作，还请大家关注。</p><p>本文的内容也是有关 app 架构的一些思考，如果你对架构方面的话题有兴趣的话，我之前还写过一篇利用 reducer 的<a href="https://onevcat.com/2017/07/state-based-viewcontroller/">单向数据流动的函数式 View Controller</a> 的文章可供参考。</p></blockquote><p>如何避免把 Model View Controller 写成 Massive View Controller 已经是老生常谈的问题了。不管是拆分 View Controller 的功能 (使用多个 Child View Controller)，还是换用“广义”的 MVC 框架 (比如 MVVM 或者 VIPER)，又或者更激进一点，转换思路使用 Reactive 模式或 Reducer 模式，其实所想要解决的问题本质在于，我们要如何才能更清晰地管理“用户操作，模型变更，UI 反馈”这一数据流动的方式。</p><p>非传统的 MVC 可以帮助我们遵循一些更不容易犯错的编程范式 (这一点和 Java 很像，使用冗杂的 pattern 来规范开发，让新人也能写出“成熟”的代码)，但是如果不从根本上理解数据流动在 MVC 中的角色，那不过就是末学肤受，迟早会出现问题。</p><h3 id="例子">例子</h3><p>举一个非常简单的 View Controller 的例子。假设我们有一个 Table View Controller 来记录 To Do 列表，我们可以通过点击导航栏的加号按钮来追加一个条目，用 Swipe cell 的方式删除条目。我们希望最多同时只能存在 10 条待办项目。这个 View Controller 的代码非常简单，可能也是很多开发者每天会写的代码。包括设置 Playground 和添加按钮等等，一共也就 60 行。我将它放到了<a href="https://gist.github.com/onevcat/4042d4d0f156b986e4755a7d4370bb9c">这个 gist 中</a>，你可以全部复制下来扔到 Playground 里查看效果。</p><p>这里简单对比较关键的代码进行一些解释。首先是模型定义：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="c1">// 定义简单的 ToDo Model</span>
+<span class="kd">struct</span> <span class="kt">ToDoItem</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">UUID</span>
+    <span class="k">let</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span>
+    
+    <span class="nf">init</span><span class="p">(</span><span class="nv">title</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="kt">UUID</span><span class="p">()</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>然后我们使用 <code class="language-plaintext highlighter-rouge">UITableViewController</code> 的子类进行待办事项的展示和添加：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="kt">ToDoListViewController</span><span class="p">:</span> <span class="kt">UITableViewController</span> <span class="p">{</span>
+    <span class="c1">// 保存当前待办事项</span>
+    <span class="k">var</span> <span class="nv">items</span><span class="p">:</span> <span class="p">[</span><span class="kt">ToDoItem</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="c1">// 点击添加按钮</span>
+    <span class="kd">@objc</span> <span class="kd">func</span> <span class="nf">addButtonPressed</span><span class="p">(</span><span class="n">_</span> <span class="nv">sender</span><span class="p">:</span> <span class="kt">Any</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">newCount</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">let</span> <span class="nv">title</span> <span class="o">=</span> <span class="s">"ToDo Item </span><span class="se">\(</span><span class="n">newCount</span><span class="se">)</span><span class="s">"</span>
+        
+        <span class="c1">// 更新 `items`</span>
+        <span class="n">items</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">title</span><span class="p">:</span> <span class="n">title</span><span class="p">))</span>
+        
+        <span class="c1">// 为 table view 添加新行</span>
+        <span class="k">let</span> <span class="nv">indexPath</span> <span class="o">=</span> <span class="kt">IndexPath</span><span class="p">(</span><span class="nv">row</span><span class="p">:</span> <span class="n">newCount</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nv">section</span><span class="p">:</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">tableView</span><span class="o">.</span><span class="nf">insertRows</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="p">[</span><span class="n">indexPath</span><span class="p">],</span> <span class="nv">with</span><span class="p">:</span> <span class="o">.</span><span class="n">automatic</span><span class="p">)</span>
+        
+        <span class="c1">// 确定是否达到列表上限，如果达到，禁用 addButton</span>
+        <span class="k">if</span> <span class="n">newCount</span> <span class="o">&gt;=</span> <span class="mi">10</span> <span class="p">{</span>
+            <span class="n">addButton</span><span class="p">?</span><span class="o">.</span><span class="n">isEnabled</span> <span class="o">=</span> <span class="kc">false</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>接下来，处理 table view 的展示，这部分内容乏善可陈：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">ToDoListViewController</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="kd">func</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">_</span> <span class="nv">tableView</span><span class="p">:</span> <span class="kt">UITableView</span><span class="p">,</span> <span class="n">numberOfRowsInSection</span> <span class="nv">section</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Int</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">items</span><span class="o">.</span><span class="n">count</span>
+    <span class="p">}</span>
+    
+    <span class="k">override</span> <span class="kd">func</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">_</span> <span class="nv">tableView</span><span class="p">:</span> <span class="kt">UITableView</span><span class="p">,</span> <span class="n">cellForRowAt</span> <span class="nv">indexPath</span><span class="p">:</span> <span class="kt">IndexPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">UITableViewCell</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">cell</span> <span class="o">=</span> <span class="n">tableView</span><span class="o">.</span><span class="nf">dequeueReusableCell</span><span class="p">(</span><span class="nv">withIdentifier</span><span class="p">:</span> <span class="n">cellIdentifier</span><span class="p">,</span> <span class="nv">for</span><span class="p">:</span> <span class="n">indexPath</span><span class="p">)</span>
+        <span class="n">cell</span><span class="o">.</span><span class="n">textLabel</span><span class="p">?</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">items</span><span class="p">[</span><span class="n">indexPath</span><span class="o">.</span><span class="n">row</span><span class="p">]</span><span class="o">.</span><span class="n">title</span>
+        <span class="k">return</span> <span class="n">cell</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>最后，实现滑动 cell 删除的功能：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">ToDoListViewController</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="kd">func</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">_</span> <span class="nv">tableView</span><span class="p">:</span> <span class="kt">UITableView</span><span class="p">,</span> <span class="n">trailingSwipeActionsConfigurationForRowAt</span> <span class="nv">indexPath</span><span class="p">:</span> <span class="kt">IndexPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">UISwipeActionsConfiguration</span><span class="p">?</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">deleteAction</span> <span class="o">=</span> <span class="kt">UIContextualAction</span><span class="p">(</span><span class="nv">style</span><span class="p">:</span> <span class="o">.</span><span class="n">destructive</span><span class="p">,</span> <span class="nv">title</span><span class="p">:</span> <span class="s">"Delete"</span><span class="p">)</span> <span class="p">{</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">done</span> <span class="k">in</span>
+            <span class="c1">// 用户确认删除，从 `items` 中移除该事项</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="nf">remove</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="n">indexPath</span><span class="o">.</span><span class="n">row</span><span class="p">)</span>
+            <span class="c1">// 从 table view 中移除对应行</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">tableView</span><span class="o">.</span><span class="nf">deleteRows</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="p">[</span><span class="n">indexPath</span><span class="p">],</span> <span class="nv">with</span><span class="p">:</span> <span class="o">.</span><span class="n">automatic</span><span class="p">)</span>
+            <span class="c1">// 维护 addButton 状态</span>
+            <span class="k">if</span> <span class="k">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">count</span> <span class="o">&lt;</span> <span class="mi">10</span> <span class="p">{</span>
+                <span class="k">self</span><span class="o">.</span><span class="n">addButton</span><span class="p">?</span><span class="o">.</span><span class="n">isEnabled</span> <span class="o">=</span> <span class="kc">true</span>
+            <span class="p">}</span>
+            <span class="nf">done</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="kt">UISwipeActionsConfiguration</span><span class="p">(</span><span class="nv">actions</span><span class="p">:</span> <span class="p">[</span><span class="n">deleteAction</span><span class="p">])</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>效果如下：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2018/todo-demo.gif" alt="" /></p><p>看起来一切正常工作！不过，你能看出有什么问题吗？抑或说你觉得这段代码已经完美无瑕了？</p><h3 id="风险">风险</h3><p>简单来说，这也已经是对 MVC 的误用了。上面的代码存在着这些潜在问题：</p><ol><li><p>Model 层“寄生”在ViewController 中</p><p>在这段代码中，View Controller 里的 <code class="language-plaintext highlighter-rouge">items</code> 充当了 model。</p><p>这导致了几个问题：我们难以从外界维护或者同步 <code class="language-plaintext highlighter-rouge">items</code> 的状态，添加和删除操作被“绑定”在了这个 View Controller 里，如果你还想通过其他 View Controller 维护待办列表的话，就不得不考虑数据同步的问题 (我们会在稍后看到几个具体的这方面的例子)；另外，这样的设置导致 <code class="language-plaintext highlighter-rouge">items</code> 难以测试。你几乎无法为添加/删除/修改待办列表进行 Model 层的测试。</p><li><p>违反数据流动规则和单一职责规则</p><p>如果我们仔细思考，会发现，用户点击添加按钮，或者侧滑删除 cell 时，在 View Controller 中其实发生了这些事情：</p><ol><li>维护 Model (也就是 <code class="language-plaintext highlighter-rouge">items</code>)<li>增删 table view 的 cell<li>维护 <code class="language-plaintext highlighter-rouge">addButton</code> 的可用状态</ol><p>也就是说，UI 操作不仅导致了 Model 的变更，还同时导致了 UI 的变化。理想化的数据流动应该是单向的：UI 操作 -&gt; 经由 View Controller 进行模型更新 -&gt; 新的模型经由 View Controller 更新 UI -&gt; 等待新的 UI 操作，而在例子中，我们变成了“经由 View Controller 进行模型更新以及 UI 操作”。虽然看起来这是很不起眼的变更，但是会在项目复杂后带来麻烦。</p></ol><p>也许你现在并不觉得有什么问题，让我们来假设一些情景，你可以思考一下如何实现吧。</p><h4 id="场景一">场景一</h4><p>首先来看看待办条目的编辑，我们可能需要一个详情页面，用来编辑某个待办的细节，比如为 <code class="language-plaintext highlighter-rouge">ToDoItem</code> 添加上 <code class="language-plaintext highlighter-rouge">date</code>，<code class="language-plaintext highlighter-rouge">location</code> 和 <code class="language-plaintext highlighter-rouge">detail</code> 这类的属性。另外，PM 和用户也许希望在详情页面中也能直接删除这个正在编辑的待办。</p><p>以现在的实现来看，一个很朴素的想法是新建 <code class="language-plaintext highlighter-rouge">ToDoEditViewController</code>，然后设置 <code class="language-plaintext highlighter-rouge">delegate</code> 来告诉 <code class="language-plaintext highlighter-rouge">ToDoListViewController</code> 某个 <code class="language-plaintext highlighter-rouge">ToDoItem</code> 发生了变化，然后在 <code class="language-plaintext highlighter-rouge">ToDoListViewController</code> 进行对 <code class="language-plaintext highlighter-rouge">items</code> 进行操作：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">ToDoEditViewControllerDelegate</span><span class="p">:</span> <span class="kd">class</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">editViewController</span><span class="p">(</span><span class="n">_</span> <span class="nv">viewController</span><span class="p">:</span> <span class="kt">ToDoEditViewController</span><span class="p">,</span> <span class="n">editToDoItem</span> <span class="nv">original</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">,</span> <span class="n">to</span> <span class="nv">new</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">)</span>
+    <span class="kd">func</span> <span class="nf">editViewController</span><span class="p">(</span><span class="n">_</span> <span class="nv">viewController</span><span class="p">:</span> <span class="kt">ToDoEditViewController</span><span class="p">,</span> <span class="n">remove</span> <span class="nv">item</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 在 ToDoListViewController 中</span>
+<span class="kd">extension</span> <span class="kt">ToDoListViewController</span><span class="p">:</span> <span class="kt">ToDoEditViewControllerDelegate</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">editViewController</span><span class="p">(</span><span class="n">_</span> <span class="nv">viewController</span><span class="p">:</span> <span class="kt">ToDoEditViewController</span><span class="p">,</span> <span class="n">remove</span> <span class="nv">item</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">guard</span> <span class="k">let</span> <span class="nv">index</span> <span class="o">=</span> <span class="p">(</span><span class="n">items</span><span class="o">.</span><span class="n">index</span> <span class="p">{</span> <span class="nv">$0</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">item</span><span class="o">.</span><span class="n">id</span> <span class="p">})</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">}</span>
+        <span class="n">items</span><span class="o">.</span><span class="nf">remove</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="n">index</span><span class="p">)</span>
+        <span class="k">let</span> <span class="nv">indexPath</span> <span class="o">=</span> <span class="kt">IndexPath</span><span class="p">(</span><span class="nv">row</span><span class="p">:</span> <span class="n">index</span><span class="p">,</span> <span class="nv">section</span><span class="p">:</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">tableView</span><span class="o">.</span><span class="nf">deleteRows</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="p">[</span><span class="n">indexPath</span><span class="p">],</span> <span class="nv">with</span><span class="p">:</span> <span class="o">.</span><span class="n">automatic</span><span class="p">)</span>
+        <span class="k">if</span> <span class="k">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">count</span> <span class="o">&lt;</span> <span class="mi">10</span> <span class="p">{</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">addButton</span><span class="p">?</span><span class="o">.</span><span class="n">isEnabled</span> <span class="o">=</span> <span class="kc">true</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="kd">func</span> <span class="nf">editViewController</span><span class="p">(</span><span class="n">_</span> <span class="nv">viewController</span><span class="p">:</span> <span class="kt">ToDoEditViewController</span><span class="p">,</span> <span class="n">editToDoItem</span> <span class="nv">original</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">,</span> <span class="n">to</span> <span class="nv">new</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>有一部分和之前重复的代码，虽然可以通过将它们提取成像是 <code class="language-plaintext highlighter-rouge">removeItem(at index: Int)</code> 这样的方法，但是并不能改变非单一功能的问题。<code class="language-plaintext highlighter-rouge">ToDoEditViewController</code> 本身也无法和 <code class="language-plaintext highlighter-rouge">items</code> 通讯，因此它扮演的角色几乎就是一个“专用”的 View，一旦脱离了 <code class="language-plaintext highlighter-rouge">ToDoListViewController</code>，则“难堪重任”。</p><h4 id="场景二">场景二</h4><p>另外，纯单机的 app 已经跟不上时代了，不管是 iCloud 同步还是自建服务器，我们总是想要一个后端来为用户跨设备保存列表，这是一个非常可能的增强。在现有架构下，把从服务器获取已有条目的逻辑放到 <code class="language-plaintext highlighter-rouge">ToDoListViewController</code> 也是很自然的想法：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">super</span><span class="o">.</span><span class="nf">viewDidLoad</span><span class="p">()</span>
+    <span class="c1">//..</span>
+    <span class="kt">NetworkService</span><span class="o">.</span><span class="nf">getExistingToDoItems</span><span class="p">()</span><span class="o">.</span><span class="n">then</span> <span class="p">{</span> <span class="n">items</span> <span class="k">in</span> 
+        <span class="k">self</span><span class="o">.</span><span class="n">items</span> <span class="o">=</span> <span class="n">items</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">tableView</span><span class="o">.</span><span class="nf">reloadData</span><span class="p">()</span>
+        <span class="k">if</span> <span class="k">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">count</span> <span class="o">&gt;=</span> <span class="mi">10</span> <span class="p">{</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">addButton</span><span class="p">?</span><span class="o">.</span><span class="n">isEnabled</span> <span class="o">=</span> <span class="kc">false</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这种简单的实现面临很多挑战，是我们在实际 app 中不得不考虑的：</p><ol><li>是不是应该需要在 <code class="language-plaintext highlighter-rouge">getExistingToDoItems</code> 过程中 block 掉 UI，否则用户在请求完成前所添加的条目将被覆盖。<li>在添加和删除条目的时候，我们都需要进行网络请求，另外我们也需要根据请求返回的状态更新添加按钮的状态。<li>Block 用户输入将让 app 变为没网无法使用，不进行 block 的话则需要考虑数据同步的问题。<li>另外，我们需不需要在没网时依然让用户可以进行增加或删除，并缓存操作，等到有网时再将这些缓存反映给服务器。<li>如果需要实现 4，那么还要考虑操作结果导致超出条目最大数量限制的错误处理，以及多设备间数据冲突处理的问题。</ol><p>是不是突然感觉有些头大？</p><h3 id="改善">改善</h3><p>这些问题的来源其实都是我们为了“省事”，选择了一个<strong>不那么有效的 Model</strong>，以及<strong>存在风险的数据流动方式</strong>。或者说，我们没有正确和严格地使用 MVC 架构。</p><p>关于 MVC，斯坦福的 CS193p Paul 老师有一张非常经典的图，相信很多 iOS 的开发者也都看过：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2018/mvc.png" alt="" /></p><p>我们的例子中，我们等于把 Model 放到了 Controller 里，而且 Model 也无法与 Controller 进行有效的通讯 (图中的 Notification &amp; KVO 部分)。这导致 Controller 承载了太多的功能，这往往是光荣地迈向 Massive View Controller 的第一步。</p><h4 id="单独的-model">单独的 Model</h4><p>当务之急是将 Model 层提取出来，为了说明简单，暂时先只考虑纯本地的情况：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">ToDoItem</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="p">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">func</span> <span class="o">==</span> <span class="p">(</span><span class="nv">lhs</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">,</span> <span class="nv">rhs</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Bool</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">lhs</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">rhs</span><span class="o">.</span><span class="n">id</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="kt">ToDoStore</span> <span class="p">{</span>
+    <span class="kd">static</span> <span class="k">let</span> <span class="nv">shared</span> <span class="o">=</span> <span class="kt">ToDoStore</span><span class="p">()</span>
+    
+    <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">items</span><span class="p">:</span> <span class="p">[</span><span class="kt">ToDoItem</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="kd">private</span> <span class="nf">init</span><span class="p">()</span> <span class="p">{}</span>
+    
+    <span class="kd">func</span> <span class="nf">append</span><span class="p">(</span><span class="nv">item</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">items</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="kd">func</span> <span class="nf">append</span><span class="p">(</span><span class="nv">newItems</span><span class="p">:</span> <span class="p">[</span><span class="kt">ToDoItem</span><span class="p">])</span> <span class="p">{</span>
+        <span class="n">items</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="nv">contentsOf</span><span class="p">:</span> <span class="n">newItems</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="nv">item</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">guard</span> <span class="k">let</span> <span class="nv">index</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="nf">index</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="n">item</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">}</span>
+        <span class="nf">remove</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="n">index</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="n">at</span> <span class="nv">index</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">items</span><span class="o">.</span><span class="nf">remove</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="n">index</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="kd">func</span> <span class="nf">edit</span><span class="p">(</span><span class="nv">original</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">,</span> <span class="nv">new</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">guard</span> <span class="k">let</span> <span class="nv">index</span> <span class="o">=</span> <span class="n">items</span><span class="o">.</span><span class="nf">index</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="n">original</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">}</span>
+        <span class="n">items</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="k">new</span>
+    <span class="p">}</span>
+    
+    <span class="k">var</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">items</span><span class="o">.</span><span class="n">count</span>
+    <span class="p">}</span>
+    
+    <span class="kd">func</span> <span class="nf">item</span><span class="p">(</span><span class="n">at</span> <span class="nv">index</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">ToDoItem</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="n">items</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>当然，为了一步到位，也可以直接把上面的 <code class="language-plaintext highlighter-rouge">NetworkService</code> 加上，写成异步 API，例如：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">getAll</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Promise</span><span class="o">&lt;</span><span class="p">[</span><span class="kt">ToDoItem</span><span class="p">]</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kt">NetworkService</span><span class="o">.</span><span class="nf">getExistingToDoItems</span><span class="p">()</span>
+      <span class="o">.</span><span class="n">then</span> <span class="p">{</span> <span class="n">items</span> <span class="k">in</span>
+          <span class="k">self</span><span class="o">.</span><span class="n">items</span> <span class="o">=</span> <span class="n">items</span>
+          <span class="k">return</span> <span class="kt">Promise</span><span class="o">.</span><span class="nf">value</span><span class="p">(</span><span class="n">items</span><span class="p">)</span>
+      <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">append</span><span class="p">(</span><span class="nv">item</span><span class="p">:</span> <span class="kt">ToDoItem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Promise</span><span class="o">&lt;</span><span class="kt">Void</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kt">NetworkService</span><span class="o">.</span><span class="nf">appendToDoItem</span><span class="p">(</span><span class="nv">item</span><span class="p">:</span> <span class="n">item</span><span class="p">)</span>
+      <span class="o">.</span><span class="n">then</span> <span class="p">{</span>
+          <span class="k">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+          <span class="k">return</span> <span class="kt">Promise</span><span class="o">.</span><span class="nf">value</span><span class="p">(())</span>
+      <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>为了好看，这里用了一些 <a href="https://github.com/mxcl/PromiseKit">PromiseKit 的东西</a>，如果你不熟悉 Promise，也不用担心，可以将它们简单地看作 closure 的形式就好，这并不会影响继续阅读本文：</p></blockquote><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">getAll</span><span class="p">(</span><span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(([</span><span class="kt">ToDoItem</span><span class="p">]?,</span> <span class="kt">Error</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?)</span> <span class="p">{</span>
+    <span class="kt">NetworkService</span><span class="o">.</span><span class="n">getExistingToDoItems</span> <span class="p">{</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+        <span class="k">if</span> <span class="k">let</span> <span class="nv">error</span> <span class="o">=</span> <span class="n">error</span> <span class="p">{</span>
+            <span class="nf">completion</span><span class="p">?(</span><span class="kc">nil</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="k">self</span><span class="o">.</span><span class="n">items</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">items</span> 
+            <span class="nf">completion</span><span class="p">?(</span><span class="n">response</span><span class="o">.</span><span class="n">items</span><span class="p">,</span> <span class="kc">nil</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这样，我们就可以将 <code class="language-plaintext highlighter-rouge">items</code> 从 <code class="language-plaintext highlighter-rouge">ToDoListViewController</code> 拿出来。对单独提取的 Model 进行测试变得非常容易，纯 Model 的操作与 Controller 无关，<code class="language-plaintext highlighter-rouge">ToDoEditViewController</code> 也不再需要将行为 delegate 回 <code class="language-plaintext highlighter-rouge">ToDoListViewController</code>，编辑条目的 View Controller 可以通过成为了真正意义上的 View Controller，而不止是 <code class="language-plaintext highlighter-rouge">ToDoListViewController</code> 的“隶属 View”。</p><p>单独的 <code class="language-plaintext highlighter-rouge">ToDoStore</code> 作为模型带来的另一个好处是，因为它与具体的 View Controller 分离了，在进行持久化时，我们可以有更多的选择。不论是从网络获取，还是保存在本地的数据库，这些操作都不必 (也不应写在 View Controller 中)。如果有多种数据来源，我们可以轻松地创建类似 <code class="language-plaintext highlighter-rouge">ToDoStoreCoordinator</code> 或者 <code class="language-plaintext highlighter-rouge">ToDoStoreDataProvider</code> 这样的类型。既可以满足单一职责，也易于覆盖完整的测试。</p><h4 id="单向数据流动">单向数据流动</h4><p>接下来，将数据流动按照 MVC 的标准进行梳理就是自然而然的事情了。我们的目标是避免 UI 行为直接影响 UI，而是由 Model 的状态通过 Controller 来确定 UI 状态。这需要我们的 Model 能够以某种“非直接”的方式向 Controller 进行汇报。按照上面的 MVC 图，我们使用 Notification 来搞定。</p><p>对 <code class="language-plaintext highlighter-rouge">ToDoStore</code> 进行一些改造：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="kt">ToDoStore</span> <span class="p">{</span>
+    <span class="kd">enum</span> <span class="kt">ChangeBehavior</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="nf">add</span><span class="p">([</span><span class="kt">Int</span><span class="p">])</span>
+        <span class="k">case</span> <span class="nf">remove</span><span class="p">([</span><span class="kt">Int</span><span class="p">])</span>
+        <span class="k">case</span> <span class="n">reload</span>
+    <span class="p">}</span>
+    
+    <span class="kd">static</span> <span class="kd">func</span> <span class="nf">diff</span><span class="p">(</span><span class="nv">original</span><span class="p">:</span> <span class="p">[</span><span class="kt">ToDoItem</span><span class="p">],</span> <span class="nv">now</span><span class="p">:</span> <span class="p">[</span><span class="kt">ToDoItem</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kt">ChangeBehavior</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">originalSet</span> <span class="o">=</span> <span class="kt">Set</span><span class="p">(</span><span class="n">original</span><span class="p">)</span>
+        <span class="k">let</span> <span class="nv">nowSet</span> <span class="o">=</span> <span class="kt">Set</span><span class="p">(</span><span class="n">now</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">originalSet</span><span class="o">.</span><span class="nf">isSubset</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="n">nowSet</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Appended</span>
+            <span class="k">let</span> <span class="nv">added</span> <span class="o">=</span> <span class="n">nowSet</span><span class="o">.</span><span class="nf">subtracting</span><span class="p">(</span><span class="n">originalSet</span><span class="p">)</span>
+            <span class="k">let</span> <span class="nv">indexes</span> <span class="o">=</span> <span class="n">added</span><span class="o">.</span><span class="n">compactMap</span> <span class="p">{</span> <span class="n">now</span><span class="o">.</span><span class="nf">index</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="nv">$0</span><span class="p">)</span> <span class="p">}</span>
+            <span class="k">return</span> <span class="o">.</span><span class="nf">add</span><span class="p">(</span><span class="n">indexes</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">(</span><span class="n">nowSet</span><span class="o">.</span><span class="nf">isSubset</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="n">originalSet</span><span class="p">))</span> <span class="p">{</span> <span class="c1">// Removed</span>
+            <span class="k">let</span> <span class="nv">removed</span> <span class="o">=</span> <span class="n">originalSet</span><span class="o">.</span><span class="nf">subtracting</span><span class="p">(</span><span class="n">nowSet</span><span class="p">)</span>
+            <span class="k">let</span> <span class="nv">indexes</span> <span class="o">=</span> <span class="n">removed</span><span class="o">.</span><span class="n">compactMap</span> <span class="p">{</span> <span class="n">original</span><span class="o">.</span><span class="nf">index</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="nv">$0</span><span class="p">)</span> <span class="p">}</span>
+            <span class="k">return</span> <span class="o">.</span><span class="nf">remove</span><span class="p">(</span><span class="n">indexes</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span> <span class="c1">// Both appended and removed</span>
+            <span class="k">return</span> <span class="o">.</span><span class="n">reload</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">items</span><span class="p">:</span> <span class="p">[</span><span class="kt">ToDoItem</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span> <span class="p">{</span>
+        <span class="k">didSet</span> <span class="p">{</span>
+            <span class="k">let</span> <span class="nv">behavior</span> <span class="o">=</span> <span class="kt">ToDoStore</span><span class="o">.</span><span class="nf">diff</span><span class="p">(</span><span class="nv">original</span><span class="p">:</span> <span class="n">oldValue</span><span class="p">,</span> <span class="nv">now</span><span class="p">:</span> <span class="n">items</span><span class="p">)</span>
+            <span class="kt">NotificationCenter</span><span class="o">.</span><span class="k">default</span><span class="o">.</span><span class="nf">post</span><span class="p">(</span>
+                <span class="nv">name</span><span class="p">:</span> <span class="o">.</span><span class="n">toDoStoreDidChangedNotification</span><span class="p">,</span>
+                <span class="nv">object</span><span class="p">:</span> <span class="k">self</span><span class="p">,</span>
+                <span class="nv">typedUserInfo</span><span class="p">:</span> <span class="p">[</span><span class="o">.</span><span class="nv">toDoStoreDidChangedChangeBehaviorKey</span><span class="p">:</span> <span class="n">behavior</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这里添加了 <code class="language-plaintext highlighter-rouge">ChangeBehavior</code> 作为“提示”，来具体告诉外界 Model 中发生了什么。<code class="language-plaintext highlighter-rouge">diff</code> 方法通过比较原始 <code class="language-plaintext highlighter-rouge">items</code> 和当前 <code class="language-plaintext highlighter-rouge">items</code> 来确定发生了哪种 <code class="language-plaintext highlighter-rouge">ChangeBehavior</code>。最后，使用 <code class="language-plaintext highlighter-rouge">items</code> 的 <code class="language-plaintext highlighter-rouge">didSet</code> 来发送 Notification。</p><blockquote><p>由于 Swift 的数组是值类型，对于 <code class="language-plaintext highlighter-rouge">items</code> 的元素增加，删除，修改或者整体变量替换，都会触发 <code class="language-plaintext highlighter-rouge">didSet</code> 的调用。Swift 的值语义编程带来了很大的便利。</p></blockquote><p>在 <code class="language-plaintext highlighter-rouge">ToDoListViewController</code>，现在只需要订阅这个通知，然后根据消息内容进行 UI 反馈即可：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="kt">ToDoListViewController</span><span class="p">:</span> <span class="kt">UITableViewController</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+        <span class="k">super</span><span class="o">.</span><span class="nf">viewDidLoad</span><span class="p">()</span>
+        <span class="c1">//...</span>
+        <span class="kt">NotificationCenter</span><span class="o">.</span><span class="k">default</span><span class="o">.</span><span class="nf">addObserver</span><span class="p">(</span>
+            <span class="k">self</span><span class="p">,</span> 
+            <span class="nv">selector</span><span class="p">:</span> <span class="k">#selector</span><span class="p">(</span><span class="n">todoItemsDidChange</span><span class="p">),</span>
+            <span class="nv">name</span><span class="p">:</span> <span class="o">.</span><span class="n">toDoStoreDidChangedNotification</span><span class="p">,</span> 
+            <span class="nv">object</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="kd">private</span> <span class="kd">func</span> <span class="nf">syncTableView</span><span class="p">(</span><span class="k">for</span> <span class="nv">behavior</span><span class="p">:</span> <span class="kt">ToDoStore</span><span class="o">.</span><span class="kt">ChangeBehavior</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">switch</span> <span class="n">behavior</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nf">add</span><span class="p">(</span><span class="k">let</span> <span class="nv">indexes</span><span class="p">):</span>
+            <span class="k">let</span> <span class="nv">indexPathes</span> <span class="o">=</span> <span class="n">indexes</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="kt">IndexPath</span><span class="p">(</span><span class="nv">row</span><span class="p">:</span> <span class="nv">$0</span><span class="p">,</span> <span class="nv">section</span><span class="p">:</span> <span class="mi">0</span><span class="p">)</span> <span class="p">}</span>
+            <span class="n">tableView</span><span class="o">.</span><span class="nf">insertRows</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="n">indexPathes</span><span class="p">,</span> <span class="nv">with</span><span class="p">:</span> <span class="o">.</span><span class="n">automatic</span><span class="p">)</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nf">remove</span><span class="p">(</span><span class="k">let</span> <span class="nv">indexes</span><span class="p">):</span>
+            <span class="k">let</span> <span class="nv">indexPathes</span> <span class="o">=</span> <span class="n">indexes</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="kt">IndexPath</span><span class="p">(</span><span class="nv">row</span><span class="p">:</span> <span class="nv">$0</span><span class="p">,</span> <span class="nv">section</span><span class="p">:</span> <span class="mi">0</span><span class="p">)</span> <span class="p">}</span>
+            <span class="n">tableView</span><span class="o">.</span><span class="nf">deleteRows</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="n">indexPathes</span><span class="p">,</span> <span class="nv">with</span><span class="p">:</span> <span class="o">.</span><span class="n">automatic</span><span class="p">)</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">reload</span><span class="p">:</span>
+            <span class="n">tableView</span><span class="o">.</span><span class="nf">reloadData</span><span class="p">()</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="kd">private</span> <span class="kd">func</span> <span class="nf">updateAddButtonState</span><span class="p">()</span> <span class="p">{</span>
+        <span class="n">addButton</span><span class="p">?</span><span class="o">.</span><span class="n">isEnabled</span> <span class="o">=</span> <span class="kt">ToDoStore</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="n">count</span> <span class="o">&lt;</span> <span class="mi">10</span>
+    <span class="p">}</span>
+
+    <span class="kd">@objc</span> <span class="kd">func</span> <span class="nf">todoItemsDidChange</span><span class="p">(</span><span class="n">_</span> <span class="nv">notification</span><span class="p">:</span> <span class="kt">Notification</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">behavior</span> <span class="o">=</span> <span class="n">notification</span><span class="o">.</span><span class="nf">getUserInfo</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span> <span class="o">.</span><span class="n">toDoStoreDidChangedChangeBehaviorKey</span><span class="p">)</span>
+        <span class="nf">syncTableView</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span> <span class="n">behavior</span><span class="p">)</span>
+        <span class="nf">updateAddButtonState</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>Notification 本身有很长的历史，是一套基于字符串的松散 API。这里通过扩展和泛型的方式，由 <code class="language-plaintext highlighter-rouge">.toDoStoreDidChangedNotification</code>，<code class="language-plaintext highlighter-rouge">.toDoStoreDidChangedChangeBehaviorKey</code> 和 <code class="language-plaintext highlighter-rouge">post(name:object:typedUserInfo)</code> 以及 <code class="language-plaintext highlighter-rouge">getUserInfo(for:)</code> 构成了一套更 Swifty 的类型安全的 <code class="language-plaintext highlighter-rouge">NotificationCenter</code> 和 <code class="language-plaintext highlighter-rouge">userInfo</code> 的使用方式。如果你感兴趣的话，可以参看<a href="https://gist.github.com/onevcat/9e08111cebb1967cb96a737ed40f9f14">最后的代码</a>。</p></blockquote><p>最后，我们可以把之前用来维护 table view cell 和 <code class="language-plaintext highlighter-rouge">addButton</code> 状态的代码都删除了。用户操作 UI 唯一的作用就是触发模型的更新，然后模型更新通过通知来刷新 UI：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="kt">ToDoListViewController</span><span class="p">:</span> <span class="kt">UITableViewController</span> <span class="p">{</span>
+    <span class="c1">// 保存当前待办事项</span>
+    <span class="c1">// var items: [ToDoItem] = []</span>
+    
+    <span class="c1">// 点击添加按钮</span>
+    <span class="kd">@objc</span> <span class="kd">func</span> <span class="nf">addButtonPressed</span><span class="p">(</span><span class="n">_</span> <span class="nv">sender</span><span class="p">:</span> <span class="kt">Any</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// let newCount = items.count + 1</span>
+        <span class="c1">// let title = "ToDo Item \(newCount)"</span>
+        
+        <span class="c1">// 更新 `items`</span>
+        <span class="c1">// items.append(.init(title: title))</span>
+        
+        <span class="c1">// 为 table view 添加新行</span>
+        <span class="c1">// let indexPath = IndexPath(row: newCount - 1, section: 0)</span>
+        <span class="c1">// tableView.insertRows(at: [indexPath], with: .automatic)</span>
+        
+        <span class="c1">// 确定是否达到列表上限，如果达到，禁用 addButton</span>
+        <span class="c1">// if newCount &gt;= 10 {</span>
+        <span class="c1">//    addButton?.isEnabled = false</span>
+        <span class="c1">// }</span>
+        <span class="k">let</span> <span class="nv">store</span> <span class="o">=</span> <span class="kt">ToDoStore</span><span class="o">.</span><span class="n">shared</span>
+        <span class="k">let</span> <span class="nv">newCount</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">count</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">let</span> <span class="nv">title</span> <span class="o">=</span> <span class="s">"ToDo Item </span><span class="se">\(</span><span class="n">newCount</span><span class="se">)</span><span class="s">"</span>
+        
+        <span class="n">store</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="nv">item</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">title</span><span class="p">:</span> <span class="n">title</span><span class="p">))</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">extension</span> <span class="kt">ToDoListViewController</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="kd">func</span> <span class="nf">tableView</span><span class="p">(</span><span class="n">_</span> <span class="nv">tableView</span><span class="p">:</span> <span class="kt">UITableView</span><span class="p">,</span> <span class="n">trailingSwipeActionsConfigurationForRowAt</span> <span class="nv">indexPath</span><span class="p">:</span> <span class="kt">IndexPath</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">UISwipeActionsConfiguration</span><span class="p">?</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">deleteAction</span> <span class="o">=</span> <span class="kt">UIContextualAction</span><span class="p">(</span><span class="nv">style</span><span class="p">:</span> <span class="o">.</span><span class="n">destructive</span><span class="p">,</span> <span class="nv">title</span><span class="p">:</span> <span class="s">"Delete"</span><span class="p">)</span> <span class="p">{</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">done</span> <span class="k">in</span>
+            <span class="c1">// 用户确认删除，从 `items` 中移除该事项</span>
+            <span class="c1">// self.items.remove(at: indexPath.row)</span>
+            <span class="c1">// 从 table view 中移除对应行</span>
+            <span class="c1">// self.tableView.deleteRows(at: [indexPath], with: .automatic)</span>
+            <span class="c1">// 维护 addButton 状态</span>
+            <span class="c1">// if self.items.count &lt; 10 {</span>
+            <span class="c1">//     self.addButton?.isEnabled = true</span>
+            <span class="c1">// }</span>
+            <span class="kt">ToDoStore</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">remove</span><span class="p">(</span><span class="nv">at</span><span class="p">:</span> <span class="n">indexPath</span><span class="o">.</span><span class="n">row</span><span class="p">)</span>
+            <span class="nf">done</span><span class="p">(</span><span class="kc">true</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="kt">UISwipeActionsConfiguration</span><span class="p">(</span><span class="nv">actions</span><span class="p">:</span> <span class="p">[</span><span class="n">deleteAction</span><span class="p">])</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>现在，不妨再考虑一下上一节中场景一 (编辑条目) 和场景二 (网络同步) 的需求，是不是觉得结构会清晰很多呢？</p><ol><li>我们现在有了一个单独的可以测试的 Model 层，通过简单的 Mock，<code class="language-plaintext highlighter-rouge">ToDoListViewController</code> 也可以被方便地测试。<li>UI 操作 -&gt; 经由 Controller 进行模型变更 -&gt; 经由 Controller 将当前模型“映射”为 UI 状态，这个数据流动方向是严格可预测的 (并且应当时刻牢记需要保持这个循环)。这大大减少了 Controller 层的负担。<li>由于模型层不再被单一 View Controller 持有，其他的 Controller (不单指像是编辑用的 Edit View Controller 这样的视图控制器，也包括比如负责下载的 Controller 等等这类数据控制器) 也可以操作模型层。在此同时，所有的模型结果会被自动且正确地反应到 View 上，这为多 Controller 协同工作和更复杂的场景提供了坚实的基础。</ol><p>这个例子的修改后的最终版本<a href="https://gist.github.com/onevcat/9e08111cebb1967cb96a737ed40f9f14">可以在这里找到</a>。</p><h4 id="其他选项">其他选项</h4><p>MVC 本身的概念相当简单，同时它也给了开发者很大的自由度。Massive View Controller 往往就是利用了这个自由度，“随意”地将逻辑放在 controller 层所造成的后果。</p><p>有一些其他架构选择，最常用的比如 MVVM 和响应式编程 (比如 RxSwift)。MVVM 可以说几乎就是一个 MVC，不过通过 View Model 层来将数据和视图进行绑定。如果你写过 Reactive 架构的话，可能会发现我们在本文中 MVC 的 Controller 层的通知接收和 Rx 的事件流非常相似。不同之处在于，响应式编程“借用”了 MVVM 的思路，提供了一套 API 将事件流与 UI 状态进行绑定 (RxCocoa)。</p><p>这些“超越” MVC 的架构方式无一例外地加入了额外的规则和限制，提供了相对 MVC 来说更小的自由度。这可以在一定程度上规范开发者的行为，提供更加统一的代码 (当然代价是额外的学习成本)。完全理解和严格遵守 MVC 的思想，我们其实也可以将 MVC 用得“小而美”。第一步，就从避免文中这类常见“错误”开始吧~</p><blockquote><p>能够使用简单的架构来搭建复杂的工程，制作出让其他开发者可以轻松理解的软件，避免高额的后续维护成本，让软件可持续发展并长期活跃，应该是每个开发者在构建软件是必须考虑的事情。</p></blockquote></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/%E6%9D%82%E8%B0%88/'>杂谈</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/mvc/" class="post-tag no-text-decoration" >mvc</a> <a href="/tags/mvvm/" class="post-tag no-text-decoration" >mvvm</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="post-tag no-text-decoration" >设计模式</a> <a href="/tags/api/" class="post-tag no-text-decoration" >api</a> <a href="/tags/uitableview/" class="post-tag no-text-decoration" >uitableview</a> <a href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" class="post-tag no-text-decoration" >最佳实践</a> <a href="/tags/%E7%8A%B6%E6%80%81%E7%AE%A1%E7%90%86/" class="post-tag no-text-decoration" >状态管理</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=关于 MVC 的一个常见的误用 - OneV's Den&url=https://onevcat.com/2018/05/mvc-wrong-use/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=关于 MVC 的一个常见的误用 - OneV's Den&u=https://onevcat.com/2018/05/mvc-wrong-use/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=关于 MVC 的一个常见的误用 - OneV's Den&url=https://onevcat.com/2018/05/mvc-wrong-use/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=关于 MVC 的一个常见的误用 - OneV's Den&url=https://onevcat.com/2018/05/mvc-wrong-use/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2017/07/state-based-viewcontroller/"><div class="card-body"> <span class="timeago small" > 2017-07-13 <i class="unloaded">2017-07-13T10:05:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>单向数据流动的函数式 View Controller</h3><div class="text-muted small"><p> View Controller 向来是 MVC (Model-View-View Controller) 中最让人头疼的一环，MVC 架构本身并不复杂，但开发者很容易将大量代码扔到用于协调 View 和 Model 的 Controller 中。你不能说这是一种错误，因为 View Controller 所承担的本来就是胶水代码和业务逻辑的部分。但是，持续这样做必定将导致 Model Vie...</p></div></div></a></div><div class="card"> <a href="/2020/06/stateobject/"><div class="card-body"> <span class="timeago small" > 2020-06-25 <i class="unloaded">2020-06-25T12:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>@StateObject 和 @ObservedObject 的区别和使用</h3><div class="text-muted small"><p> WWDC 2020 中，SwiftUI 迎来了非常多的变更。相比于 2019 年的初版，可以说 SwiftUI 达到了一个相对可用的状态。从这篇文章开始，我打算写几篇文章来介绍一些重要的变化和新追加的内容。如果你需要 SwiftUI 的入门和基本概念的材料，我参与的两本书籍《SwiftUI 与 Combine 编程》和《SwiftUI 编程思想》依然会是很好的选择。 字太多，不想看...</p></div></div></a></div><div class="card"> <a href="/2018/10/swift-result-error/"><div class="card-body"> <span class="timeago small" > 2018-10-31 <i class="unloaded">2018-10-31T11:38:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt;</h3><div class="text-muted small"><p> 我之前在专栏文章里曾经发布这篇文章，由于这个话题其实还是挺重要的，可以说代表了 Swift 今后发展的方向流派，所以即使和专栏文章内容有些重复，我还是想把它再贴到博客来。经过半年以后，自己对于这个问题也有了更多的实践和想法，所以同时也更新了一下。我没有直接改动原文，而是把新的想法和需要补充的说明，用类似这段话的引用的方式写在合适的上下文里。 开始先打个广告 我个人经常会在数码荔枝...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2018/03/swift-meta/" class="btn btn-outline-primary"><p>不同角度看问题 - 从 Codable 到 Swift 元编程</p></a> <a href="/2018/06/wwdc-2018/" class="btn btn-outline-primary"><p>开发者所需要知道的 WWDC 2018 新特性</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

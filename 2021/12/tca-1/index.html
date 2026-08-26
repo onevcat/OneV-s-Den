@@ -1,0 +1,331 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="TCA - SwiftUI 的救星？(一)" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="打算用几篇文章介绍一下 TCA (The Composable Architecture)，这是一种看起来非常契合 SwiftUI 的架构方式。" /><meta property="og:description" content="打算用几篇文章介绍一下 TCA (The Composable Architecture)，这是一种看起来非常契合 SwiftUI 的架构方式。" /><link rel="canonical" href="https://onevcat.com/2021/12/tca-1/" /><meta property="og:url" content="https://onevcat.com/2021/12/tca-1/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2021-12-09T16:50:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="TCA - SwiftUI 的救星？(一)" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"打算用几篇文章介绍一下 TCA (The Composable Architecture)，这是一种看起来非常契合 SwiftUI 的架构方式。","url":"https://onevcat.com/2021/12/tca-1/","@type":"BlogPosting","headline":"TCA - SwiftUI 的救星？(一)","dateModified":"2021-12-09T16:50:00+09:00","datePublished":"2021-12-09T16:50:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2021/12/tca-1/"},"@context":"https://schema.org"}</script><title>TCA - SwiftUI 的救星？(一) | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>TCA - SwiftUI 的救星？(一)</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>TCA - SwiftUI 的救星？(一)</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Thu, Dec 9, 2021, 4:50 PM +0900" > 2021-12-09 <i class="unloaded">2021-12-09T16:50:00+09:00</i> </span></div></div><div class="post-content"><p>打算用几篇文章介绍一下 <a href="https://github.com/pointfreeco/swift-composable-architecture">TCA (The Composable Architecture)</a>，这是一种看起来非常契合 SwiftUI 的架构方式。</p><p>四年多前我写过一篇关于<a href="https://onevcat.com/2017/07/state-based-viewcontroller/">使用单向数据流来架构 View Controller</a> 的文章，因为 UIKit 中并没有强制的 view 刷新流程，所以包括绑定数据在内的很多事情都需要自己动手，这为大规模使用造成了不小的障碍。而自那时过了两年后， SwiftUI 的发布才让这套机制有了更加合适的舞台。在 SwiftUI 发布初期，我也写过一本<a href="https://objccn.io/products/swift-ui">相关的书籍</a>，里面使用了一些类似的想法，但是很不完善。现在，我想要回头再看看这样的架构方式，来看看最近一段时间在社区帮助下的进化，以及它是否能成为现下更好的选择。</p><p>对于以前很少接触声明式或者类似架构的朋友来说，其中有一些概念和选择可能不太容易理解，比如为什么 Side Effect 需要额外对应，如何在不同 View 之间共享状态，页面迁移的时候如何优雅处理等等。在这一系列文章里，我会尽量按照自己的理解，尝试阐明一些常见的问题，希望能帮助读者有一个更加平滑的入门体验。</p><p>作为开篇，我们先来简单看一看现在 SwfitUI 在架构上存在的一些不足。然后使用 TCA 实现一个最简单的 View。</p><h2 id="swiftui-很赞但是">SwiftUI 很赞，但是…</h2><p>iOS 15 一声炮响，给开发们送来了全新版本的 SwiftUI。它不仅有更加合理的异步方法和全新特性，更是修正了诸多顽疾。可以说，从 iOS 14 开始，SwiftUI 才算逐渐进入了可用的状态。而最近随着公司的项目彻底抛弃 iOS 13，我也终于可以更多地正式在工作中用上 SwiftUI 了。</p><p>Apple 并没有像在 UIKit 中贯彻 MVC 那样，为 SwiftUI “钦定” 一个架构。虽然 SwiftUI 中提供了诸多状态管理的关键字或属性包装 (property wrapper)，比如 <code class="language-plaintext highlighter-rouge">@State</code>、<code class="language-plaintext highlighter-rouge">@ObservedObject</code> 等，但是你很难说官方 SwiftUI 教程里关于<a href="https://developer.apple.com/tutorials/app-dev-training/passing-data-with-bindings">数据传递</a>和<a href="https://developer.apple.com/tutorials/app-dev-training/managing-state-and-life-cycle">状态管理</a>的部分，足够指导开发者构建出稳定和可扩展的 app。SwiftUI 最基础的状态管理模式，做到了 single source of truth：所有的 view 都是由状态导出的，但是它同时也存在了很多不足。简单就可以列举一些：</p><ul><li>复杂的状态修饰，想要“正常”使用，你至少必须要记住 <code class="language-plaintext highlighter-rouge">@State</code>，<code class="language-plaintext highlighter-rouge">@ObservedObject</code>，<code class="language-plaintext highlighter-rouge">@StateObject</code>，<code class="language-plaintext highlighter-rouge">@Binding</code>，<code class="language-plaintext highlighter-rouge">@EnvironmentObject</code> 各自的特点和区别。<li>很多修改状态的代码内嵌在 <code class="language-plaintext highlighter-rouge">View.body</code> 中，甚至只能在 <code class="language-plaintext highlighter-rouge">body</code> 中和其他 view 代码混杂在一起。同一个状态可能被多个不相关的 View 直接修改 (比如通过 <code class="language-plaintext highlighter-rouge">Binding</code>)，这些修改难以被追踪和定位，在 app 更复杂的情况下会是噩梦。<li>测试困难：这可能和直觉相反，因为 SwiftUI 框架的 view 完全是由状态决定的，所以理论上来说我们只需要测试状态 (也就是 model 层) 就行，这本应是很容易的。但是如果严格按照 Apple 官方教程的基本做法，app 中会存在大量私有状态，这些状态难以 mock，而且就算可以，如何测试对这些状态的修改也是问题。</ul><p>当然，这些不足都可以克服，比如死记硬背下五种属性包装的写法、尽可能减少共享可变状态来避免被意外修改、以及按照 Apple 的<a href="https://developer.apple.com/videos/play/wwdc2019/233/">推荐</a>准备一组 preview 的数据然后打开 View 文件去挨个检查 Preview 的结果 (虽然有一些<a href="https://www.raywenderlich.com/24426963-snapshot-testing-tutorial-for-swiftui-getting-started">自动化工具</a>帮我们解放双眼，但严肃点儿，别笑，Apple 在这个 session 里原本的意思就是让我们去查渲染结果！)。</p><p>我们真的需要一种架构，来让 SwiftUI 的使用更加轻松一些。</p><h2 id="从-elm-获得的启示">从 Elm 获得的启示</h2><p>我估摸着前端开发的圈子一年能大约能<a href="https://www.zhihu.com/question/314536318">诞生 500 多种架构</a>。如果我们需要一种新架构，那去前端那边抄一下大抵是不会错的。结合 SwiftUI 的特点，<a href="https://elm-lang.org">Elm</a> 就是非常优秀的“抄袭”对象。</p><p>说实话，要是你现在正好想要学习一门语言，那我想推荐的就是 Elm。不过虽然 Elm 是一门<a href="https://zh.wikipedia.org/wiki/通用编程语言">通用编程语言</a>，但可以说这门语言实际上只为一件事服务，那就是 Elm 架构 ( The Elm Architecture, TEA)。一个最简单的 counter 在 Elm 中长成这个样子：</p><div class="language-elm highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre><span class="k">type</span> <span class="kt">Msg</span> <span class="o">=</span> <span class="kt">Increment</span> <span class="o">|</span> <span class="kt">Decrement</span>
+
+<span class="n">update</span> <span class="p">:</span> <span class="kt">Msg</span> <span class="o">-&gt;</span> <span class="kt">Model</span> <span class="o">-&gt;</span> <span class="p">(</span> <span class="kt">Model</span><span class="o">,</span> <span class="kt">Cmd</span> <span class="kt">Msg</span> <span class="p">)</span>
+<span class="n">update</span> <span class="n">msg</span> <span class="n">model</span> <span class="o">=</span>
+  <span class="k">case</span> <span class="n">msg</span> <span class="k">of</span>
+    <span class="kt">Increment</span> <span class="o">-&gt;</span>
+      <span class="p">(</span> <span class="n">model</span> <span class="o">+</span> <span class="mi">1</span><span class="o">,</span> <span class="kt">Cmd</span><span class="o">.</span><span class="n">none</span> <span class="p">)</span>
+
+    <span class="kt">Decrement</span> <span class="o">-&gt;</span>
+      <span class="p">(</span> <span class="n">model</span> <span class="o">-</span> <span class="mi">1</span><span class="o">,</span> <span class="kt">Cmd</span><span class="o">.</span><span class="n">none</span> <span class="p">)</span>
+
+<span class="n">view</span> <span class="n">model</span> <span class="o">=</span>
+  <span class="n">div</span> <span class="p">[]</span>
+    <span class="p">[</span> <span class="n">button</span> <span class="p">[</span> <span class="n">onClick</span> <span class="kt">Decrement</span> <span class="p">]</span> <span class="p">[</span> <span class="n">text</span> <span class="s">"</span><span class="s2">-"</span> <span class="p">]</span>
+    <span class="o">,</span> <span class="n">div</span> <span class="p">[]</span> <span class="p">[</span> <span class="n">text</span> <span class="p">(</span><span class="kt">String</span><span class="o">.</span><span class="n">fromInt</span> <span class="n">model</span><span class="p">)</span> <span class="p">]</span>
+    <span class="o">,</span> <span class="n">button</span> <span class="p">[</span> <span class="n">onClick</span> <span class="kt">Increment</span> <span class="p">]</span> <span class="p">[</span> <span class="n">text</span> <span class="s">"</span><span class="s2">+"</span> <span class="p">]</span>
+    <span class="p">]</span>
+</pre></table></code></div></div><p>如果有机会，我再写一些 Elm 或者 Haskell 的东西。在这里，我决定直接把上面这段代码“翻译”成伪 SwiftUI：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">Msg</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="n">increment</span>
+  <span class="k">case</span> <span class="n">decrement</span>
+<span class="p">}</span>
+
+<span class="kd">typealias</span> <span class="kt">Model</span> <span class="o">=</span> <span class="kt">Int</span>
+<span class="kd">func</span> <span class="nf">update</span><span class="p">(</span><span class="nv">msg</span><span class="p">:</span> <span class="kt">Msg</span><span class="p">,</span> <span class="nv">model</span><span class="p">:</span> <span class="kt">Model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">Model</span><span class="p">,</span> <span class="kt">Cmd</span><span class="o">&lt;</span><span class="kt">Msg</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+  <span class="k">switch</span> <span class="n">msg</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="o">.</span><span class="nv">increment</span><span class="p">:</span>
+    <span class="nf">return</span> <span class="p">(</span><span class="n">model</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="k">none</span><span class="p">)</span>
+  <span class="k">case</span> <span class="o">.</span><span class="nv">decrement</span><span class="p">:</span>
+    <span class="nf">return</span> <span class="p">(</span><span class="n">model</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">.</span><span class="k">none</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">view</span><span class="p">(</span><span class="nv">model</span><span class="p">:</span> <span class="kt">Model</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="kt">HStack</span> <span class="p">{</span>
+    <span class="kt">Button</span><span class="p">(</span><span class="s">"-"</span><span class="p">)</span> <span class="p">{</span> <span class="nf">sendMsg</span><span class="p">(</span><span class="o">.</span><span class="n">decrement</span><span class="p">)</span> <span class="p">}</span>
+    <span class="kt">Text</span><span class="p">(</span><span class="s">"</span><span class="se">\(</span><span class="n">model</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="kt">Button</span><span class="p">(</span><span class="s">"+"</span><span class="p">)</span> <span class="p">{</span> <span class="nf">sendMsg</span><span class="p">(</span><span class="o">.</span><span class="n">increment</span><span class="p">)</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="tea-架构组成部件">TEA 架构组成部件</h4><p>整个过程如图所示 (为了简洁，先省去了 <code class="language-plaintext highlighter-rouge">Cmd</code> 的部分，我们会在系列后面的文章再谈到这个内容)：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-simple-elm.png" alt="" /></p><ol><li>用户在 view 上的操作 (比如按下某个按钮)，将会以消息的方式进行发送。Elm 中的某种机制将捕获到这个消息。<li>在检测到新消息到来时，它会和当前的 <code class="language-plaintext highlighter-rouge">Model</code> 一并，作为输入传递给 <code class="language-plaintext highlighter-rouge">update</code> 函数。这个函数通常是 app 开发者所需要花费时间最长的部分，它控制了整个 app 状态的变化。作为 Elm 架构的核心，它需要根据输入的消息和状态，演算出新的 <code class="language-plaintext highlighter-rouge">Model</code>。<li>这个新的 model 将替换掉原有的 model，并准备在下一个 <code class="language-plaintext highlighter-rouge">msg</code> 到来时，再次重复上面的过程，去获取新的状态。<li>Elm 运行时负责在得到新 Model 后调用 <code class="language-plaintext highlighter-rouge">view</code> 函数，渲染出结果 (在 Elm 的语境下，就是一个前端 HTML 页面)。用户可以通过它再次发送新的消息，重复上面的循环。</ol><p>现在，你已经对 TEA 有了基本的了解了。我们类比一下这些步骤在 SwiftUI 中的实现，可以发现步骤 4 其实已经包含在 SwiftUI 中了：当 <code class="language-plaintext highlighter-rouge">@State</code> 或 <code class="language-plaintext highlighter-rouge">@ObservedObject</code> 的 <code class="language-plaintext highlighter-rouge">@Published</code> 发生变化时，SwiftUI 会自动调用 <code class="language-plaintext highlighter-rouge">View.body</code> 为我们渲染新的界面。因此，想要在 SwiftUI 中实现 TEA，我们需要做的是实现 1 至 3。或者换句话说，我们需要的是一套规则，来把零散的 SwiftUI 状态管理的方式进行规范。TCA 正是在这方面做出了非常多的努力。</p><h2 id="第一个-tca-app">第一个 TCA app</h2><p>来实际做一点东西吧，比如上面的这个 Counter。新建一个 SwiftUI 项目。因为我们会涉及到大量测试的话题，所以记得把 “Include Tests” 勾选上。然后在项目的 Package Dependencies 里把 TCA 加入到依赖中：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-add-dependency.png" alt="" /></p><blockquote><p>在本文写作的 TCA 版本 (0.29.0) 中，使用 Xcode 13.2 的话将无法编译 TCA 框架。暂时可以使用 Xcode 13.1，或者等待 workaround 修正。</p></blockquote><p>把 ContentView.swift 的内容替换为</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Counter</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="p">}</span>
+
+<span class="kd">enum</span> <span class="kt">CounterAction</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="n">increment</span>
+  <span class="k">case</span> <span class="n">decrement</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">CounterEnvironment</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="c1">// 2</span>
+<span class="k">let</span> <span class="nv">counterReducer</span> <span class="o">=</span> <span class="kt">Reducer</span><span class="o">&lt;</span><span class="kt">Counter</span><span class="p">,</span> <span class="kt">CounterAction</span><span class="p">,</span> <span class="kt">CounterEnvironment</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">_</span> <span class="k">in</span>
+  <span class="k">switch</span> <span class="n">action</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="o">.</span><span class="nv">increment</span><span class="p">:</span>
+    <span class="c1">// 3</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="o">.</span><span class="k">none</span>
+  <span class="k">case</span> <span class="o">.</span><span class="nv">decrement</span><span class="p">:</span>
+    <span class="c1">// 3</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">count</span> <span class="o">-=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="o">.</span><span class="k">none</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">CounterView</span><span class="p">:</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="o">&lt;</span><span class="kt">Counter</span><span class="p">,</span> <span class="kt">CounterAction</span><span class="o">&gt;</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="kt">WithViewStore</span><span class="p">(</span><span class="n">store</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span> <span class="k">in</span>
+      <span class="kt">HStack</span> <span class="p">{</span>
+        <span class="c1">// 1</span>
+        <span class="kt">Button</span><span class="p">(</span><span class="s">"-"</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="n">decrement</span><span class="p">)</span> <span class="p">}</span>
+        <span class="kt">Text</span><span class="p">(</span><span class="s">"</span><span class="se">\(</span><span class="n">viewStore</span><span class="o">.</span><span class="n">count</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="kt">Button</span><span class="p">(</span><span class="s">"+"</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="n">increment</span><span class="p">)</span> <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>基本上就是对上面 Elm 翻译的伪 SwiftUI 代码进行了一些替换：<code class="language-plaintext highlighter-rouge">Model</code> -&gt; <code class="language-plaintext highlighter-rouge">Counter</code>，<code class="language-plaintext highlighter-rouge">Msg</code> -&gt; <code class="language-plaintext highlighter-rouge">CounterAction</code>，<code class="language-plaintext highlighter-rouge">update(msg:model:)</code> -&gt; <code class="language-plaintext highlighter-rouge">counterReducer</code>，<code class="language-plaintext highlighter-rouge">view(model:)</code> -&gt; <code class="language-plaintext highlighter-rouge">ContentView.body</code>。</p><blockquote><p><code class="language-plaintext highlighter-rouge">Reducer</code>，<code class="language-plaintext highlighter-rouge">Store</code> 和 <code class="language-plaintext highlighter-rouge">WithViewStore</code> 是 TCA 中的类型：</p><ul><li><code class="language-plaintext highlighter-rouge">Reducer</code> 是函数式编程中的常见概念，顾名思意，它将多项内容进行合并，最后返回单个结果。<li>ContentView 中，我们不直接操作 <code class="language-plaintext highlighter-rouge">Counter</code>，而是将它放在一个 <code class="language-plaintext highlighter-rouge">Store</code> 中。这个 Store 负责把 <code class="language-plaintext highlighter-rouge">Counter</code> (State) 和 Action 连接起来。<li><code class="language-plaintext highlighter-rouge">CounterEnvironment</code> 让我们有机会为 reducer 提供自定义的运行环境，用来注入一些依赖。我们会把相关内容放到后面再解释。</ul></blockquote><p>上面的代码中 1 至 3，恰好就对应了 TEA 组成部件中对应的部分：</p><h4 id="1-发送消息而非直接改变状态">1. 发送消息，而非直接改变状态</h4><p>任何用户操作，我们都通过向 <code class="language-plaintext highlighter-rouge">viewStore</code> 发送一个 <code class="language-plaintext highlighter-rouge">Action</code> 来表达。在这里，当用户按下 “-” 或 “+” 按钮时，我们发送对应的 <code class="language-plaintext highlighter-rouge">CounterAction</code>。选择将 Action 定义为 enum，可以带来更清晰地表达意图。但不仅如此，它还能在合并 reducer 时带来很多便利的特性，在后续文章中我们会涉及相关话题。虽然并不是强制，但是如果没有特殊理由，我们最好跟随这一实践，用 enum 来表达 Action。</p><h4 id="2-只在-reducer-中改变状态">2. 只在 Reducer 中改变状态</h4><p>我们已经说过，<code class="language-plaintext highlighter-rouge">Reducer</code> 是逻辑的核心部分。它同时也是 TCA 中最为灵活的部分，我们的大部分工作应该都是围绕打造合适的 <code class="language-plaintext highlighter-rouge">Reducer</code> 来展开的。对于状态的改变，应且仅应在 <code class="language-plaintext highlighter-rouge">Reducer</code> 中完成：它的初始化方法接受一个函数，其类型为：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="p">(</span><span class="k">inout</span> <span class="kt">State</span><span class="p">,</span> <span class="kt">Action</span><span class="p">,</span> <span class="kt">Environment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Effect</span><span class="o">&lt;</span><span class="kt">Action</span><span class="p">,</span> <span class="kt">Never</span><span class="o">&gt;</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">inout</code> 的 <code class="language-plaintext highlighter-rouge">State</code> 让我们可以“原地”对 <code class="language-plaintext highlighter-rouge">state</code> 进行变更，而不需要明确地返回它。这个函数的返回值是一个 <code class="language-plaintext highlighter-rouge">Effect</code>，它代表不应该在 reducer 中进行的副作用，比如 API 请求，获取当前时间等。我们会在下一篇文章中看到这部分内容。</p><h4 id="3-更新状态并触发渲染">3. 更新状态并触发渲染</h4><p>在 Reducer 闭包中改变状态是合法的，新的状态将被 TCA 用来触发 view 的渲染，并保存下来等待下一次 Action 到来。在 SwiftUI 中，TCA 使用 <code class="language-plaintext highlighter-rouge">ViewStore</code> (它本身是一个 <code class="language-plaintext highlighter-rouge">ObservableObject</code>) 来通过 <code class="language-plaintext highlighter-rouge">@ObservedObject</code> 触发 UI 刷新。</p><p>有了这些内容，整个模块的运行就闭合了。在 <code class="language-plaintext highlighter-rouge">Preview</code> 的部分传入初始的 model 实例和 reducer 来创建 Store：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">ContentView_Previews</span><span class="p">:</span> <span class="kt">PreviewProvider</span> <span class="p">{</span>
+  <span class="kd">static</span> <span class="k">var</span> <span class="nv">previews</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="kt">CounterView</span><span class="p">(</span>
+      <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="p">(</span>
+        <span class="nv">initialState</span><span class="p">:</span> <span class="kt">Counter</span><span class="p">(),</span>
+        <span class="nv">reducer</span><span class="p">:</span> <span class="n">counterReducer</span><span class="p">,</span>
+        <span class="nv">environment</span><span class="p">:</span> <span class="kt">CounterEnvironment</span><span class="p">()</span>
+    <span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>最后，在 App 的入口将 <code class="language-plaintext highlighter-rouge">@main</code> 的内容也替换成带有 store 的 <code class="language-plaintext highlighter-rouge">CounterView</code>，整个程序就可以运行了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre><span class="kd">@main</span>
+<span class="kd">struct</span> <span class="kt">CounterDemoApp</span><span class="p">:</span> <span class="kt">App</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">Scene</span> <span class="p">{</span>
+    <span class="kt">WindowGroup</span> <span class="p">{</span>
+      <span class="kt">CounterView</span><span class="p">(</span>
+        <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="p">(</span>
+          <span class="nv">initialState</span><span class="p">:</span> <span class="kt">Counter</span><span class="p">(),</span>
+          <span class="nv">reducer</span><span class="p">:</span> <span class="n">counterReducer</span><span class="p">,</span>
+          <span class="nv">environment</span><span class="p">:</span> <span class="kt">CounterEnvironment</span><span class="p">())</span>
+      <span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h2 id="debug-和-test">Debug 和 Test</h2><p>这一套机制能正常运行的一个重要前提，是通过 model 对 view 进行渲染的部分是正确的。也就是说，我们需要相信 SwiftUI 中 <code class="language-plaintext highlighter-rouge">State</code> -&gt; <code class="language-plaintext highlighter-rouge">View</code> 的过程是正确的 (实际上就算不正确，作为 SwiftUI 这个框架的使用者来说，我们能做的事情其实有限)。在这个前提下，我们只需要检查 Action 的发送是否正确，以及 Reducer 中对 State 的变更是否正确就行了。</p><p>TCA 中 <code class="language-plaintext highlighter-rouge">Reducer</code> 上有一个非常方便的 <code class="language-plaintext highlighter-rouge">debug()</code> 方法，它会为这个 <code class="language-plaintext highlighter-rouge">Reducer</code> 开启控制台的调试输出，打印出接收到的 Action 以及其中 State 的变化。为 <code class="language-plaintext highlighter-rouge">counterReducer</code> 加上这个调用：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">counterReducer</span> <span class="o">=</span> <span class="kt">Reducer</span><span class="o">&lt;</span><span class="kt">Counter</span><span class="p">,</span> <span class="kt">CounterAction</span><span class="p">,</span> <span class="kt">CounterEnvironment</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span><span class="o">.</span><span class="nf">debug</span><span class="p">()</span>
+</pre></table></code></div></div><p>这时，点击按钮会给我们这样的输出，State 的变化被以 diff 的方式打印出来：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-reducer-debug.png" alt="" /></p><p><code class="language-plaintext highlighter-rouge">.debug()</code> 只会在 <code class="language-plaintext highlighter-rouge">#if DEBUG</code> 的编译条件下打印，也就是说在 Release 时其实并不产生影响。另外，当我们有更多更复杂的 <code class="language-plaintext highlighter-rouge">Reducer</code> 时，我们也可以选择只在某个或某几个 <code class="language-plaintext highlighter-rouge">Reducer</code> 上调用 <code class="language-plaintext highlighter-rouge">.debug()</code> 来帮助调试。在 TCA 中，一组关联的 State/Reducer/Action (以及 Environment) 统合起来称为一个 Feature。我们总是可以通过把小部件的 Feature 整体一起，组合形成更大的 Feature 或是添加到其他 Feature 上去，形成一组更大的功能。这种依靠组合的开发方式，可以让我们保持小 Feature 的可测试和可用性。而这种组合，也正是 The Composable Architecture 中 Composable 所代表的意涵。</p><p>现在我们还只有 Counter 这一个 Feature。随着 app 越来越复杂，在后面我们会看到更多的 Feature，以及如何通过 TCA 提供的工具，将它们组合到一起。</p><p>使用 <code class="language-plaintext highlighter-rouge">.debug()</code> 可以让我们在控制台实际看到状态变化的方式，但如果能用单元测试确保这些变化，会更加高效和有意义。在 Unit Test 里，我们添加一个测试，来验证发送 <code class="language-plaintext highlighter-rouge">.increment</code> 时的情况：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">testCounterIncrement</span><span class="p">()</span> <span class="k">throws</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">store</span> <span class="o">=</span> <span class="kt">TestStore</span><span class="p">(</span>
+    <span class="nv">initialState</span><span class="p">:</span> <span class="kt">Counter</span><span class="p">(</span><span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="nf">random</span><span class="p">(</span><span class="nv">in</span><span class="p">:</span> <span class="o">-</span><span class="mi">100</span><span class="o">...</span><span class="mi">100</span><span class="p">)),</span>
+    <span class="nv">reducer</span><span class="p">:</span> <span class="n">counterReducer</span><span class="p">,</span>
+    <span class="nv">environment</span><span class="p">:</span> <span class="kt">CounterEnvironment</span><span class="p">()</span>
+  <span class="p">)</span>
+  <span class="n">store</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="n">increment</span><span class="p">)</span> <span class="p">{</span> <span class="n">state</span> <span class="k">in</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">count</span> <span class="o">+=</span> <span class="mi">1</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">TestStore</code> 是 TCA 中专门用来处理测试的一种 <code class="language-plaintext highlighter-rouge">Store</code>。它在接受通过 <code class="language-plaintext highlighter-rouge">send</code> 发送的 Action 的同时，还在内部带有断言。如果接收到 Action 后产生的新的 model 状态和提供的 model 状态不符，那么测试失败。上例中，<code class="language-plaintext highlighter-rouge">store.send(.increment)</code> 所对应的 State 变更，应该是 <code class="language-plaintext highlighter-rouge">count</code> 增加一，因此在 <code class="language-plaintext highlighter-rouge">send</code> 方法提供的闭包部分，我们正确更新了 state 作为最终状态。</p><p>在初始化 <code class="language-plaintext highlighter-rouge">Counter</code> 提供 <code class="language-plaintext highlighter-rouge">initialState</code> 时，我们传递了一个随机值。通过使用 Xcode 13 提供的“重复测试”功能 (右键点击对应测试左侧的图标)，我们可以重复这个测试，这可以让我们通过提供不同的初始状态，来覆盖更多的情况。在这个简单的例子中可能显得“小题大作”，但是在更加复杂的场景里，这有助于我们发现一些潜藏的问题。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-repeatly-test.png" alt="" /></p><p>如果测试失败，TCA 也会通过 dump 打印出非常漂亮的 diff 结果，让错误一目了然：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-test-failing.png" alt="" /></p><p>除了自带断言，<code class="language-plaintext highlighter-rouge">TestStore</code> 还有其他一些用法，比如用来对应时序敏感的测试。另外，通过配置合适的 <code class="language-plaintext highlighter-rouge">Environment</code>，我们可以提供稳定的 <code class="language-plaintext highlighter-rouge">Effect</code> 作为 mock。这些课题其实在我们使用其他架构时，也都会遇到，在有些情况下会很难处理。这种时候，开发者们的选择往往是“如果写测试太麻烦，那要不就算了吧”。在 TCA 这一套易用的测试套件的帮助下，我们大概很难再用这个借口逃避测试。大多数时候，书写测试反而变成一种乐趣，这对项目质量的提升和保障可谓厥功至伟。</p><h2 id="store-和-viewstore">Store 和 ViewStore</h2><h3 id="切分-store-避免不必要的-view-更新">切分 Store 避免不必要的 view 更新</h3><p>在这个简单的例子中，有一个很重要的部分，我决定放到本文最后进行强调，那就是 <code class="language-plaintext highlighter-rouge">Store</code> 和 <code class="language-plaintext highlighter-rouge">ViewStore</code> 的设计。<code class="language-plaintext highlighter-rouge">Store</code> 扮演的是状态持有者，同时也负责在运行的时候连接 State 和 Action。Single source of truth 是状态驱动 UI 的最基本原则之一，由于这个要求，我们希望持有状态的角色只有一个。因此很常见的选择是，整个 app 只有一个 Store。UI 对这个 Store 进行观察 (比如通过将它设置为 <code class="language-plaintext highlighter-rouge">@ObservedObject</code>)，攫取它们所需要的状态，并对状态的变化作出响应。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-subscribe.png" alt="" /></p><p>通常情况下，一个这样的 Store 中会存在非常多的状态。但是具体的 view 一般只需要一来其中一个很小的子集。比如上图中 View 1 只需要依赖 State 1，而完全不关心 State 2。</p><p>如果让 View 直接观察整个 Store，在其中某个状态发生变化时，SwiftUI 将会要求所有对 Store 进行观察的 UI 更新，这会造成所有的 view 都对 <code class="language-plaintext highlighter-rouge">body</code> 进行重新求值，是非常大的浪费。比如下图中，State 2 发生了变化，但是并不依赖 State 2 的 View 1 和 View 1-1 只是因为观察了 Store，也会由于 <code class="language-plaintext highlighter-rouge">@ObservedObject</code> 的特性，重新对 <code class="language-plaintext highlighter-rouge">body</code> 进行求值：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-full-change.png" alt="" /></p><p>TCA 中为了避免这个问题，把传统意义的 Store 的功能进行了拆分，发明了 <code class="language-plaintext highlighter-rouge">ViewStore</code> 的概念：</p><p><code class="language-plaintext highlighter-rouge">Store</code> 依然是状态的实际管理者和持有者，它代表了 app 状态的<strong>纯数据层</strong>的表示。在 TCA 的使用者来看，<code class="language-plaintext highlighter-rouge">Store</code> 最重要的功能，是对状态进行切分，比如对于图示中的 <code class="language-plaintext highlighter-rouge">State</code> 和 <code class="language-plaintext highlighter-rouge">Store</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">State1</span> <span class="p">{</span>
+  <span class="kd">struct</span> <span class="kt">State1_1</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">foo</span><span class="p">:</span> <span class="kt">Int</span>
+  <span class="p">}</span>
+  
+  <span class="k">var</span> <span class="nv">childState</span><span class="p">:</span> <span class="kt">State1_1</span>
+  <span class="k">var</span> <span class="nv">bar</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">State2</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">baz</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">AppState</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">state1</span><span class="p">:</span> <span class="kt">State1</span>
+  <span class="k">var</span> <span class="nv">state2</span><span class="p">:</span> <span class="kt">State2</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">store</span> <span class="o">=</span> <span class="kt">Store</span><span class="p">(</span>
+  <span class="nv">initialState</span><span class="p">:</span> <span class="kt">AppState</span><span class="p">(</span> <span class="cm">/* */</span> <span class="p">),</span>
+  <span class="nv">reducer</span><span class="p">:</span> <span class="n">appReducer</span><span class="p">,</span>
+  <span class="nv">environment</span><span class="p">:</span> <span class="p">()</span>
+<span class="p">)</span>
+</pre></table></code></div></div><p>在将 Store 传递给不同页面时，可以使用 <code class="language-plaintext highlighter-rouge">.scope</code> 将其“切分”出来：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="o">&lt;</span><span class="kt">AppState</span><span class="p">,</span> <span class="kt">AppAction</span><span class="o">&gt;</span>
+<span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="kt">TabView</span> <span class="p">{</span>
+    <span class="kt">View1</span><span class="p">(</span>
+      <span class="nv">store</span><span class="p">:</span> <span class="n">store</span><span class="o">.</span><span class="nf">scope</span><span class="p">(</span>
+        <span class="nv">state</span><span class="p">:</span> <span class="p">\</span><span class="o">.</span><span class="n">state1</span><span class="p">,</span> <span class="nv">action</span><span class="p">:</span> <span class="kt">AppAction</span><span class="o">.</span><span class="n">action1</span>
+      <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="kt">View2</span><span class="p">(</span>
+      <span class="nv">store</span><span class="p">:</span> <span class="n">store</span><span class="o">.</span><span class="nf">scope</span><span class="p">(</span>
+        <span class="nv">state</span><span class="p">:</span> <span class="p">\</span><span class="o">.</span><span class="n">state2</span><span class="p">,</span> <span class="nv">action</span><span class="p">:</span> <span class="kt">AppAction</span><span class="o">.</span><span class="n">action2</span>
+      <span class="p">)</span>
+    <span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这样可以限制每个页面所能够访问到的状态，保持清晰。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-scope-view-store.png" alt="" /></p><p>最后，再来看这一段最简单的 TCA 架构下的代码：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">CounterView</span><span class="p">:</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="o">&lt;</span><span class="kt">Counter</span><span class="p">,</span> <span class="kt">CounterAction</span><span class="o">&gt;</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="kt">WithViewStore</span><span class="p">(</span><span class="n">store</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span> <span class="k">in</span>
+      <span class="kt">HStack</span> <span class="p">{</span>
+        <span class="kt">Button</span><span class="p">(</span><span class="s">"-"</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="n">decrement</span><span class="p">)</span> <span class="p">}</span>
+        <span class="kt">Text</span><span class="p">(</span><span class="s">"</span><span class="se">\(</span><span class="n">viewStore</span><span class="o">.</span><span class="n">count</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="kt">Button</span><span class="p">(</span><span class="s">"+"</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="n">increment</span><span class="p">)</span> <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>TCA 通过 <code class="language-plaintext highlighter-rouge">WithViewStore</code> 来把一个<strong>代表纯数据</strong>的 <code class="language-plaintext highlighter-rouge">Store</code> 转换为 SwiftUI 可观测的数据。不出意外，当 <code class="language-plaintext highlighter-rouge">WithViewStore</code> 接受的闭包满足 <code class="language-plaintext highlighter-rouge">View</code> 协议时，它本身也将满足 <code class="language-plaintext highlighter-rouge">View</code>，这也是为什么我们能在 <code class="language-plaintext highlighter-rouge">CounterView</code> 的 <code class="language-plaintext highlighter-rouge">body</code> 直接用它来构建一个 View 的原因。<code class="language-plaintext highlighter-rouge">WithViewStore</code> 这个 view，在内部持有一个 <code class="language-plaintext highlighter-rouge">ViewStore</code> 类型，它进一步保持了对于 <code class="language-plaintext highlighter-rouge">store</code> 的引用。作为 <code class="language-plaintext highlighter-rouge">View</code>，它通过 <code class="language-plaintext highlighter-rouge">@ObservedObject</code> 对这个 <code class="language-plaintext highlighter-rouge">ViewStore</code> 进行观察，并响应它的变更。因此，如果我们的 View 持有的只是切分后的 <code class="language-plaintext highlighter-rouge">Store</code>，那么原始 Store 其他部分的变更，就不会影响到当前这个 Store 的切片，从而保证那些和当前 UI 不相关的状态改变，不会导致当前 UI 的刷新。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-scope-view-store-change.png" alt="" /></p><p>当我们在 View 之间自上向下传递数据时，尽量保证把 Store 进行细分，就能保证模块之间互不干扰。但是，实际上在使用 TCA 做项目时，更多的情景时我们从更小的模块进行构建 (它会包含自己的一套 Feature)，然后再把这些本地内容“添加”到它的上级。所以 Store 的切分将会变得自然而然。现在你可能对这部分内容还有怀疑，但是在后面的几篇文章中，会逐步深入 feature 划分和组织，在那里你可以看到更多的例子。</p><h3 id="跨-ui-框架的使用">跨 UI 框架的使用</h3><p>另一方面，<code class="language-plaintext highlighter-rouge">Store</code> 和 <code class="language-plaintext highlighter-rouge">ViewStore</code> 的分离，让 TCA 可以摆脱对 UI 框架的依赖。在 SwiftUI 中，body 的刷新是 SwiftUI 运行时通过 <code class="language-plaintext highlighter-rouge">@ObservedObject</code> 属性包装所提供的特性。现在这部分内容被包含在了 <code class="language-plaintext highlighter-rouge">WithViewStore</code> 中。但是 <code class="language-plaintext highlighter-rouge">Store</code> 和 <code class="language-plaintext highlighter-rouge">ViewStore</code> 本身并不依赖于任何特定的 UI 框架。也就是说，我们也可以在 UIKit 或者 AppKit 的 app 中用同一套 API 来使用 TCA。虽然这需要我们自己去将 View 和 Model 绑定起来，会有些麻烦，但是如果你想要尽快尝试 TCA，却又不能使用 SwiftUI，也可以在 UIKit 中进行学习。你得到的经验可以很容易迁移到其他的 UI 平台 (甚至 web app) 中去。</p><h2 id="练习">练习</h2><p>为了巩固，我也准备了一些练习。完成后的项目将会作为下一篇文章的起始代码使用。不过如果你实在不想进行这些练习，或者不确定是否正确完成，每一篇文章也提供了初始代码以供参考，所以不必担心。如果你没有跟随代码部分完成这个示例，你可以在<a href="https://github.com/onevcat/CounterDemo/releases/tag/part-1-start">这里</a>找到这次练习的初始代码。参考实现可以在<a href="https://github.com/onevcat/CounterDemo/releases/tag/part-1-finish">这里</a>找到。</p><h4 id="为数据文本添加颜色">为数据文本添加颜色</h4><p>为了更好地看清数字的正负，请为数字<a href="https://developer.apple.com/documentation/swiftui/view/foregroundcolor(_:)">加上颜色</a>：正数时用绿色显示，负数时用红色显示。</p><h4 id="添加一个-reset-按钮">添加一个 Reset 按钮</h4><p>除了加和减以外，添加一个重置按钮，按下后将数字复原为 0。</p><h4 id="为-counter-补全所有测试">为 Counter 补全所有测试</h4><p>现在测试中只包含了 <code class="language-plaintext highlighter-rouge">.increment</code> 的情况。请添加减号和重置按钮的相关测试。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swiftui/'>SwiftUI</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" class="post-tag no-text-decoration" >编程语言</a> <a href="/tags/swiftui/" class="post-tag no-text-decoration" >swiftui</a> <a href="/tags/tca/" class="post-tag no-text-decoration" >tca</a> <a href="/tags/elm/" class="post-tag no-text-decoration" >elm</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=TCA - SwiftUI 的救星？(一) - OneV's Den&url=https://onevcat.com/2021/12/tca-1/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=TCA - SwiftUI 的救星？(一) - OneV's Den&u=https://onevcat.com/2021/12/tca-1/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=TCA - SwiftUI 的救星？(一) - OneV's Den&url=https://onevcat.com/2021/12/tca-1/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=TCA - SwiftUI 的救星？(一) - OneV's Den&url=https://onevcat.com/2021/12/tca-1/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2021/12/tca-2/"><div class="card-body"> <span class="timeago small" > 2021-12-16 <i class="unloaded">2021-12-16T09:50:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>TCA - SwiftUI 的救星？(二)</h3><div class="text-muted small"><p> 在上一篇关于 TCA 的文章中，我们通过总览的方式看到了 TCA 中一个 Feature 的运作方式，并尝试实现了一个最小的 Feature 和它的测试。在这篇文章中，我们会继续深入，看看 TCA 中对 Binding 的处理，以及使用 Environment 来把依赖从 reducer 中解耦的方法。 如果你想要跟做，可以直接使用上一篇文章完成练习后最后的状态，或者从这里获取到起始...</p></div></div></a></div><div class="card"> <a href="/2022/03/tca-3/"><div class="card-body"> <span class="timeago small" > 2022-03-17 <i class="unloaded">2022-03-17T13:50:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>TCA - SwiftUI 的救星？(三)</h3><div class="text-muted small"><p> 在上一篇关于 TCA 的文章中，我们看到了绑定的工作方式以及 Environment 在管理依赖和提供易测试性时发挥的作用。在这篇文章中，我们会继续深入，来看看 TCA 中的两个重要话题：Effect 角色到底是什么，以及如何通过组合的方式来把多个小 Feature 组合在一起，形成更加复杂的 UI 结构。 如果你想要跟做，可以直接使用上一篇文章完成练习后最后的状态，或者从这里获取到...</p></div></div></a></div><div class="card"> <a href="/2022/05/tca-4/"><div class="card-body"> <span class="timeago small" > 2022-05-18 <i class="unloaded">2022-05-18T12:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>TCA - SwiftUI 的救星？(四)</h3><div class="text-muted small"><p> 这是一系列关于 TCA 文章的最后一篇。在系列中前面的几篇里，我们简述了 TCA 的最小 Feature 核心思想，并研究了绑定和环境值的处理，以及 Effect 角色和 Feature 组合的方式等话题。作为贯穿整个系列的示例 app，现在应该已经拥有一个可用的猜数字游戏了。这篇文章会综合运用之前的内容，来看看和 UI 以及日常操作更贴近的一些话题，比如如何用 TCA 的方式展示 List...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2021/09/structured-concurrency/" class="btn btn-outline-primary"><p>Swift 结构化并发</p></a> <a href="/2021/12/tca-2/" class="btn btn-outline-primary"><p>TCA - SwiftUI 的救星？(二)</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

@@ -1,0 +1,441 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="逆流而上的设计 - Swift 所有权和 ~Copyable" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="在 Rust 中，绝对安全和高效的内存使用得益于其独特的所有权（ownership）设计。七年前，Swift 团队发布了《所有权宣言》，以前瞻性的方式介绍了 Swift 中关于值的内存管理变化的一系列愿景。Swift 5.9 中（以和宣言里略微不同的语法）实现了这一愿景，引入了不可复制类型的标记 ~Copyable（non-copyable），以与 Rust 截然不同的（打补丁的）方式实现了更精确的所有权控制。在今年的 Swift 6 中，之前类型扩展（extension）和泛型（generic）不支持 ~Copyable 的不足也得到了解决，~Copyable 的可用性得到了提升。回顾 ~Copyable 及其设计，它为 Swift 引入了一种全新的设计思路：以往的协议是“为类型增加功能”，而 ~Copyable 则是“为类型解除限制”。本文尝试解释 ~Copyable 的设计和工作方式，以帮助读者更好地理解并利用这个特性。" /><meta property="og:description" content="在 Rust 中，绝对安全和高效的内存使用得益于其独特的所有权（ownership）设计。七年前，Swift 团队发布了《所有权宣言》，以前瞻性的方式介绍了 Swift 中关于值的内存管理变化的一系列愿景。Swift 5.9 中（以和宣言里略微不同的语法）实现了这一愿景，引入了不可复制类型的标记 ~Copyable（non-copyable），以与 Rust 截然不同的（打补丁的）方式实现了更精确的所有权控制。在今年的 Swift 6 中，之前类型扩展（extension）和泛型（generic）不支持 ~Copyable 的不足也得到了解决，~Copyable 的可用性得到了提升。回顾 ~Copyable 及其设计，它为 Swift 引入了一种全新的设计思路：以往的协议是“为类型增加功能”，而 ~Copyable 则是“为类型解除限制”。本文尝试解释 ~Copyable 的设计和工作方式，以帮助读者更好地理解并利用这个特性。" /><link rel="canonical" href="https://onevcat.com/2024/11/noncopyable/" /><meta property="og:url" content="https://onevcat.com/2024/11/noncopyable/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2024-11-02T23:30:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="逆流而上的设计 - Swift 所有权和 ~Copyable" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"在 Rust 中，绝对安全和高效的内存使用得益于其独特的所有权（ownership）设计。七年前，Swift 团队发布了《所有权宣言》，以前瞻性的方式介绍了 Swift 中关于值的内存管理变化的一系列愿景。Swift 5.9 中（以和宣言里略微不同的语法）实现了这一愿景，引入了不可复制类型的标记 ~Copyable（non-copyable），以与 Rust 截然不同的（打补丁的）方式实现了更精确的所有权控制。在今年的 Swift 6 中，之前类型扩展（extension）和泛型（generic）不支持 ~Copyable 的不足也得到了解决，~Copyable 的可用性得到了提升。回顾 ~Copyable 及其设计，它为 Swift 引入了一种全新的设计思路：以往的协议是“为类型增加功能”，而 ~Copyable 则是“为类型解除限制”。本文尝试解释 ~Copyable 的设计和工作方式，以帮助读者更好地理解并利用这个特性。","url":"https://onevcat.com/2024/11/noncopyable/","@type":"BlogPosting","headline":"逆流而上的设计 - Swift 所有权和 ~Copyable","dateModified":"2024-11-02T23:30:00+09:00","datePublished":"2024-11-02T23:30:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2024/11/noncopyable/"},"@context":"https://schema.org"}</script><title>逆流而上的设计 - Swift 所有权和 ~Copyable | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>逆流而上的设计 - Swift 所有权和 ~Copyable</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>逆流而上的设计 - Swift 所有权和 ~Copyable</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Sat, Nov 2, 2024, 11:30 PM +0900" > 2024-11-02 <i class="unloaded">2024-11-02T23:30:00+09:00</i> </span></div></div><div class="post-content"><p>在 Rust 中，绝对安全和高效的内存使用得益于其<a href="https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html">独特的所有权（ownership）设计</a>。七年前，Swift 团队发布了<a href="/2017/02/ownership/">《所有权宣言》</a>，以前瞻性的方式介绍了 Swift 中关于值的内存管理变化的一系列愿景。Swift 5.9 中（以和宣言里略微不同的语法）实现了这一愿景，引入了不可复制类型的标记 <code class="language-plaintext highlighter-rouge">~Copyable</code>（non-copyable），以与 Rust 截然不同的（打补丁的）方式实现了更精确的所有权控制。在今年的 Swift 6 中，之前类型扩展（extension）和泛型（generic）不支持 <code class="language-plaintext highlighter-rouge">~Copyable</code> 的不足也得到了解决，<code class="language-plaintext highlighter-rouge">~Copyable</code> 的可用性得到了提升。回顾 <code class="language-plaintext highlighter-rouge">~Copyable</code> 及其设计，它为 Swift 引入了一种全新的设计思路：以往的协议是“为类型增加功能”，而 <code class="language-plaintext highlighter-rouge">~Copyable</code> 则是“为类型解除限制”。本文尝试解释 <code class="language-plaintext highlighter-rouge">~Copyable</code> 的设计和工作方式，以帮助读者更好地理解并利用这个特性。</p><h2 id="copyable-的工作方式"><code class="language-plaintext highlighter-rouge">~Copyable</code> 的工作方式</h2><p>首先需要强调的是，即使目前完全不了解 <code class="language-plaintext highlighter-rouge">Copyable</code> 和 <code class="language-plaintext highlighter-rouge">~Copyable</code>，以及相关的 <code class="language-plaintext highlighter-rouge">consuming</code> 和 <code class="language-plaintext highlighter-rouge">borrowing</code> 等关键字，也不太会影响您成为一名优秀的 Swift 开发者或者继续保持这样的身份。在 Swift 学习的初期阶段，您无需完全理解其内存模型。然而，了解这些工具并在适当时机使用它们，不仅能帮助您编写更可靠、高效的代码，还能为您提供额外的设计思路。</p><p>我们先从一些最基础的知识开始，这也是纯新人容易搞混和迷惑的一个重要话题，值和引用。如果您对这些内容已经非常熟悉，也可以直接跳到<a href="#隐式-copyable-和不可复制的-copyable">下一小节</a>。</p><h3 id="值类型和引用类型">值类型和引用类型</h3><p>在 Swift 中，<code class="language-plaintext highlighter-rouge">struct</code> 和 <code class="language-plaintext highlighter-rouge">enum</code> 等是值类型，一个值类型的变量持有的是代表值本身的内存块。比如一个字符串，或者一个枚举成员：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">s1</span> <span class="o">=</span> <span class="s">"Hello"</span>
+<span class="k">let</span> <span class="nv">e1</span> <span class="o">=</span> <span class="kt">Day</span><span class="o">.</span><span class="n">monday</span>
+</pre></table></code></div></div><p>当我们将这些变量赋值给其他变量，或是作为函数调用时的参数进行传递时，实际上这部分内存发生了复制。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="k">var</span> <span class="nv">s2</span> <span class="o">=</span> <span class="n">s1</span>
+
+<span class="kd">func</span> <span class="nf">nextDay</span><span class="p">(</span><span class="n">of</span> <span class="nv">day</span><span class="p">:</span> <span class="kt">Day</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Day</span> <span class="p">{</span>
+  <span class="c1">// `day` in the method body is a copy of content.</span>
+<span class="p">}</span>
+<span class="nf">nextDay</span><span class="p">(</span><span class="n">e1</span><span class="p">)</span>
+</pre></table></code></div></div><p>在这些代码中，存在两个 <code class="language-plaintext highlighter-rouge">"Hello"</code> 和两个 <code class="language-plaintext highlighter-rouge">Day.monday</code>， 它们存在于内存的不同位置，是不同的值。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2024/value-type.png" alt="" /></p><blockquote><p>当然，Swift 中有被称为“写时复制” (copy on write, CoW) 的优化。对于某些数据结构，虽然表面上它们是值类型，但是在赋值或者传递时就进行无条件复制会造成大量性能损耗，因此它们会在内容被更改时才进行复制。不过这不是本文的话题，请允许我跳过。</p></blockquote><p>而引用类型（主要是 <code class="language-plaintext highlighter-rouge">class</code>，<code class="language-plaintext highlighter-rouge">actor</code> 等）的行为则与此大相径庭。引用类型的变量所持有的内容是一个内存地址，并由运行时维护引用计数。将一个引用类型变量赋值给其他变量或者传递时，实际的内存并不会被复制，被复制的只有这个内存地址，且它的引用计数增加。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="kt">MyView</span><span class="p">:</span> <span class="kt">UIView</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">v1</span> <span class="o">=</span> <span class="kt">MyView</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">v2</span> <span class="o">=</span> <span class="n">v1</span>
+
+<span class="kd">func</span> <span class="nf">sample</span><span class="p">(</span><span class="n">_</span> <span class="nv">view</span><span class="p">:</span> <span class="kt">MyView</span><span class="p">)</span> <span class="p">{</span>
+  <span class="c1">// `view` in the method is a copy of address (or, pointer).</span>
+<span class="p">}</span>
+<span class="nf">sample</span><span class="p">(</span><span class="n">v1</span><span class="p">)</span>
+</pre></table></code></div></div><p>这段代码所对应的关系示意图为：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2024/ref-type.png" alt="" /></p><p>不论对于以 <code class="language-plaintext highlighter-rouge">struct</code> 为代表的值类型还是以 <code class="language-plaintext highlighter-rouge">class</code> 为代表的引用类型，在赋值或传递时发生“复制”，是普遍现象。区别在于复制的是具体的值的内容，还是一个指针地址。这也决定了在赋值或者传递发生后，我们对这些值进行修改时，到底修改的是哪些内容：在上面的例子中，对 <code class="language-plaintext highlighter-rouge">s2</code> 的修改，比如为它指定一个新的字符串，并不会对 <code class="language-plaintext highlighter-rouge">s1</code> 造成影响（它们是两个不同的值，且内容现在也不相同了）；但是如果我们对 <code class="language-plaintext highlighter-rouge">v2</code> 中 <code class="language-plaintext highlighter-rouge">MyView</code> 的某个属性进行修改，<code class="language-plaintext highlighter-rouge">v1</code> 和 <code class="language-plaintext highlighter-rouge">view</code> 都会获取到修改后的属性，因为这三个变量保存了同样的地址，它们所指向的内容是同一个 <code class="language-plaintext highlighter-rouge">MyView</code>。</p><h3 id="隐式-copyable-和不可复制的-copyable">隐式 <code class="language-plaintext highlighter-rouge">Copyable</code> 和不可复制的 <code class="language-plaintext highlighter-rouge">~Copyable</code></h3><p>如果不加以声明，Swift 中所有东西都是可以被复制的。虽然大部分时候我们不太在意，但事实是对于 struct 或 enum 的复制并不是完全免费的。小体积的结构姑且不论，对于包含有很多数据，占用很多内存的值类型来说，复制的开销有时候并不能完全忽略；另外，有一些情况下我们会想要确保某个值只被使用一次。这些情况下，可以引入“不可复制的类型”，来明确表达值的所有权。</p><p>Swift 5.9 开始，为了规定类型的所有权，引入了两个协议：<code class="language-plaintext highlighter-rouge">Copyable</code> 和 <code class="language-plaintext highlighter-rouge">~Copyable</code>。两个协议都和 <code class="language-plaintext highlighter-rouge">Sendable</code> 类似，是不需要任何具体实现的标记类型。<code class="language-plaintext highlighter-rouge">Copyable</code> 代表可以被复制，它是 Swift 中所有类型和协议的默认行为，一般不需要额外声明。比如，下面的这些代码都是彼此等效的：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">A</span> <span class="p">{</span> <span class="p">}</span>
+<span class="kd">struct</span> <span class="kt">A</span><span class="p">:</span> <span class="kt">Copyable</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="kd">protocol</span> <span class="kt">B</span> <span class="p">{</span> <span class="p">}</span>
+<span class="kd">protocol</span> <span class="kt">B</span><span class="p">:</span> <span class="kt">Copyable</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="kd">func</span> <span class="n">foo</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">t</span><span class="p">:</span> <span class="kt">T</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+<span class="kd">func</span> <span class="n">foo</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">t</span><span class="p">:</span> <span class="kt">T</span><span class="p">)</span> <span class="k">where</span> <span class="kt">T</span><span class="p">:</span> <span class="kt">Copyable</span> <span class="p">{</span> <span class="p">}</span>
+</pre></table></code></div></div><p>如果你不希望某个类型可以被复制，那么可以将它声明为遵守 <code class="language-plaintext highlighter-rouge">~Copyable</code>。</p><p><code class="language-plaintext highlighter-rouge">~Copyable</code> 是一个非常特殊的协议，虽然 <code class="language-plaintext highlighter-rouge">~</code> 符号确实表示“否定”，但是如果我们简单地把它看作是 <code class="language-plaintext highlighter-rouge">Copyable</code> 取反的话，可能会影响正确的理解。以往我们在使用协议时，它们所做的一般是“赋予类型某种能力”。比如 <code class="language-plaintext highlighter-rouge">Encodable</code> 赋予类型被编码的能力，<code class="language-plaintext highlighter-rouge">CustomStringConvertible</code> 赋予类型转换为字符串的能力。同理，<code class="language-plaintext highlighter-rouge">Copyable</code> 赋予了类型可被复制的能力。于是，你可能会简单地认为，<code class="language-plaintext highlighter-rouge">~Copyable</code> 做的事情是和普通协议类似，是赋予这些类型<strong>“不可被复制”</strong>的能力。不过如果你仔细考虑，会发现“不可被复制”<strong>并不是</strong>具有某种能力，而恰恰相反，它表达的是<strong>不具有某种能力</strong>。在其他普通协议的情况下，“不具备某种能力”是常态，是不需要特别说明的，只有满足协议的特定类型才具备这些能力。类比过来，其实 <code class="language-plaintext highlighter-rouge">~Copyable</code> 所定义的范围正式这种不具备能力的“常态”。只不过是由于语言现状下，<code class="language-plaintext highlighter-rouge">Copyable</code> 已经是应用于所有类型上的不需要明白写出的隐式默认实现，因此我们才需要使用 <code class="language-plaintext highlighter-rouge">~Copyable</code> 来做到和其他 protocol 相反的事情：它用来解除 <code class="language-plaintext highlighter-rouge">Copyable</code> 的能力，让一个类型回到“原本”的不具有可复制能力的状态。</p><p>如果用一张图来描述 <code class="language-plaintext highlighter-rouge">~Copyable</code>，<code class="language-plaintext highlighter-rouge">Copyable</code> 和 <code class="language-plaintext highlighter-rouge">Encodeable</code> 的关系，它会是这样的：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2024/protocol-relationship.png" alt="" /></p><blockquote><p>我们刚才说过，Swift 中所有类型和协议都默认有 <code class="language-plaintext highlighter-rouge">Copyable</code>。<code class="language-plaintext highlighter-rouge">Encodable</code> 的定义其实可以认为是：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">Encodable</span><span class="p">:</span> <span class="kt">Copyable</span> <span class="p">{</span> <span class="p">}</span>
+</pre></table></code></div></div><p>因此，它在关系图上是 <code class="language-plaintext highlighter-rouge">Copyable</code> 的一部分。</p></blockquote><h2 id="所有权转移关键字">所有权转移关键字</h2><p><code class="language-plaintext highlighter-rouge">~Copyable</code> 的值是不会被复制的，不过我们可以搭配一些关键字，稍微改变它的使用方式。具体来说，使用 <code class="language-plaintext highlighter-rouge">~Copyable</code> 时的关键字可能存在于三种位置：变量前，参数中和方法前。</p><h3 id="用在变量前">用在变量前</h3><p>一般是赋值时，比如等号的右侧，我们可以在赋值 <code class="language-plaintext highlighter-rouge">~Copyable</code> 值前加上 <code class="language-plaintext highlighter-rouge">consume</code>，来代表这个值的内容已经被消耗：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">S</span><span class="p">:</span> <span class="kt">~Copyable</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">s1</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span> <span class="c1">// 报错：'s1' used after consume</span>
+<span class="k">let</span> <span class="nv">s2</span> <span class="o">=</span> <span class="k">consume</span> <span class="n">s1</span>
+<span class="n">s1</span><span class="o">.</span><span class="nf">foo</span><span class="p">()</span>
+</pre></table></code></div></div><p>已消耗的变量将不可以再被使用，在上例中你可以理解为 <code class="language-plaintext highlighter-rouge">s1</code> 的内容被“移动”到了 <code class="language-plaintext highlighter-rouge">s2</code>，而原来的 <code class="language-plaintext highlighter-rouge">s1</code> 则处于类似于一种“没有初始化”的无效状态。编译器将确保它不会再被使用。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2024/copy-invalid-value.png" alt="" /></p><blockquote><p>如果你有兴趣，可以尝试用 <code class="language-plaintext highlighter-rouge">swiftc -emit-sil</code> 来生成对应的 <a href="https://github.com/swiftlang/swift/blob/main/docs/SIL.rst">SIL</a>。事实上在 SIL 中，变量被使用后，会立即被 <code class="language-plaintext highlighter-rouge">debug_value undef</code> 命令撤销变量赋值，从而导致后续如果用到了这个变量，编译就无法完成。当前，对于使用被消耗后 <code class="language-plaintext highlighter-rouge">~Copyable</code> 的错误，编译器会将错误显示在变量被创建的位置。这并不是很直观，也许今后会有所改善。</p></blockquote><p>在上面这样的变量赋值语句中，<code class="language-plaintext highlighter-rouge">consume</code> 是可以被省略的。比如，下面的代码相互等价：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">s2</span> <span class="o">=</span> <span class="k">consume</span> <span class="n">s1</span>
+<span class="k">let</span> <span class="nv">s2</span> <span class="o">=</span> <span class="n">s1</span>
+
+<span class="k">var</span> <span class="nv">s3</span> <span class="o">=</span> <span class="k">consume</span> <span class="n">s2</span>
+<span class="k">var</span> <span class="nv">s3</span> <span class="o">=</span> <span class="n">s2</span>
+</pre></table></code></div></div><p>不仅是普通的变量赋值，在涉及到 <code class="language-plaintext highlighter-rouge">if let</code> 这样的可选值时，<code class="language-plaintext highlighter-rouge">consume</code> 也可以被省略：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">s4</span><span class="p">:</span> <span class="kt">S</span><span class="p">?</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+<span class="k">if</span> <span class="k">let</span> <span class="nv">s</span> <span class="o">=</span> <span class="n">s4</span> <span class="p">{</span> <span class="c1">// 等价于 if let s = consume s4</span>
+    <span class="n">s4</span><span class="o">!.</span><span class="nf">foo</span><span class="p">()</span> <span class="c1">// 错误。s4 已经被消耗了</span>
+    <span class="n">s</span><span class="o">.</span><span class="nf">foo</span><span class="p">()</span>   <span class="c1">// s 可以正常使用</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>但是也有不可以被省略的时候。比如要是想自动将 <code class="language-plaintext highlighter-rouge">S</code> 值转为 <code class="language-plaintext highlighter-rouge">S?</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">s1</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+<span class="k">var</span> <span class="nv">s5</span><span class="p">:</span> <span class="kt">S</span><span class="p">?</span>
+<span class="n">s5</span> <span class="o">=</span> <span class="n">s1</span> <span class="c1">// 报错：Implicit conversion to 'S?' is consuming</span>
+<span class="n">s3</span> <span class="o">=</span> <span class="k">consume</span> <span class="n">s1</span> <span class="c1">// 正确</span>
+</pre></table></code></div></div><p>另外，有一些特殊情况，编译器会为我们自动按照不消耗 (consume) 而是借用 (borrowing) 的方式来使用变量，比如赋值给 <code class="language-plaintext highlighter-rouge">_</code> 或者针对 enum 进行 <code class="language-plaintext highlighter-rouge">switch</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">s1</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">s1</span>
+<span class="n">s1</span><span class="o">.</span><span class="nf">foo</span><span class="p">()</span> <span class="c1">// OK</span>
+<span class="c1">// 但是 let _ = s1 则会消耗</span>
+
+<span class="kd">enum</span> <span class="kt">E</span> <span class="p">{</span> 
+    <span class="k">case</span> <span class="n">a</span>
+    <span class="kd">func</span> <span class="nf">bar</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="k">let</span> <span class="nv">e1</span> <span class="o">=</span> <span class="kt">E</span><span class="o">.</span><span class="n">a</span>
+<span class="k">switch</span> <span class="n">e1</span> <span class="p">{</span>
+<span class="k">case</span> <span class="o">.</span><span class="nv">a</span><span class="p">:</span> <span class="k">break</span>
+<span class="p">}</span>
+<span class="n">e1</span><span class="o">.</span><span class="nf">bar</span><span class="p">()</span> <span class="c1">// OK</span>
+</pre></table></code></div></div><p>如果我们想要这样的下划线赋值或者 switch 语句也按照消耗内容的方式工作的话，可以明确加上 <code class="language-plaintext highlighter-rouge">consume</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="n">_</span> <span class="o">=</span> <span class="k">consume</span> <span class="n">s1</span>
+<span class="n">s1</span><span class="o">.</span><span class="nf">foo</span><span class="p">()</span> <span class="c1">// error</span>
+
+<span class="k">switch</span> <span class="k">consume</span> <span class="n">e1</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+<span class="n">e1</span><span class="o">.</span><span class="nf">bar</span><span class="p">()</span> <span class="c1">// error</span>
+</pre></table></code></div></div><h4 id="小结">小结</h4><p>不论是否明确添加 <code class="language-plaintext highlighter-rouge">consume</code>，编译器能确保对于 <code class="language-plaintext highlighter-rouge">~Copyable</code> 变量的任何使用要么是 consume 的，要么是 borrowing 的，它们<strong>都可以确保复制不会发生</strong>。但是对于是否确实 consume 了原来的变量，则根据情况不同会有不同的行为。实际上，整个语言中 <code class="language-plaintext highlighter-rouge">consume</code> 是不是可以忽略不写，不写的时到底代表是 consume 还是 borrowing，可以说设计得比较混乱。如果对此介意，觉得隐式的 <code class="language-plaintext highlighter-rouge">consume</code> 关键字烧脑的话，不妨在使用时把需要消耗的地方都明确写出来。这样做相比默认情况下时而省略时而必须的状况来说，可能会更加清晰。</p><h3 id="用在参数中">用在参数中</h3><p>把 <code class="language-plaintext highlighter-rouge">~Copyable</code> 的值用在函数参数中则要明确得多，它要求我们必须从 <code class="language-plaintext highlighter-rouge">consuming</code>，<code class="language-plaintext highlighter-rouge">borrowing</code> 和 <code class="language-plaintext highlighter-rouge">inout</code> 中选择一个。</p><h4 id="consuming">consuming</h4><p>函数将会接管变量所有权，这相当于所有权发生转移。在函数内部，函数拥有这个输入参数的所有权：函数可以对它进行消耗（比如赋值，或者调用一次其他消耗函数等）：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">s</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+<span class="nf">consumeS</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">s1</span> <span class="o">=</span> <span class="n">s</span> <span class="c1">// Fail，s 已经被 consumeS 消耗了。</span>
+
+<span class="kd">func</span> <span class="nf">consumeS</span><span class="p">(</span><span class="n">_</span> <span class="nv">s</span><span class="p">:</span> <span class="kd">consuming</span> <span class="kt">S</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">s1</span> <span class="o">=</span> <span class="n">s</span> <span class="c1">// OK</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>要注意，即使 <code class="language-plaintext highlighter-rouge">consumeS</code> 的函数体内没有实际消耗掉 <code class="language-plaintext highlighter-rouge">s</code>，它的所有权也不会返回给调用者：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">s</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+<span class="nf">consumeS</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">s1</span> <span class="o">=</span> <span class="n">s</span> <span class="c1">// Fail，s 已经被 consumeS 消耗了。</span>
+
+<span class="kd">func</span> <span class="nf">consumeS</span><span class="p">(</span><span class="n">_</span> <span class="nv">s</span><span class="p">:</span> <span class="kd">consuming</span> <span class="kt">S</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// let s1 = s</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="borrowing">borrowing</h4><p>暂时借出所有权，函数在内部可以访问 <code class="language-plaintext highlighter-rouge">s</code>，但是不能消耗它。也就是说，当参数是 borrowing 时，我们可以读取和使用它：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">s</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+<span class="nf">borrowS</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">s1</span> <span class="o">=</span> <span class="n">s</span> <span class="c1">// OK，borrowS 不会消耗 s</span>
+
+<span class="kd">func</span> <span class="nf">borrowS</span><span class="p">(</span><span class="n">_</span> <span class="nv">s</span><span class="p">:</span> <span class="kd">borrowing</span> <span class="kt">S</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">s</span><span class="o">.</span><span class="nf">foo</span><span class="p">()</span> <span class="c1">// foo 是 S 上的非消耗函数</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>但是不能将它进行 consume 赋值或者用它当作 consuming 参数来调用别的函数：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">borrowS</span><span class="p">(</span><span class="n">_</span> <span class="nv">s</span><span class="p">:</span> <span class="kd">borrowing</span> <span class="kt">S</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">s2</span> <span class="o">=</span> <span class="n">s</span> <span class="c1">// 错误：借出的 s 不能被消耗</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="inout">inout</h4><p>这个关键字应该很熟悉了，原先的变量会被直接替换掉，在函数返回后，原有变量名所持有的已经是完全不同的新的值了。调用者对这个新的值拥有所有权。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="k">var</span> <span class="nv">s</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+<span class="nf">inoutS</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">s1</span> <span class="o">=</span> <span class="n">s</span> <span class="c1">// OK，新的 s 在此处被消耗</span>
+
+<span class="kd">func</span> <span class="nf">inoutS</span><span class="p">(</span><span class="n">_</span> <span class="nv">s</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">S</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>当然了，在函数体内，原本的 s 的所有权发生了转移：原本值的所有权归函数所有，也会被正常消耗：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="k">var</span> <span class="nv">s</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+<span class="nf">inoutS</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">s1</span> <span class="o">=</span> <span class="n">s</span> <span class="c1">// OK，新的 s 在此处被消耗</span>
+
+<span class="kd">func</span> <span class="nf">inoutS</span><span class="p">(</span><span class="n">_</span> <span class="nv">s</span><span class="p">:</span> <span class="k">inout</span> <span class="kt">S</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">s2</span> <span class="o">=</span> <span class="n">s</span>
+    <span class="c1">// s.foo()  &lt;- 将会报错，所有权已经交给了 s2</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h3 id="用于方法前">用于方法前</h3><p>另一种所有权关键字出现的地点是 <code class="language-plaintext highlighter-rouge">~Copyable</code> 类型内部的方法前：我们可以在 <code class="language-plaintext highlighter-rouge">func</code> 前加上 <code class="language-plaintext highlighter-rouge">consuming</code> 或 <code class="language-plaintext highlighter-rouge">borrowing</code>。<strong>默认不添加关键字时，相当于 <code class="language-plaintext highlighter-rouge">borrowing</code></strong>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">S</span><span class="p">:</span> <span class="kt">~Copyable</span> <span class="p">{</span>
+    <span class="kd">consuming</span> <span class="kd">func</span> <span class="nf">consumeSelf</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+    
+    <span class="kd">borrowing</span> <span class="kd">func</span> <span class="nf">borrowSelf</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+    
+    <span class="c1">// 相当于 borrowing func</span>
+    <span class="kd">func</span> <span class="nf">implictBorrowSelf</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在方法前添加所有权关键字，相当于为 <code class="language-plaintext highlighter-rouge">self</code> 参数添加一个关键字。举例来说，下面这两种写法和调用方式其实是等价的：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">S</span><span class="p">:</span> <span class="kt">~Copyable</span> <span class="p">{</span>
+    <span class="kd">consuming</span> <span class="kd">func</span> <span class="nf">consumeSelf</span><span class="p">()</span> <span class="p">{</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">consumeS</span><span class="p">(</span><span class="n">_</span> <span class="nv">s</span><span class="p">:</span> <span class="kd">consuming</span> <span class="kt">S</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">s1</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+
+<span class="c1">// s1 (对于 S.consumeSelf 来说，它就是 `self`)</span>
+<span class="n">s1</span><span class="o">.</span><span class="nf">consumeSelf</span><span class="p">()</span>
+
+<span class="k">let</span> <span class="nv">s2</span> <span class="o">=</span> <span class="n">s1</span> <span class="c1">// 错误，s1 已经被 `consumeSelf` 消耗了</span>
+
+<span class="k">let</span> <span class="nv">s3</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+<span class="nf">consumeS</span><span class="p">(</span><span class="n">s3</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">s4</span> <span class="o">=</span> <span class="n">s3</span> <span class="c1">// 错误，s3 已经被 `consumeS` 消耗了</span>
+</pre></table></code></div></div><p>只要把对方法的调用，看作是第一个参数是 <code class="language-plaintext highlighter-rouge">self</code> 的静态方法，就能将这种情况归纳到上面的“用在参数中”中了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="c1">// consuming func consumeSelf() 相当于：</span>
+<span class="kd">func</span> <span class="nf">consumeSelf</span><span class="p">(</span><span class="nv">self</span><span class="p">:</span> <span class="kd">consuming</span> <span class="kt">S</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="c1">// borrowing func borrowSelf() 相当于：</span>
+<span class="kd">func</span> <span class="nf">borrowSelf</span><span class="p">(</span><span class="nv">self</span><span class="p">:</span> <span class="kd">borrowing</span> <span class="kt">S</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="c1">// func implictBorrowSelf() 相当于：</span>
+<span class="kd">func</span> <span class="nf">implictBorrowSelf</span><span class="p">(</span><span class="nv">self</span><span class="p">:</span> <span class="kd">borrowing</span> <span class="kt">S</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+</pre></table></code></div></div><p>在这些方法内部，<code class="language-plaintext highlighter-rouge">self</code> 也遵循同样的所有权行为：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="kd">consuming</span> <span class="kd">func</span> <span class="nf">consumeSelf</span><span class="p">()</span> <span class="p">{</span> 
+    <span class="k">let</span> <span class="nv">s</span> <span class="o">=</span> <span class="k">self</span>  <span class="c1">// 可以消耗，`self` 的所有权归函数自身</span>
+    <span class="k">self</span><span class="o">.</span><span class="nf">foo</span><span class="p">()</span>    <span class="c1">// 错误，`self` 已经被消耗了</span>
+<span class="p">}</span>
+
+<span class="kd">borrowing</span> <span class="kd">func</span> <span class="nf">borrowSelf</span><span class="p">()</span> <span class="p">{</span> 
+    <span class="k">let</span> <span class="nv">s</span> <span class="o">=</span> <span class="k">self</span> <span class="c1">// 错误，`self` 是借入的，不能被消耗。</span>
+    
+<span class="p">}</span>
+</pre></table></code></div></div><h3 id="deinit-和-discard">deinit 和 discard</h3><h4 id="deinit-的时机">deinit 的时机</h4><p>对普通的 Copyable 的 struct 或者 enum，编译器不允许我们添加 <code class="language-plaintext highlighter-rouge">deinit</code>。但对于 <code class="language-plaintext highlighter-rouge">~Copyable</code> 的类型，因为它在 stack 上有 alloc 行为，我们可以向其中添加 <code class="language-plaintext highlighter-rouge">deinit</code>。如果在生命周期结束时，这个 <code class="language-plaintext highlighter-rouge">~Copyable</code> 变量都没有被消耗的话，<code class="language-plaintext highlighter-rouge">deinit</code> 就将被调用：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">S</span><span class="p">:</span> <span class="kt">~Copyable</span> <span class="p">{</span>
+    <span class="kd">deinit</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Deinit"</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"foo"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">sample1</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"sample1 start"</span><span class="p">)</span>
+    <span class="k">let</span> <span class="nv">s</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"foo start"</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="nf">foo</span><span class="p">()</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"foo end"</span><span class="p">)</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"sample1 end"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 打印:</span>
+<span class="c1">// sample1 start</span>
+<span class="c1">// foo start</span>
+<span class="c1">// foo</span>
+<span class="c1">// foo end</span>
+<span class="c1">// sample1 end</span>
+<span class="c1">// Deinit</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">S.deinit</code> 将在能够确定 <code class="language-plaintext highlighter-rouge">s</code> 的生命周期结束时调用（对应了 SIL 中的 <code class="language-plaintext highlighter-rouge">release_value</code> 指令）。在这里，由于 <code class="language-plaintext highlighter-rouge">S.foo</code> 是 borrowing 方法，<code class="language-plaintext highlighter-rouge">s</code> 将一直持有自己的所有权，直到 <code class="language-plaintext highlighter-rouge">sample1</code> 结束，因此 “Deinit” 将在 sample1 结束后才调用。</p><p>如果 <code class="language-plaintext highlighter-rouge">S</code> 中的是一个 consuming 函数，情况则不同：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">S</span><span class="p">:</span> <span class="kt">~Copyable</span> <span class="p">{</span>
+    <span class="kd">deinit</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Deinit"</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="kd">consuming</span> <span class="kd">func</span> <span class="nf">bar</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"bar"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">sample2</span><span class="p">()</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"sample2 start"</span><span class="p">)</span>
+    <span class="k">let</span> <span class="nv">s</span> <span class="o">=</span> <span class="kt">S</span><span class="p">()</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"bar start"</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="nf">bar</span><span class="p">()</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"bar end"</span><span class="p">)</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"sample2 end"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 打印：</span>
+<span class="c1">// sample2 start</span>
+<span class="c1">// bar start</span>
+<span class="c1">// bar</span>
+<span class="c1">// Deinit</span>
+<span class="c1">// bar end</span>
+<span class="c1">// sample2 end</span>
+</pre></table></code></div></div><p>上例中，<code class="language-plaintext highlighter-rouge">bar</code> 被标记为 <code class="language-plaintext highlighter-rouge">consuming</code>，它获取 <code class="language-plaintext highlighter-rouge">self</code> 的所有权。即使在 <code class="language-plaintext highlighter-rouge">bar</code> 的函数体中我们没有进一步转移这个所有权，它依然被消耗了：于是 “Deinit” 将在从 <code class="language-plaintext highlighter-rouge">bar</code> 函数返回时被调用。这些行为赋予了 <code class="language-plaintext highlighter-rouge">~Copyable</code> 的 struct 或 enum 类似于 class 类型的能力。</p><h4 id="discard">discard</h4><p>不过和 class 不同的是，Swift 给予了 <code class="language-plaintext highlighter-rouge">~Copyable</code> 类型放弃 <code class="language-plaintext highlighter-rouge">deinit</code> 调用的手段。我们可以在 <code class="language-plaintext highlighter-rouge">consuming</code> 方法中使用 <code class="language-plaintext highlighter-rouge">discard self</code> 来“放弃”对于 <code class="language-plaintext highlighter-rouge">self</code> 的所有权，从而让 <code class="language-plaintext highlighter-rouge">deinit</code> 不被调用。上例中，在 <code class="language-plaintext highlighter-rouge">bar</code> 中添加 <code class="language-plaintext highlighter-rouge">discard self</code>，<code class="language-plaintext highlighter-rouge">deinit</code> 就将不会再被调用：</p><div class="language-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="p">consuming func bar() {
+</span>    print("bar")
+<span class="gi">+   discard self
+</span>}
+</pre></table></code></div></div><h2 id="在泛型或扩展中使用-copyable">在泛型或扩展中使用 ~Copyable</h2><p>Swift 5.9 中尚不支持在泛型和扩展中使用 <code class="language-plaintext highlighter-rouge">~Copyable</code>，这使得 <code class="language-plaintext highlighter-rouge">~Copyable</code> 在很长时间内难堪大用。不过这一问题在 Swift 6.0 中得到了解决，这使得 <code class="language-plaintext highlighter-rouge">~Copyable</code> 已经完备。</p><h3 id="扩展边界突破-copyable-约束">扩展边界，突破 Copyable 约束</h3><p>要记住，<code class="language-plaintext highlighter-rouge">Copyable</code> 是默认存在于所有类型声明中的。也就是说，对于一个平平无奇的泛型函数：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="n">foo</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">t</span><span class="p">:</span> <span class="kt">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+</pre></table></code></div></div><p>实际上，它的完整声明是：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="n">foo</span><span class="o">&lt;</span><span class="kt">T</span><span class="p">:</span> <span class="kt">Copyable</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">t</span><span class="p">:</span> <span class="kt">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+</pre></table></code></div></div><p>类似地，在定义协议时，<code class="language-plaintext highlighter-rouge">Copyable</code> 也是默认的：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">P</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="c1">// 实际上，它是</span>
+<span class="kd">protocol</span> <span class="kt">P</span><span class="p">:</span> <span class="kt">Copyable</span> <span class="p">{</span> <span class="p">}</span>
+</pre></table></code></div></div><p>如果我们在使用泛型或者定义协议时，希望它们是不可复制的，我们需要明确地写出来：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="n">bar</span><span class="o">&lt;</span><span class="kt">T</span><span class="p">:</span> <span class="kt">~Copyable</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">t</span><span class="p">:</span> <span class="kd">consuming</span> <span class="kt">T</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+
+<span class="kd">protocol</span> <span class="kt">Q</span><span class="p">:</span> <span class="kt">~Copyable</span> <span class="p">{</span> <span class="p">}</span>
+</pre></table></code></div></div><p>然后我们就可以按照一般的方式通过 <code class="language-plaintext highlighter-rouge">~Copyable</code> 来使用它们了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">S</span><span class="p">:</span> <span class="kt">~Copyable</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="nf">bar</span><span class="p">(</span><span class="nv">t</span><span class="p">:</span> <span class="kt">S</span><span class="p">())</span>
+<span class="kd">extension</span> <span class="kt">S</span><span class="p">:</span> <span class="kt">Q</span> <span class="p">{</span> <span class="p">}</span>
+</pre></table></code></div></div><h3 id="copyable-的设计哲学">~Copyable 的设计哲学</h3><p>看起来一切都很和谐，直到有一天我们发现，似乎一般的 <code class="language-plaintext highlighter-rouge">Copyable</code> 值也可以使用这些定义。比如 <code class="language-plaintext highlighter-rouge">Int</code> 就是一个完美的可复制值：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="nf">bar</span><span class="p">(</span><span class="nv">t</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+<span class="kd">extension</span> <span class="kt">Int</span><span class="p">:</span> <span class="kt">Q</span> <span class="p">{</span> <span class="p">}</span>
+</pre></table></code></div></div><p>我们来翻译翻译：</p><blockquote><p>接受 <code class="language-plaintext highlighter-rouge">~Copyable</code> 的 <code class="language-plaintext highlighter-rouge">bar</code> 函数，现在接受了一个 <code class="language-plaintext highlighter-rouge">Copyable</code> 的 Int 值。</p><p>一个 <code class="language-plaintext highlighter-rouge">Copyable</code> 的 Int 类型，符合 <code class="language-plaintext highlighter-rouge">~Copyable</code> 的协议 Q。</p></blockquote><p>似乎哪里不对？</p><p>如果你这么想，就说明你还没有理解 <code class="language-plaintext highlighter-rouge">~Copyable</code>。在本文开篇，我们就提到过，<code class="language-plaintext highlighter-rouge">~Copyable</code> 的重点在于：</p><p class="alert alert-info">以往的协议是“为类型增加功能”，而 <code class="language-plaintext highlighter-rouge">~Copyable</code> 则是“为类型解除限制”。</p><p>我们可以把 <code class="language-plaintext highlighter-rouge">Copyable</code> 当作一个普通的协议，但是<strong>不可以也不应该</strong>把 <code class="language-plaintext highlighter-rouge">~Copyable</code> 也当成一个普通的协议：<code class="language-plaintext highlighter-rouge">~Copyable</code> 是不带有任何限制的全集，而 <code class="language-plaintext highlighter-rouge">Copyable</code> 仅仅是其中一个特别的子集。所以，上面的两句翻译，真正的正确的读法应该是：</p><blockquote><p>一个可以接受包括 <code class="language-plaintext highlighter-rouge">Copyable</code> 在内的任意值的函数 <code class="language-plaintext highlighter-rouge">bar</code>，现在接受了一个 <code class="language-plaintext highlighter-rouge">Copyable</code> 的 Int 值。</p><p>一个已经满足了 <code class="language-plaintext highlighter-rouge">Copyable</code> 协议的类型 Int，现在又满足了一个没有什么特别限制的协议 Q。</p></blockquote><p>“当执行 <code class="language-plaintext highlighter-rouge">bar</code> 或者实现 <code class="language-plaintext highlighter-rouge">Q</code> 的时候，<code class="language-plaintext highlighter-rouge">~Copyable</code> 的存在解放了原本的隐式 <code class="language-plaintext highlighter-rouge">Copyable</code> 约束条件，给了像是 <code class="language-plaintext highlighter-rouge">S</code> 这样的 <code class="language-plaintext highlighter-rouge">~Copyable</code> 的具体类型能够作为参数执行 <code class="language-plaintext highlighter-rouge">bar</code> 或者去实现 <code class="language-plaintext highlighter-rouge">Q</code> 的机会”，这才是 <code class="language-plaintext highlighter-rouge">~Copyable</code> 在泛型或协议约束中的含义。如果在处理不可复制值的泛型和扩展相关的问题时遇到烧脑的部分，按照这个思路也许会更容易捋清其中各种关系。</p><h2 id="总结">总结</h2><p>Copyable，Move-only 或者所有权的概念，不管名字怎么叫，在程序设计领域也不算新奇了。和 Rust 不同，Swift 没有强制要求我们使用和明确所有权。在默许开发者使用 <code class="language-plaintext highlighter-rouge">Copyable</code> 来完成绝大多数任务的同时，Swift 为更加精确的内存管理留出了 <code class="language-plaintext highlighter-rouge">~Copyable</code> 这个足够用的语言工具。</p><p>在需要的地方，如果不可复制特性确实能起到帮助，那使用它将会提升代码的效率和正确性。最常见的场景大致有两个：</p><ol><li>资源独占：当需要确保某个资源只能被一个持有者使用时，比如文件句柄、数据库连接、硬件设备访问等。这样可以在编译时就防止意外的资源共享。<li>精确控制：对于使用值类型建模，但需要精确控制释放时机和生命周期的对象，比如自定义的内存管理、缓存系统等。</ol><p>使用 <code class="language-plaintext highlighter-rouge">~Copyable</code> 时，需要清楚地理解什么时候发生了所有权转移，什么时候值的生命周期结束，以及用在泛型和协议时一些“违反直觉”的特性。因此，优先考虑普通的值类型，理解所有权这一工具的基本使用方式，只在确实需要独占资源或严格控制生命周期时才使用 <code class="language-plaintext highlighter-rouge">~Copyable</code>，可能会是更加平滑和正确的方式。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/" class="post-tag no-text-decoration" >开发者体验</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" class="post-tag no-text-decoration" >编程语言</a> <a href="/tags/%E7%BC%96%E8%AF%91%E5%99%A8/" class="post-tag no-text-decoration" >编译器</a> <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="post-tag no-text-decoration" >内存管理</a> <a href="/tags/%E7%BC%96%E8%AF%91%E5%99%A8/" class="post-tag no-text-decoration" >编译器</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=逆流而上的设计 - Swift 所有权和 ~Copyable - OneV's Den&url=https://onevcat.com/2024/11/noncopyable/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=逆流而上的设计 - Swift 所有权和 ~Copyable - OneV's Den&u=https://onevcat.com/2024/11/noncopyable/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=逆流而上的设计 - Swift 所有权和 ~Copyable - OneV's Den&url=https://onevcat.com/2024/11/noncopyable/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=逆流而上的设计 - Swift 所有权和 ~Copyable - OneV's Den&url=https://onevcat.com/2024/11/noncopyable/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2024/11/type-as-state/"><div class="card-body"> <span class="timeago small" > 2024-11-11 <i class="unloaded">2024-11-11T21:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>编译器，靠你了！使用类型改善状态设计</h3><div class="text-muted small"><p> 在程序的开发和运行过程中，人往往是最不可靠的环节：一个不小心，逻辑错误（也就是 bug！）可能会悄然保留下来并进入最终的产品。与此相对，编译器要可靠得多。如果程序中存在错误，编译器通常会直接阻止生成产品。Swift 拥有非常强大的类型系统，通过它，我们可以尝试将一些运行时的逻辑“封装”到类型系统中，从而在编译期提前发现潜在的问题和错误。这种依靠类型系统来“保存”逻辑的设计方式可以称为类型状态...</p></div></div></a></div><div class="card"> <a href="/2024/07/swift-6/"><div class="card-body"> <span class="timeago small" > 2024-07-30 <i class="unloaded">2024-07-30T22:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Swift 6 适配的一些体会以及对现状的小吐槽</h3><div class="text-muted small"><p> 最近对手上的两三个项目进行了 Swift 6 的迁移，整体过程并不算顺利，颇有一种梦回 Swift 3 的感觉。不过，最终还是有所收获和心得。趁着记忆还新鲜，我想稍微总结一下。此外，针对目前社区里的一些声音，以及自己这些年的感受，我会在文章后半部分对 Swift 生态进行一些不太重要的小唠叨。 Swift 6 迁移 Swift 6 的最大“卖点”当然是并发编程和编译时就能保证的完全线程安...</p></div></div></a></div><div class="card"> <a href="/2014/06/my-opinion-about-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-03 <i class="unloaded">2014-06-03T12:05:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>关于 Swift 的一点初步看法</h3><div class="text-muted small"><p> 虽然四点半就起床去排队等入场，结果还是只能坐在了蛮后面的位置看着大屏幕参加了今年的 Keynote。其实今年 OS X 和 iOS 的更新亮点都不少，但是显然风头和光芒都让横空出世的 Swift 给抢走了。这部分内容因为不是 NDA，所以可以提前说一说。 Swift 是 Apple 自创的一门专门为 Cocoa 和 CocoaTouch 设计的语言，意在用来替代 objc。早上发布的时候有...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2024/07/swift-6/" class="btn btn-outline-primary"><p>Swift 6 适配的一些体会以及对现状的小吐槽</p></a> <a href="/2024/11/type-as-state/" class="btn btn-outline-primary"><p>编译器，靠你了！使用类型改善状态设计</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

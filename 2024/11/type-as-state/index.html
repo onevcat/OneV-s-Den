@@ -1,0 +1,307 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="编译器，靠你了！使用类型改善状态设计" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="在程序的开发和运行过程中，人往往是最不可靠的环节：一个不小心，逻辑错误（也就是 bug！）可能会悄然保留下来并进入最终的产品。与此相对，编译器要可靠得多。如果程序中存在错误，编译器通常会直接阻止生成产品。Swift 拥有非常强大的类型系统，通过它，我们可以尝试将一些运行时的逻辑“封装”到类型系统中，从而在编译期提前发现潜在的问题和错误。这种依靠类型系统来“保存”逻辑的设计方式可以称为类型状态。" /><meta property="og:description" content="在程序的开发和运行过程中，人往往是最不可靠的环节：一个不小心，逻辑错误（也就是 bug！）可能会悄然保留下来并进入最终的产品。与此相对，编译器要可靠得多。如果程序中存在错误，编译器通常会直接阻止生成产品。Swift 拥有非常强大的类型系统，通过它，我们可以尝试将一些运行时的逻辑“封装”到类型系统中，从而在编译期提前发现潜在的问题和错误。这种依靠类型系统来“保存”逻辑的设计方式可以称为类型状态。" /><link rel="canonical" href="https://onevcat.com/2024/11/type-as-state/" /><meta property="og:url" content="https://onevcat.com/2024/11/type-as-state/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2024-11-11T21:00:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="编译器，靠你了！使用类型改善状态设计" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"在程序的开发和运行过程中，人往往是最不可靠的环节：一个不小心，逻辑错误（也就是 bug！）可能会悄然保留下来并进入最终的产品。与此相对，编译器要可靠得多。如果程序中存在错误，编译器通常会直接阻止生成产品。Swift 拥有非常强大的类型系统，通过它，我们可以尝试将一些运行时的逻辑“封装”到类型系统中，从而在编译期提前发现潜在的问题和错误。这种依靠类型系统来“保存”逻辑的设计方式可以称为类型状态。","url":"https://onevcat.com/2024/11/type-as-state/","@type":"BlogPosting","headline":"编译器，靠你了！使用类型改善状态设计","dateModified":"2024-11-11T21:00:00+09:00","datePublished":"2024-11-11T21:00:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2024/11/type-as-state/"},"@context":"https://schema.org"}</script><title>编译器，靠你了！使用类型改善状态设计 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>编译器，靠你了！使用类型改善状态设计</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>编译器，靠你了！使用类型改善状态设计</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Mon, Nov 11, 2024, 9:00 PM +0900" > 2024-11-11 <i class="unloaded">2024-11-11T21:00:00+09:00</i> </span></div></div><div class="post-content"><p>在程序的开发和运行过程中，人往往是最不可靠的环节：一个不小心，逻辑错误（也就是 bug！）可能会悄然保留下来并进入最终的产品。与此相对，编译器要可靠得多。如果程序中存在错误，编译器通常会直接阻止生成产品。Swift 拥有非常强大的类型系统，通过它，我们可以尝试将一些运行时的逻辑“封装”到类型系统中，从而在编译期提前发现潜在的问题和错误。这种依靠类型系统来“保存”逻辑的设计方式可以称为类型状态。</p><h2 id="一个简单例子端到端加密">一个简单例子：端到端加密</h2><h3 id="定义和使用">定义和使用</h3><p>这个例子源自实际工作的需求。假设我们需要设计一个客户端之间的消息系统，并支持端到端加密：也就是说，这些消息可能包含用户的隐私敏感内容。在用户设备上，这些消息可以以明文形式显示，但一旦需要离开用户设备、发送到服务端（并进一步传递到另一个目标客户端），则必须加密。如果错误地将未加密的信息发送出去，可能会带来安全隐患，甚至损害用户的信任。</p><p>一个“简洁”的设计思路是设计一个带有状态的 <code class="language-plaintext highlighter-rouge">Message</code>，它包含文本并用一个状态来表示是否已加密：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Message</span> <span class="p">{</span>
+    <span class="kd">enum</span> <span class="kt">State</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">raw</span>
+        <span class="k">case</span> <span class="n">encrypted</span>
+    <span class="p">}</span>
+
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">text</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">State</span>
+    
+    <span class="nf">init</span><span class="p">(</span><span class="nv">rawText</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">rawText</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="o">.</span><span class="n">raw</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在此基础上，添加 <code class="language-plaintext highlighter-rouge">encrypt</code> 和 <code class="language-plaintext highlighter-rouge">send</code> 方法。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="k">mutating</span> <span class="kd">func</span> <span class="nf">encrypt</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="o">.</span><span class="n">raw</span> <span class="p">{</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="nf">encrypted</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="o">.</span><span class="n">encrypted</span>
+<span class="p">}</span>
+    
+<span class="kd">func</span> <span class="nf">send</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="o">.</span><span class="n">encrypted</span> <span class="p">{</span>
+        <span class="kt">Service</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在 <code class="language-plaintext highlighter-rouge">encrypt</code> 中，我们检查了 <code class="language-plaintext highlighter-rouge">state</code>，当它是 <code class="language-plaintext highlighter-rouge">.raw</code> 时才进行加密，这可以避免对已经加密过的文本进行重复加密；在 <code class="language-plaintext highlighter-rouge">send</code> 里，我们再次检查了 <code class="language-plaintext highlighter-rouge">state</code>，并当它在 <code class="language-plaintext highlighter-rouge">.encrypted</code> 时才发送。</p><p>一切看起来都没问题，按照正常流程，生成的 <code class="language-plaintext highlighter-rouge">Message</code> 可以在加密后发送：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="k">var</span> <span class="nv">message</span> <span class="o">=</span> <span class="kt">Message</span><span class="p">(</span><span class="nv">rawText</span><span class="p">:</span> <span class="s">"Credit Number: 12345"</span><span class="p">)</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">encrypt</span><span class="p">()</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">send</span><span class="p">()</span>
+</pre></table></code></div></div><p>多次调用 <code class="language-plaintext highlighter-rouge">encrypt</code>，改变调用的顺序，都不会出现什么大问题（虽然看上去有点糟糕）：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="c1">// 情况 1，不会被多次加密</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">encrypt</span><span class="p">()</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">encrypt</span><span class="p">()</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">send</span><span class="p">()</span>
+
+<span class="c1">// 情况 2，明文不会被发送</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">send</span><span class="p">()</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">encrypt</span><span class="p">()</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">send</span><span class="p">()</span>
+</pre></table></code></div></div><h3 id="问题">问题</h3><p>这种实现方式存在一个潜在问题，即我们依赖运行时的状态逻辑来决定行为。与编译时的保证相比，运行时状态较为脆弱。</p><h4 id="问题例子-1">问题例子 1</h4><p>由于缺乏编译期的保障，这种方式在重构过程中很容易引入人为错误。例如，假设某天我们在 <code class="language-plaintext highlighter-rouge">State</code> 中新增了一个成员 <code class="language-plaintext highlighter-rouge">.secret</code>：</p><div class="language-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="p">enum State {
+</span>    case raw
+    case encrypted
+<span class="gi">+   case secret
+</span>}
+<span class="err">
+</span><span class="gi">+ init(secretText: String) {
++     text = secretText
++     state = .secret
++ }
+</span></pre></table></code></div></div><p>这时，<code class="language-plaintext highlighter-rouge">encrypt</code> 方法就失效了！</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="k">mutating</span> <span class="kd">func</span> <span class="nf">encrypt</span><span class="p">()</span> <span class="p">{</span>
+    <span class="c1">// .secret 不是 .raw。不走加密</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="o">.</span><span class="n">raw</span> <span class="p">{</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="nf">encrypted</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="o">.</span><span class="n">encrypted</span>
+<span class="p">}</span>
+
+<span class="k">var</span> <span class="nv">message</span> <span class="o">=</span> <span class="kt">Message</span><span class="p">(</span><span class="nv">secretText</span><span class="p">:</span> <span class="s">"Hey, my sweet!"</span><span class="p">)</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">encrypt</span><span class="p">()</span>  <span class="c1">// text 没加密，但 state 更新了</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">send</span><span class="p">()</span>     <span class="c1">// 未加密文本被发送出去了！危！</span>
+</pre></table></code></div></div><blockquote><p>如果要进行正确的实现，我们需要仔细阅读 <code class="language-plaintext highlighter-rouge">encrypt</code>，并在其中添加合适的状态检查和加密操作。如果代码库再复杂一点，并且长时间不维护相关代码，或者是突然接手，那往往会非常困难。</p></blockquote><h4 id="问题例子-2">问题例子 2</h4><p>对于重构而言，如果测试用例不完善，这种基于状态判断的代码也相当危险。例如，在一次重构中不小心删掉了某些代码：</p><div class="language-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="p">mutating func encrypt() {
+</span><span class="gd">-   if state == .raw {
+</span>        text = text.encrypted()
+<span class="gd">-   }
+</span>    state = .encrypted
+}
+</pre></table></code></div></div><p>如果 <code class="language-plaintext highlighter-rouge">encrypt</code> 被多次调用，就会导致消息被多次加密，从而发送错误的加密信息。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="n">message</span><span class="o">.</span><span class="nf">encrypt</span><span class="p">()</span> <span class="c1">// 得到正确密文</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">encrypt</span><span class="p">()</span> <span class="c1">// 对密文再次加密</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">send</span><span class="p">()</span>    <span class="c1">// 接收端无法解密</span>
+</pre></table></code></div></div><p>类似的问题还有很多，随着类型复杂度的增加，会出现更多类似情况，这里就不再一一列举了。</p><h2 id="可行的解决方案用类型来定义状态">可行的解决方案：用类型来定义状态</h2><p>产生上述问题的根本原因在于，我们试图用<strong>同一个类型实例中的状态来区分其能执行的操作</strong>。类型系统应当充当能力的蓝图，当一个类型的实例不应被 “send” 或 “encrypt” 时，这些操作就不应出现在蓝图中。</p><h3 id="用类型状态解决问题">用类型状态解决问题</h3><p>最简单的解决方案是将 <code class="language-plaintext highlighter-rouge">Message</code> 拆分成两个不同的类型：<code class="language-plaintext highlighter-rouge">RawMessage</code> 和 <code class="language-plaintext highlighter-rouge">EncryptedMessage</code>，并分别只在相关类型上定义 <code class="language-plaintext highlighter-rouge">encrypt</code> 和 <code class="language-plaintext highlighter-rouge">send</code> 方法。不过，借助 Swift 强大的泛型系统，我们可以通过一个泛型参数更好地表达这种设计思路。考虑以下代码：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">Raw</span> <span class="p">{</span> <span class="p">}</span>
+<span class="kd">enum</span> <span class="kt">Encrypted</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">Message</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">text</span><span class="p">:</span> <span class="kt">String</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>对于未加密文本，可以通过 <code class="language-plaintext highlighter-rouge">T == Raw</code> 的扩展，为它添加初始化方法和 <code class="language-plaintext highlighter-rouge">encrypt</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Message</span> <span class="k">where</span> <span class="kt">T</span> <span class="o">==</span> <span class="kt">Raw</span> <span class="p">{</span>
+    <span class="nf">init</span><span class="p">(</span><span class="nv">rawText</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">rawText</span>
+    <span class="p">}</span>
+    
+    <span class="kd">func</span> <span class="nf">encrypted</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Message</span><span class="o">&lt;</span><span class="kt">Encrypted</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span> <span class="n">text</span><span class="o">.</span><span class="nf">encrypted</span><span class="p">())</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>而对于已加密文本，它唯一需要的只有一个 <code class="language-plaintext highlighter-rouge">send</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Message</span> <span class="k">where</span> <span class="kt">T</span> <span class="o">==</span> <span class="kt">Encrypted</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">send</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kt">Service</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>如此一来，我们就将状态相关的逻辑“编码”到类型中了。唯一能让编译器通过的调用方式，就是生成 <code class="language-plaintext highlighter-rouge">Message&lt;Raw&gt;</code>，加密，最后发送：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kt">Message</span><span class="p">(</span><span class="nv">rawText</span><span class="p">:</span> <span class="s">"Credit Number: 12345"</span><span class="p">)</span>
+    <span class="o">.</span><span class="nf">encrypted</span><span class="p">()</span>
+    <span class="o">.</span><span class="nf">send</span><span class="p">()</span>
+</pre></table></code></div></div><p>像是多次加密，忘了加密，或者颠倒调用顺序，现在都不可能发生了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kt">Message</span><span class="p">(</span><span class="nv">rawText</span><span class="p">:</span> <span class="s">"Credit Number: 12345"</span><span class="p">)</span>
+    <span class="o">.</span><span class="nf">encrypted</span><span class="p">()</span>
+    <span class="o">.</span><span class="nf">encrypted</span><span class="p">()</span> <span class="c1">// 编译错误，只有 Raw 有这个方法</span>
+    <span class="o">.</span><span class="nf">send</span><span class="p">()</span>
+    
+<span class="kt">Message</span><span class="p">(</span><span class="nv">rawText</span><span class="p">:</span> <span class="s">"Credit Number: 12345"</span><span class="p">)</span>
+    <span class="o">.</span><span class="nf">send</span><span class="p">()</span>  <span class="c1">// 编译错误，只有 Encrypted 有这个方法</span>
+</pre></table></code></div></div><p>这样，我们就得到了一个编译时就保证安全的 <code class="language-plaintext highlighter-rouge">Message</code> 类型。</p><h3 id="实际使用添加-secret">实际使用，添加 <code class="language-plaintext highlighter-rouge">.secret</code></h3><p>之前我们提到过添加一个 <code class="language-plaintext highlighter-rouge">.secret</code> case，它是一个比 <code class="language-plaintext highlighter-rouge">Encrypted</code> 更高的安全等级，我们希望它能做到两点。</p><ol><li>比 <code class="language-plaintext highlighter-rouge">Encrypted</code> 更复杂的加密：比如对使用 <code class="language-plaintext highlighter-rouge">encrypted</code> 得到的密文用不同的密钥再加密一次。<li>实现“发后即焚”：发送以后在本机销毁这个 <code class="language-plaintext highlighter-rouge">Message</code>，不留下痕迹。</ol><p>作为练习，我们先来看第一点。有了前面的架构，添加这个 <code class="language-plaintext highlighter-rouge">Secret</code> 简直是“无脑”的：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">Secret</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="kd">extension</span> <span class="kt">Message</span> <span class="k">where</span> <span class="kt">T</span> <span class="o">==</span> <span class="kt">Encrypted</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    
+    <span class="kd">func</span> <span class="nf">secreted</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Message</span><span class="o">&lt;</span><span class="kt">Secret</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">text</span><span class="p">:</span> <span class="n">text</span><span class="o">.</span><span class="nf">secretEncrypted</span><span class="p">())</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">extension</span> <span class="kt">Message</span> <span class="k">where</span> <span class="kt">T</span> <span class="o">==</span> <span class="kt">Raw</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    
+    <span class="kd">func</span> <span class="nf">secreted</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Message</span><span class="o">&lt;</span><span class="kt">Secret</span><span class="o">&gt;</span> <span class="p">{</span>
+        <span class="nf">encrypted</span><span class="p">()</span><span class="o">.</span><span class="nf">secreted</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>最后，为 <code class="language-plaintext highlighter-rouge">Message&lt;Secret&gt;</code> 也定义一个 <code class="language-plaintext highlighter-rouge">send</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Message</span> <span class="k">where</span> <span class="kt">T</span> <span class="o">==</span> <span class="kt">Secret</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">send</span><span class="p">()</span> <span class="p">{</span>
+        <span class="kt">Service</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>使用起来也非常直接，不论是从 Raw 还是 Encrypted，我们都可以安全地得到用于发送的二次加密的信息：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kt">Message</span><span class="p">(</span><span class="nv">rawText</span><span class="p">:</span> <span class="s">"Hey, my sweet!"</span><span class="p">)</span>
+    <span class="o">.</span><span class="nf">encrypted</span><span class="p">()</span>
+    <span class="o">.</span><span class="nf">secreted</span><span class="p">()</span>
+    <span class="o">.</span><span class="nf">send</span><span class="p">()</span>
+        
+<span class="kt">Message</span><span class="p">(</span><span class="nv">rawText</span><span class="p">:</span> <span class="s">"Hey, my sweet!"</span><span class="p">)</span>
+    <span class="o">.</span><span class="nf">secreted</span><span class="p">()</span>
+    <span class="o">.</span><span class="nf">send</span><span class="p">()</span>
+</pre></table></code></div></div><p>不需要再去关心加密解密和当前状态，类型系统保证了我们从一开始就不可能写出错误的代码，同时也大大降低了重构和添加新功能时的风险。</p><h3 id="使用-copyable">使用 <code class="language-plaintext highlighter-rouge">~Copyable</code></h3><p>“发后即焚”这个功能我们还没有实现。对于发送操作而言，<code class="language-plaintext highlighter-rouge">Message&lt;Encrypted&gt;</code> 和 <code class="language-plaintext highlighter-rouge">Message&lt;Secret&gt;</code> 并没有区别。尽管我们在上面的代码中通过链式调用直接进行了发送，但在发送前仍然可以保留中间状态，并在发送后读取并存储消息内容。编译器并不会阻止我们这样操作：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">message</span> <span class="o">=</span> <span class="kt">Message</span><span class="p">(</span><span class="nv">rawText</span><span class="p">:</span> <span class="s">"Hey, my sweet!"</span><span class="p">)</span>
+    <span class="o">.</span><span class="nf">encrypted</span><span class="p">()</span>
+    <span class="o">.</span><span class="nf">secreted</span><span class="p">()</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">send</span><span class="p">()</span>
+
+<span class="c1">// 虽然加密了但是被存下来了！危！</span>
+<span class="nf">writeToFile</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="p">)</span> 
+</pre></table></code></div></div><p>当然，你可能会认为这是逻辑错误或误用：毕竟，只要我们不写出这样的代码，就不会引发安全问题。然而，这一假设并不可靠，我们需要更稳妥的保障。没错，或许你已经想到了，<a href="/2024/11/noncopyable/">上一篇文章</a>中提到的不可复制类型，正是在这个场景下编译器能够提供的可靠保障。</p><p>将 <code class="language-plaintext highlighter-rouge">Message&lt;T&gt;</code> 扩展为 <code class="language-plaintext highlighter-rouge">~Copyable</code>，然后在 <code class="language-plaintext highlighter-rouge">Message&lt;Secret&gt;</code> 的 <code class="language-plaintext highlighter-rouge">send</code> 前加上 <code class="language-plaintext highlighter-rouge">consuming</code> 关键字，大功告成！</p><div class="language-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="gd">- struct Message&lt;T&gt; {
+</span><span class="gi">+ struct Message&lt;T&gt;: ~Copyable {
+</span>     private(set) var text: String
+}
+<span class="err">
+</span><span class="p">extension Message where T == Secret {
+</span><span class="gd">-   func send() {
+</span><span class="gi">+   consuming func send() {
+</span>        Service.send(text)
+    }
+}
+</pre></table></code></div></div><p>现在，发送 secret message 后，对该消息的进一步访问将不再被允许：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">message</span> <span class="o">=</span> <span class="kt">Message</span><span class="p">(</span><span class="nv">rawText</span><span class="p">:</span> <span class="s">"Hey, my sweet!"</span><span class="p">)</span>
+    <span class="o">.</span><span class="nf">encrypted</span><span class="p">()</span>
+    <span class="o">.</span><span class="nf">secreted</span><span class="p">()</span>
+<span class="n">message</span><span class="o">.</span><span class="nf">send</span><span class="p">()</span>
+
+<span class="c1">// 'message' used after consume</span>
+<span class="nf">writeToFile</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+</pre></table></code></div></div><h2 id="总结">总结</h2><p>通过使用类型系统对关键逻辑进行编码，借助编译器的力量来减轻大脑负担，无论是从心智模型还是维护难度来看，都是有益的。如果有合适的场景，不妨尝试这种编程方式，相信它会让开发过程更加轻松。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/" class="post-tag no-text-decoration" >开发者体验</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" class="post-tag no-text-decoration" >编程语言</a> <a href="/tags/%E7%BC%96%E8%AF%91%E5%99%A8/" class="post-tag no-text-decoration" >编译器</a> <a href="/tags/%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/" class="post-tag no-text-decoration" >内存管理</a> <a href="/tags/%E7%BC%96%E8%AF%91%E5%99%A8/" class="post-tag no-text-decoration" >编译器</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=编译器，靠你了！使用类型改善状态设计 - OneV's Den&url=https://onevcat.com/2024/11/type-as-state/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=编译器，靠你了！使用类型改善状态设计 - OneV's Den&u=https://onevcat.com/2024/11/type-as-state/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=编译器，靠你了！使用类型改善状态设计 - OneV's Den&url=https://onevcat.com/2024/11/type-as-state/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=编译器，靠你了！使用类型改善状态设计 - OneV's Den&url=https://onevcat.com/2024/11/type-as-state/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2024/11/noncopyable/"><div class="card-body"> <span class="timeago small" > 2024-11-02 <i class="unloaded">2024-11-02T23:30:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>逆流而上的设计 - Swift 所有权和 ~Copyable</h3><div class="text-muted small"><p> 在 Rust 中，绝对安全和高效的内存使用得益于其独特的所有权（ownership）设计。七年前，Swift 团队发布了《所有权宣言》，以前瞻性的方式介绍了 Swift 中关于值的内存管理变化的一系列愿景。Swift 5.9 中（以和宣言里略微不同的语法）实现了这一愿景，引入了不可复制类型的标记 ~Copyable（non-copyable），以与 Rust 截然不同的（打补丁的）方式实现了...</p></div></div></a></div><div class="card"> <a href="/2024/07/swift-6/"><div class="card-body"> <span class="timeago small" > 2024-07-30 <i class="unloaded">2024-07-30T22:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Swift 6 适配的一些体会以及对现状的小吐槽</h3><div class="text-muted small"><p> 最近对手上的两三个项目进行了 Swift 6 的迁移，整体过程并不算顺利，颇有一种梦回 Swift 3 的感觉。不过，最终还是有所收获和心得。趁着记忆还新鲜，我想稍微总结一下。此外，针对目前社区里的一些声音，以及自己这些年的感受，我会在文章后半部分对 Swift 生态进行一些不太重要的小唠叨。 Swift 6 迁移 Swift 6 的最大“卖点”当然是并发编程和编译时就能保证的完全线程安...</p></div></div></a></div><div class="card"> <a href="/2014/06/my-opinion-about-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-03 <i class="unloaded">2014-06-03T12:05:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>关于 Swift 的一点初步看法</h3><div class="text-muted small"><p> 虽然四点半就起床去排队等入场，结果还是只能坐在了蛮后面的位置看着大屏幕参加了今年的 Keynote。其实今年 OS X 和 iOS 的更新亮点都不少，但是显然风头和光芒都让横空出世的 Swift 给抢走了。这部分内容因为不是 NDA，所以可以提前说一说。 Swift 是 Apple 自创的一门专门为 Cocoa 和 CocoaTouch 设计的语言，意在用来替代 objc。早上发布的时候有...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2024/11/noncopyable/" class="btn btn-outline-primary"><p>逆流而上的设计 - Swift 所有权和 ~Copyable</p></a> <a href="/2024/12/2024-final/" class="btn btn-outline-primary"><p>2024 年终总结</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

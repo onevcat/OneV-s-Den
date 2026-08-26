@@ -1,0 +1,459 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="使用 Property Wrapper 为 Codable 解码设定默认值" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="本文介绍了一个使用 Swift Codable 解码时难以设置默认值问题，并利用 Property Wrapper 给出了一种相对优雅的解决方式，来在 key 不存在时或者解码失败时，为某个属性设置默认值。这为编解码系统提供了更好的稳定性和可扩展性。最后，对 enum 类型在某些情况下是否胜任进行了简单讨论。" /><meta property="og:description" content="本文介绍了一个使用 Swift Codable 解码时难以设置默认值问题，并利用 Property Wrapper 给出了一种相对优雅的解决方式，来在 key 不存在时或者解码失败时，为某个属性设置默认值。这为编解码系统提供了更好的稳定性和可扩展性。最后，对 enum 类型在某些情况下是否胜任进行了简单讨论。" /><link rel="canonical" href="https://onevcat.com/2020/11/codable-default/" /><meta property="og:url" content="https://onevcat.com/2020/11/codable-default/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2020-11-10T14:00:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="使用 Property Wrapper 为 Codable 解码设定默认值" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"本文介绍了一个使用 Swift Codable 解码时难以设置默认值问题，并利用 Property Wrapper 给出了一种相对优雅的解决方式，来在 key 不存在时或者解码失败时，为某个属性设置默认值。这为编解码系统提供了更好的稳定性和可扩展性。最后，对 enum 类型在某些情况下是否胜任进行了简单讨论。","url":"https://onevcat.com/2020/11/codable-default/","@type":"BlogPosting","headline":"使用 Property Wrapper 为 Codable 解码设定默认值","dateModified":"2020-11-10T14:00:00+09:00","datePublished":"2020-11-10T14:00:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2020/11/codable-default/"},"@context":"https://schema.org"}</script><title>使用 Property Wrapper 为 Codable 解码设定默认值 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>使用 Property Wrapper 为 Codable 解码设定默认值</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>使用 Property Wrapper 为 Codable 解码设定默认值</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Tue, Nov 10, 2020, 2:00 PM +0900" > 2020-11-10 <i class="unloaded">2020-11-10T14:00:00+09:00</i> </span></div><div> 最后更新: <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Tue, Nov 10, 2020, 2:31 PM +0900" > 2020-11-10 <i class="unloaded">2020-11-10T14:31:36+09:00</i> </span></div></div><div class="post-content"><p>本文介绍了一个使用 Swift Codable 解码时难以设置默认值问题，并利用 Property Wrapper 给出了一种相对优雅的解决方式，来在 key 不存在时或者解码失败时，为某个属性设置默认值。这为编解码系统提供了更好的稳定性和可扩展性。最后，对 enum 类型在某些情况下是否胜任进行了简单讨论。</p><blockquote><p><a href="https://gist.github.com/onevcat/0f055ece50bd0c07e882890129dfcfb8">示例代码</a></p></blockquote><h2 id="codable-类型中可选值的窘-囧-境">Codable 类型中可选值的窘 (囧?) 境</h2><h3 id="基础类型可选值">基础类型可选值</h3><p>Codable 的引入极大简化了 JSON 和 Swift 中的类型之间相互转换的难度。当我们将 Swift 类型中的一个值设定为可选值 (Optional) 时，意味着即使 JSON 中这个值缺失了，我们也可以将 JSON 成功解码。比如 <code class="language-plaintext highlighter-rouge">Video</code> 类型代表了一段视频直播，其中 up 主可以设定是否接受评论：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Video</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">Int</span>
+    <span class="k">let</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">commentEnabled</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">?</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>下面的情况：</p><div class="language-js highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="p">{</span><span class="dl">"</span><span class="s2">id</span><span class="dl">"</span><span class="p">:</span> <span class="mi">12345</span><span class="p">,</span> <span class="dl">"</span><span class="s2">title</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">My First Video</span><span class="dl">"</span><span class="p">}</span>
+</pre></table></code></div></div><p>将解码得到：</p><blockquote><p>Video(id: 12345, title: “My First Video”, commentEnabled: nil)</p></blockquote><p>引入可选的 <code class="language-plaintext highlighter-rouge">commentEnabled</code>，会导致使用起来相当麻烦。很可能我们不得不在 view controller 层级上去写这样的代码：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="k">if</span> <span class="n">video</span><span class="o">.</span><span class="n">commentEnabled</span> <span class="p">??</span> <span class="kc">false</span> <span class="p">{</span>
+    <span class="c1">// 在这里显示 comment UI</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这让代码变得很丑，而且会散落在使用到 <code class="language-plaintext highlighter-rouge">commentEnabled</code> 的各个地方。如果我们想要的是，当 <code class="language-plaintext highlighter-rouge">"commentEnabled"</code> key 不存在时，将对应的属性设为 <code class="language-plaintext highlighter-rouge">false</code>，应该要怎么做呢？</p><p>Swift 的 <code class="language-plaintext highlighter-rouge">Decodable</code> 并不支持在声明存储属性时为它指定默认值。如果强制进行赋值，你将会收获一个警告，JSON 值也无法被正确解析：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre><span class="c1">// 错误的代码</span>
+<span class="kd">struct</span> <span class="kt">Video</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">Int</span>
+    <span class="k">let</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">commentEnabled</span><span class="p">:</span> <span class="kt">Bool</span> <span class="o">=</span> <span class="kc">false</span>
+    
+    <span class="c1">// Warning: Immutable property will not be </span>
+    <span class="c1">// decoded because it is declared with an </span>
+    <span class="c1">// initial value which cannot be overwritten</span>
+<span class="p">}</span>
+
+<span class="c1">// {"id": 12345, "title": "My First Video", "commentEnabled": true}</span>
+<span class="c1">// =&gt; Video(id: 12345, title: "My First Video", commentEnabled: false)</span>
+</pre></table></code></div></div><p>显然这是不对的。</p><p>一个稍微好一些的做法是，为 <code class="language-plaintext highlighter-rouge">commentEnabled: Bool?</code> 设定一个特殊的 getter，来统一在一个地方返回不存在时的默认值：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Video</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="kd">private</span> <span class="k">let</span> <span class="nv">commentEnabled</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">?</span>
+    <span class="k">var</span> <span class="nv">resolvedCommentEnabled</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> 
+        <span class="n">commentEnabled</span> <span class="p">??</span> <span class="kc">false</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>相信你和我一样，会非常头疼 <code class="language-plaintext highlighter-rouge">resolvedCommentEnabled</code> 的名字到底应该怎么决定，这也带来了某种意义上的重复。</p><p>最不偷懒的解决方式，当然是为整个 <code class="language-plaintext highlighter-rouge">Video</code> 重写解码所需要的 <code class="language-plaintext highlighter-rouge">init(from:)</code> 方法，来在 <code class="language-plaintext highlighter-rouge">commentEnabled</code> key 不存在时直接设定默认值：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Video</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">Int</span>
+    <span class="k">let</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">commentEnabled</span><span class="p">:</span> <span class="kt">Bool</span>
+
+    <span class="kd">enum</span> <span class="kt">CodingKeys</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="kt">CodingKey</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">id</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">commentEnabled</span>
+    <span class="p">}</span>
+
+    <span class="nf">init</span><span class="p">(</span><span class="n">from</span> <span class="nv">decoder</span><span class="p">:</span> <span class="kt">Decoder</span><span class="p">)</span> <span class="k">throws</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">container</span> <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">container</span><span class="p">(</span><span class="nv">keyedBy</span><span class="p">:</span> <span class="kt">CodingKeys</span><span class="o">.</span><span class="k">self</span><span class="p">)</span>
+        <span class="n">id</span> <span class="o">=</span> <span class="k">try</span> <span class="n">container</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">forKey</span><span class="p">:</span> <span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="k">try</span> <span class="n">container</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">String</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">forKey</span><span class="p">:</span> <span class="o">.</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">commentEnabled</span> <span class="o">=</span> <span class="k">try</span> <span class="n">container</span><span class="o">.</span><span class="nf">decodeIfPresent</span><span class="p">(</span><span class="kt">Bool</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">forKey</span><span class="p">:</span> <span class="o">.</span><span class="n">commentEnabled</span><span class="p">)</span> <span class="p">??</span> <span class="kc">false</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// {"id": 12345, "title": "My First Video"}</span>
+<span class="c1">// Video(id: 12345, title: "My First Video", commentEnabled: false)</span>
+</pre></table></code></div></div><p>问题在于，可能会有其他类型也有类似的需求。就算预先设置了模板，但去为每个类型添加这么一坨 <code class="language-plaintext highlighter-rouge">CodingKeys</code> 和 <code class="language-plaintext highlighter-rouge">init(from:)</code>，想象一下就觉得是很恶心的事情。就算在这里我们为 <code class="language-plaintext highlighter-rouge">commentEnabled</code> 这个 <code class="language-plaintext highlighter-rouge">Bool</code> 值添加了默认的解析，对于其他类型中类似需求的 <code class="language-plaintext highlighter-rouge">Bool</code> 属性，还是需要再来一次。我们有没有更好的方法来对应<strong>“给 Decodable 的属性添加默认值”</strong>这件事情呢？</p><h3 id="更大的陷阱自定义类型的可选值">更大的陷阱：自定义类型的可选值</h3><p>在开始尝试解决问题之前，先来看一个更致命的情况。对于上面的 <code class="language-plaintext highlighter-rouge">Bool?</code>，最多只是让我们的代码麻烦一些，还不至于出现大问题。但是如果我们希望的是对一个更复杂的类型进行解码，情况就会迅速恶化。考虑下面的代码：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Video</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="kd">enum</span> <span class="kt">State</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="kt">Decodable</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">streaming</span> <span class="c1">// 正在直播</span>
+        <span class="k">case</span> <span class="n">archived</span>  <span class="c1">// 已完成</span>
+    <span class="p">}</span>
+    
+    <span class="c1">// ...</span>
+    
+    <span class="k">let</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">State</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这里添加了 <code class="language-plaintext highlighter-rouge">Video.State</code>，我们将它声明为 <code class="language-plaintext highlighter-rouge">String</code> enum，且满足 <code class="language-plaintext highlighter-rouge">Decodable</code>。对于这样的 enum 类型，我们不需要额外进行实现，编译器就会帮助我们补完解码代码，这会把 <code class="language-plaintext highlighter-rouge">"streaming"</code> 和 <code class="language-plaintext highlighter-rouge">"archived"</code> 分别解码到对应的 case 中去：</p><div class="language-js highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="p">{</span><span class="dl">"</span><span class="s2">id</span><span class="dl">"</span><span class="p">:</span> <span class="mi">12345</span><span class="p">,</span> <span class="dl">"</span><span class="s2">title</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">My First Video</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">state</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">archived</span><span class="dl">"</span><span class="p">}</span>
+
+<span class="c1">// Video(</span>
+<span class="c1">//   id: 12345, </span>
+<span class="c1">//   title: "My First Video",</span>
+<span class="c1">//   commentEnabled: nil, </span>
+<span class="c1">//   state: Video.State.archived</span>
+<span class="c1">// )</span>
+</pre></table></code></div></div><p>看起来很美好，但是考虑一下，如果将来服务器新增了一个状态，比如 up 主“提前预约”了一次直播时，服务器将返回 <code class="language-plaintext highlighter-rouge">"reserved"</code>。毫无疑问，我们上面的代码无法将 <code class="language-plaintext highlighter-rouge">"reserved"</code> 解析为 <code class="language-plaintext highlighter-rouge">State</code> 中的任何一个值，于是整个 <code class="language-plaintext highlighter-rouge">Video</code> 类型的解析就都挂掉了：</p><div class="language-js highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="p">{</span><span class="dl">"</span><span class="s2">id</span><span class="dl">"</span><span class="p">:</span> <span class="mi">12345</span><span class="p">,</span> <span class="dl">"</span><span class="s2">title</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">My First Video</span><span class="dl">"</span><span class="p">,</span> <span class="dl">"</span><span class="s2">state</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">reserved</span><span class="dl">"</span><span class="p">}</span>
+
+<span class="c1">// error: Swift.DecodingError.dataCorrupted</span>
+<span class="c1">// Cannot initialize State from invalid String value reserved</span>
+</pre></table></code></div></div><p>根据你想要实现的效果，在 client app 中，这可能是一个非常严重的问题。更麻烦的是，即使你将 <code class="language-plaintext highlighter-rouge">state</code> 声明为可选值的 <code class="language-plaintext highlighter-rouge">State?</code>，依然还是解决不了这个情况：可选值的解码所表达的是“如果不存在，则置为 nil”，而<strong>不是</strong>“如果解码失败，则置为 nil”。所以下面的改变不会对问题有任何帮助：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Video</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="k">let</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">State</span><span class="p">?</span>
+<span class="p">}</span>
+
+<span class="c1">// {"id": 12345, "title": "My First Video", "state": "reserved"}</span>
+<span class="c1">// error: Swift.DecodingError.dataCorrupted</span>
+<span class="c1">// Cannot initialize State from invalid String value reserved</span>
+</pre></table></code></div></div><p>只要 “state” key 在 JSON 中存在，那么解码就会发生；只要等待解码的数据无法初始化一个 <code class="language-plaintext highlighter-rouge">State</code>，那么整个值的解码就会失败。</p><p>当然，我们可以参照上面处理 <code class="language-plaintext highlighter-rouge">Bool</code> 的方法，在 <code class="language-plaintext highlighter-rouge">Video</code> 中把 <code class="language-plaintext highlighter-rouge">state</code> 声明为 <code class="language-plaintext highlighter-rouge">String</code>， 然后用一个 getter 设定默认值，比如：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">State</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="n">streaming</span>
+    <span class="k">case</span> <span class="n">archived</span>
+    <span class="k">case</span> <span class="n">unknown</span>
+<span class="p">}</span>
+
+<span class="kd">private</span> <span class="k">let</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">String</span>
+<span class="k">var</span> <span class="nv">resolvedState</span><span class="p">:</span> <span class="kt">State</span> <span class="p">{</span>
+    <span class="kt">State</span><span class="p">(</span><span class="nv">rawValue</span><span class="p">:</span> <span class="n">state</span><span class="p">)</span> <span class="p">??</span> <span class="o">.</span><span class="n">unknown</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>或者直接为 <code class="language-plaintext highlighter-rouge">Video</code> 重写 <code class="language-plaintext highlighter-rouge">init(from:)</code>。不过无论怎么做，都不是很理想。</p><p>有没有更好的方式来处理上面这两个问题呢？答案是使用 property wrapper。</p><h2 id="default-property-wrapper-的设计">Default property wrapper 的设计</h2><p>最正确且通用的解决方式当然是为每个需要默认值的类型重写 <code class="language-plaintext highlighter-rouge">init(from:)</code>。不过 Codable 系统最便利的地方就在于可以自动为满足 Codable 的类型和每个属性生成代码。我们例子中的矛盾在于，编译器为某个类型 (比如 <code class="language-plaintext highlighter-rouge">Bool</code> 或者 <code class="language-plaintext highlighter-rouge">Video.State</code>) 生成的解码代码不能满足要求。想要对某个 property “做手脚”，property wrapper 当然是首选。</p><blockquote><p>如果你对 property wrapper 还不熟悉，可以先把它理解成一组特别的 getter 和 setter：它提供一个特殊的盒子，把原来值的类型包装进去。被 property wrapper 声明的属性，实际上在存储时的类型是 property wrapper 这个“盒子”的类型，只不过编译器施了一些魔法，让它对外暴露的类型依然是被包装的原来的类型。</p><p>已经有很多关于 property wrapper 使用的详细解释了：<a href="https://docs.swift.org/swift-book/LanguageGuide/Properties.html#ID617">官方文档</a> 或者 <a href="https://nshipster.com/propertywrapper/">NSHipster</a> 上都有很优秀的阅读资料。</p></blockquote><h3 id="首次尝试">首次尝试</h3><p>对 <code class="language-plaintext highlighter-rouge">Bool</code> 或者 <code class="language-plaintext highlighter-rouge">Video.State</code> 来说，设置 Default property wrapper 最理想的情况，是类似下面这样的声明方式：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">@Default</span><span class="p">(</span><span class="nv">value</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span>
+<span class="k">var</span> <span class="nv">commentEnabled</span><span class="p">:</span> <span class="kt">Bool</span>
+
+<span class="kd">@Default</span><span class="p">(</span><span class="nv">value</span><span class="p">:</span> <span class="o">.</span><span class="n">unknown</span><span class="p">)</span>
+<span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">State</span>
+</pre></table></code></div></div><p>这需要 <code class="language-plaintext highlighter-rouge">Default</code> 这个 property wrapper 具有这样的声明：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">@propertyWrapper</span>
+<span class="kd">struct</span> <span class="kt">Default</span><span class="o">&lt;</span><span class="kt">T</span><span class="p">:</span> <span class="kt">Decodable</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">T</span>
+
+    <span class="k">var</span> <span class="nv">wrappedValue</span><span class="p">:</span> <span class="kt">T</span> <span class="p">{</span>
+        <span class="k">get</span> <span class="p">{</span> <span class="nf">fatalError</span><span class="p">(</span><span class="s">"未实现"</span><span class="p">)</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">wrappedValue</code> 的 getter 我们还没想好要怎么写，所以先 <code class="language-plaintext highlighter-rouge">fatalError</code> 留空。为了能让 <code class="language-plaintext highlighter-rouge">Default</code> 被直接解码，让它满足 <code class="language-plaintext highlighter-rouge">Decodable</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Default</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>很“幸运”，因为泛型类型 <code class="language-plaintext highlighter-rouge">T</code> 也满足了 <code class="language-plaintext highlighter-rouge">Decodable</code>，所以我们不需要任何实现就可以让 <code class="language-plaintext highlighter-rouge">Default</code> 满足 <code class="language-plaintext highlighter-rouge">Decodable</code> 了。但这真的是我们想要的东西吗？</p><p>实际上，<code class="language-plaintext highlighter-rouge">Default</code> property wrapper 修饰的变量的类型，就是一个具体的 <code class="language-plaintext highlighter-rouge">Default</code> 类型：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="kd">@Default</span><span class="p">(</span><span class="nv">value</span><span class="p">:</span> <span class="kc">true</span><span class="p">)</span> <span class="k">var</span> <span class="nv">commentEnabled</span><span class="p">:</span> <span class="kt">Bool</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">commentEnabled</code> 真正的类型并不是 <code class="language-plaintext highlighter-rouge">Bool</code>，而是 <code class="language-plaintext highlighter-rouge">Default&lt;Bool&gt;</code>。而 <code class="language-plaintext highlighter-rouge">Default&lt;Bool&gt;</code> 中只有 <code class="language-plaintext highlighter-rouge">let value: Bool</code> 这一个存储属性。所以它所规定的默认解码方式是寻找 <code class="language-plaintext highlighter-rouge">"value"</code> 这个 key 对应的布尔值。也就是说，在这个情况下，我们所期望的 JSON 形式其实是：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="p">{</span>
+  <span class="s">"id"</span><span class="p">:</span> <span class="mi">12345</span><span class="p">,</span>
+  <span class="s">"title"</span><span class="p">:</span> <span class="s">"My First Video"</span><span class="p">,</span>
+  <span class="s">"commentEnabled"</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s">"value"</span><span class="p">:</span> <span class="kc">true</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>很显然，这不是我们想要的东西。我们需要从一个 <code class="language-plaintext highlighter-rouge">singleValueContainer</code> 中去解码单个值，而不是将它作为 object 的一部分。所以需要实现自定义的用来解码的 <code class="language-plaintext highlighter-rouge">init</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="c1">// 错误代码</span>
+<span class="kd">extension</span> <span class="kt">Default</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="nf">init</span><span class="p">(</span><span class="n">from</span> <span class="nv">decoder</span><span class="p">:</span> <span class="kt">Decoder</span><span class="p">)</span> <span class="k">throws</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">container</span> <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">singleValueContainer</span><span class="p">()</span>
+        
+        <span class="k">let</span> <span class="nv">v</span> <span class="o">=</span> <span class="p">(</span><span class="k">try</span><span class="p">?</span> <span class="n">container</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">T</span><span class="o">.</span><span class="k">self</span><span class="p">))</span> <span class="p">??</span> <span class="n">value</span>
+        <span class="c1">// 在 init 方法中，value 还不可用，怎么办??</span>
+        
+        <span class="k">self</span><span class="o">.</span><span class="n">wrappedValue</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="c1">// 如何把解码后的值交给 wrappedValue??</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在这种情况下，产生了矛盾：我们不能用 <code class="language-plaintext highlighter-rouge">Default</code> 的 <code class="language-plaintext highlighter-rouge">init(value:)</code> 来为 property wrapper 指定一个默认值。这么做将导致我们无法从 decoder 中利用这个默认值进行解码。</p><p>此路不通，需要另寻他法：我们需要一种不涉及具体的值，而是通过类型系统来传递值的方式。</p><h3 id="使用类型约束传值">使用类型约束传值</h3><p>SwiftUI 中有很多使用类型来传递值的例子，在我的<a href="https://onevcat.com/2020/10/use-options-pattern/">前一篇文章</a>中，也介绍了这种方式的另外一个用例。既然不能使用实例属性，那么我们不妨通过定义和类型绑定的 static 属性来设置默认值。</p><p>首先添加一个 protocol，用来规定默认值：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">DefaultValue</span> <span class="p">{</span>
+    <span class="kd">associatedtype</span> <span class="kt">Value</span><span class="p">:</span> <span class="kt">Decodable</span>
+    <span class="kd">static</span> <span class="k">var</span> <span class="nv">defaultValue</span><span class="p">:</span> <span class="kt">Value</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>然后让 <code class="language-plaintext highlighter-rouge">Bool</code> 满足这个默认值：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Bool</span><span class="p">:</span> <span class="kt">DefaultValue</span> <span class="p">{</span>
+    <span class="kd">static</span> <span class="k">let</span> <span class="nv">defaultValue</span> <span class="o">=</span> <span class="kc">false</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在这里，<code class="language-plaintext highlighter-rouge">DefaultValue.Value</code> 的类型会根据 <code class="language-plaintext highlighter-rouge">defaultValue</code> 的类型被自动推断为 <code class="language-plaintext highlighter-rouge">Bool</code>。</p><p>接下来，重新定义 <code class="language-plaintext highlighter-rouge">Default</code> property wrapper，以及用于解码的初始化方法：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="kd">@propertyWrapper</span>
+<span class="kd">struct</span> <span class="kt">Default</span><span class="o">&lt;</span><span class="kt">T</span><span class="p">:</span> <span class="kt">DefaultValue</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">wrappedValue</span><span class="p">:</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Value</span>
+<span class="p">}</span>
+
+<span class="kd">extension</span> <span class="kt">Default</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="nf">init</span><span class="p">(</span><span class="n">from</span> <span class="nv">decoder</span><span class="p">:</span> <span class="kt">Decoder</span><span class="p">)</span> <span class="k">throws</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">container</span> <span class="o">=</span> <span class="k">try</span> <span class="n">decoder</span><span class="o">.</span><span class="nf">singleValueContainer</span><span class="p">()</span>
+        <span class="n">wrappedValue</span> <span class="o">=</span> <span class="p">(</span><span class="k">try</span><span class="p">?</span> <span class="n">container</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">T</span><span class="o">.</span><span class="kt">Value</span><span class="o">.</span><span class="k">self</span><span class="p">))</span> <span class="p">??</span> <span class="kt">T</span><span class="o">.</span><span class="n">defaultValue</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这样一来，我们就可以用这个新的 <code class="language-plaintext highlighter-rouge">Default</code> 修饰 <code class="language-plaintext highlighter-rouge">commentEnabled</code>，并对应解码失败的情况了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Video</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">Int</span>
+    <span class="k">let</span> <span class="nv">title</span><span class="p">:</span> <span class="kt">String</span>
+
+    <span class="kd">@Default</span><span class="o">&lt;</span><span class="kt">Bool</span><span class="o">&gt;</span> <span class="k">var</span> <span class="nv">commentEnabled</span><span class="p">:</span> <span class="kt">Bool</span>
+<span class="p">}</span>
+
+<span class="c1">// {"id": 12345, "title": "My First Video", "commentEnabled": 123}</span>
+<span class="c1">// Video(</span>
+<span class="c1">//   id: 12345,</span>
+<span class="c1">//   title: "My First Video", </span>
+<span class="c1">//   _commentEnabled: Default&lt;Swift.Bool&gt;(wrappedValue: false)</span>
+<span class="c1">// )</span>
+</pre></table></code></div></div><p>虽然我们解码得到的是一个 <code class="language-plaintext highlighter-rouge">Default&lt;Bool&gt;</code> 的值，但是在使用时，property wrapper 是完全透明的。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="k">if</span> <span class="n">video</span><span class="o">.</span><span class="n">commentEnabled</span> <span class="p">{</span>
+    <span class="c1">// 在这里显示 comment UI</span>
+<span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>可能你已经注意到了，在这样的 <code class="language-plaintext highlighter-rouge">Video</code> 类型中，我们所使用的 <code class="language-plaintext highlighter-rouge">commentEnabled</code> 只是一个 <code class="language-plaintext highlighter-rouge">Bool</code> 类型的计算属性。在背后，编译器为我们生成了 <code class="language-plaintext highlighter-rouge">_commentEnabled</code> 这个存储属性。也就是说，如果我们手动为 <code class="language-plaintext highlighter-rouge">Video</code> 加一个 <code class="language-plaintext highlighter-rouge">_commentEnabled</code> 的话，会导致编译错误。</p><p>虽然很多其他语言有这样的习惯，但在 Swift 中，并不建议使用下杠 <code class="language-plaintext highlighter-rouge">_</code> 作为变量的首字母。这可以帮助我们避免与编译器自动生成的代码产生冲突。</p></blockquote><p>我们已经可以解码 <code class="language-plaintext highlighter-rouge">"commentEnabled": 123</code> 这类的意外输入了，但是现在，当 JSON 中 <code class="language-plaintext highlighter-rouge">"commentEnabled"</code> key 缺失时，解码依然会发生错误。这是因为我们所使用的解码器默认生成的代码是要求 key 存在的。想要改变这一行为，我们可以为 container 重写对于 <code class="language-plaintext highlighter-rouge">Default</code> 类型解码的实现：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">KeyedDecodingContainer</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="n">decode</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span><span class="p">(</span>
+        <span class="n">_</span> <span class="nv">type</span><span class="p">:</span> <span class="kt">Default</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;.</span><span class="k">Type</span><span class="p">,</span>
+        <span class="n">forKey</span> <span class="nv">key</span><span class="p">:</span> <span class="kt">Key</span>
+    <span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Default</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">T</span><span class="p">:</span> <span class="kt">DefaultValue</span> <span class="p">{</span>
+        <span class="k">try</span> <span class="nf">decodeIfPresent</span><span class="p">(</span><span class="n">type</span><span class="p">,</span> <span class="nv">forKey</span><span class="p">:</span> <span class="n">key</span><span class="p">)</span> <span class="p">??</span> <span class="kt">Default</span><span class="p">(</span><span class="nv">wrappedValue</span><span class="p">:</span> <span class="kt">T</span><span class="o">.</span><span class="n">defaultValue</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在键值编码的 container 中遇到要解码为 <code class="language-plaintext highlighter-rouge">Default</code> 的情况时，如果 key 不存在，则返回 <code class="language-plaintext highlighter-rouge">Default(wrappedValue: T.defaultValue)</code> 这个默认值。</p><p>有了这个，对于 JSON 中 <code class="language-plaintext highlighter-rouge">commentEnabled</code> 缺失的情况，也可以正确解码了：</p><div class="language-js highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="p">{</span><span class="dl">"</span><span class="s2">id</span><span class="dl">"</span><span class="p">:</span> <span class="mi">12345</span><span class="p">,</span> <span class="dl">"</span><span class="s2">title</span><span class="dl">"</span><span class="p">:</span> <span class="dl">"</span><span class="s2">My First Video</span><span class="dl">"</span><span class="p">}</span>
+
+<span class="c1">// Video(id: 12345, title: "My First Video", commentEnabled: false)</span>
+</pre></table></code></div></div><p>相比对于每个类型编写单独的默认值解码代码，这套方式具有很好的扩展性。比如，如果想要为 <code class="language-plaintext highlighter-rouge">Video.State</code> 也添加默认行为，只需要让它满足 <code class="language-plaintext highlighter-rouge">DefaultValue</code> 即可：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Video</span><span class="o">.</span><span class="kt">State</span><span class="p">:</span> <span class="kt">DefaultValue</span> <span class="p">{</span>
+    <span class="kd">static</span> <span class="k">let</span> <span class="nv">defaultValue</span> <span class="o">=</span> <span class="kt">Video</span><span class="o">.</span><span class="kt">State</span><span class="o">.</span><span class="n">unknown</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">Video</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    
+    <span class="kd">@Default</span><span class="o">&lt;</span><span class="kt">State</span><span class="o">&gt;</span> <span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">State</span>
+<span class="p">}</span>
+
+<span class="c1">// {"id": 12345, "title": "My First Video", "state": "reserved"}</span>
+<span class="c1">// Video(</span>
+<span class="c1">//   id: 12345, </span>
+<span class="c1">//   title: "My First Video", </span>
+<span class="c1">//   _commentEnabled: Default&lt;Swift.Bool&gt;(wrappedValue: false),</span>
+<span class="c1">//   _state: Default&lt;Video.State&gt;(wrappedValue: Video.State.unknown)</span>
+<span class="c1">// )</span>
+</pre></table></code></div></div><h3 id="整理-default-类型">整理 Default 类型</h3><p>上面的方法还存在一个问题：像 <code class="language-plaintext highlighter-rouge">Default&lt;Bool&gt;</code> 这样的修饰，只能将默认值解码到 <code class="language-plaintext highlighter-rouge">false</code>。但有时候针对不同情况，我们需要设置不同的默认值。</p><p><code class="language-plaintext highlighter-rouge">DefaultValue</code> 协议其实并没有对类型作出太多规定：只要所提供的默认值 <code class="language-plaintext highlighter-rouge">defaultValue</code> 满足 <code class="language-plaintext highlighter-rouge">Decodable</code> 协议就行。因此，我们可以让别的类型，甚至是新创建的类型，满足 <code class="language-plaintext highlighter-rouge">DefaultValue</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Bool</span> <span class="p">{</span>
+    <span class="kd">enum</span> <span class="kt">False</span><span class="p">:</span> <span class="kt">DefaultValue</span> <span class="p">{</span>
+        <span class="kd">static</span> <span class="k">let</span> <span class="nv">defaultValue</span> <span class="o">=</span> <span class="kc">false</span>
+    <span class="p">}</span>
+    <span class="kd">enum</span> <span class="kt">True</span><span class="p">:</span> <span class="kt">DefaultValue</span> <span class="p">{</span>
+        <span class="kd">static</span> <span class="k">let</span> <span class="nv">defaultValue</span> <span class="o">=</span> <span class="kc">true</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这样，我们就可以用这样的类型来定义不同的默认解码值了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="kd">@Default</span><span class="o">&lt;</span><span class="kt">Bool</span><span class="o">.</span><span class="kt">False</span><span class="o">&gt;</span> <span class="k">var</span> <span class="nv">commentEnabled</span><span class="p">:</span> <span class="kt">Bool</span>
+<span class="kd">@Default</span><span class="o">&lt;</span><span class="kt">Bool</span><span class="o">.</span><span class="kt">True</span><span class="o">&gt;</span> <span class="k">var</span> <span class="nv">publicVideo</span><span class="p">:</span> <span class="kt">Bool</span>
+</pre></table></code></div></div><p>或者为了可读性，更进一步，使用 typealias 给它们一些更好的名字：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Default</span> <span class="p">{</span>
+    <span class="kd">typealias</span> <span class="kt">True</span> <span class="o">=</span> <span class="kt">Default</span><span class="o">&lt;</span><span class="kt">Bool</span><span class="o">.</span><span class="kt">True</span><span class="o">&gt;</span>
+    <span class="kd">typealias</span> <span class="kt">False</span> <span class="o">=</span> <span class="kt">Default</span><span class="o">&lt;</span><span class="kt">Bool</span><span class="o">.</span><span class="kt">False</span><span class="o">&gt;</span>
+<span class="p">}</span>
+
+<span class="kd">@Default</span><span class="o">.</span><span class="kt">False</span> <span class="k">var</span> <span class="nv">commentEnabled</span><span class="p">:</span> <span class="kt">Bool</span>
+<span class="kd">@Default</span><span class="o">.</span><span class="kt">True</span> <span class="k">var</span> <span class="nv">publicVideo</span><span class="p">:</span> <span class="kt">Bool</span>
+</pre></table></code></div></div><p>针对 <code class="language-plaintext highlighter-rouge">Video.State</code>，也可以做同样的整理，就留作给各位读者的练习啦！本文完整的示例代码可以在<a href="https://gist.github.com/onevcat/0f055ece50bd0c07e882890129dfcfb8">这里</a>找到。</p><h2 id="关于-api-设计的一点补充说明">关于 API 设计的一点补充说明</h2><p>虽然本文着重于 Codable 的小技巧，而非整体的 API 设计，但在例子中我们使用了 <code class="language-plaintext highlighter-rouge">Video.State</code> 这个 enum 来表示视频的状态，这其实是不太妥当的。</p><p>处理类似这种状态时，很多 server 会返回特定的字符串，比如 <code class="language-plaintext highlighter-rouge">"streaming"</code>、<code class="language-plaintext highlighter-rouge">"archived"</code>。看起来这很像一个“状态枚举”的行为，而且 Swift 中的 enum 实在是很好用，所以大家可能会偏向于直接用 enum 来表征。但如果客户端和服务器之间没有协定未来的情况的话，十分有可能出现像例子中 <code class="language-plaintext highlighter-rouge">"reserved"</code> 这样的新值追加，进而导致问题</p><p>相比于 enum，其实这里用一个带有 raw value 的 struct 来表示会更好：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Video</span><span class="p">:</span> <span class="kt">Decodable</span> <span class="p">{</span>
+    <span class="kd">struct</span> <span class="kt">State</span><span class="p">:</span> <span class="kt">RawRepresentable</span><span class="p">,</span> <span class="kt">Decodable</span> <span class="p">{</span>
+        <span class="kd">static</span> <span class="k">let</span> <span class="nv">streaming</span> <span class="o">=</span> <span class="kt">State</span><span class="p">(</span><span class="nv">rawValue</span><span class="p">:</span> <span class="s">"streaming"</span><span class="p">)</span>
+        <span class="kd">static</span> <span class="k">let</span> <span class="nv">archived</span> <span class="o">=</span> <span class="kt">State</span><span class="p">(</span><span class="nv">rawValue</span><span class="p">:</span> <span class="s">"archived"</span><span class="p">)</span>
+
+        <span class="k">let</span> <span class="nv">rawValue</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="p">}</span>
+    
+    <span class="c1">// ...</span>
+    
+    <span class="k">let</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">State</span>
+<span class="p">}</span>
+
+<span class="c1">// {"id": 12345, "title": "My First Video", "state": "archived"}</span>
+<span class="c1">// Video(</span>
+<span class="c1">//   id: 12345, </span>
+<span class="c1">//   title: "My First Video",</span>
+<span class="c1">//   state: Video.State(rawValue: "archived"))</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="o">.</span><span class="n">archived</span><span class="p">)</span>  <span class="c1">// true</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="o">.</span><span class="n">streaming</span><span class="p">)</span> <span class="c1">// false</span>
+</pre></table></code></div></div><p>这样一来，就算今后为 <code class="language-plaintext highlighter-rouge">state</code> 添加了新的字符串，现有的实现也不会被破坏。相比起原来的 enum <code class="language-plaintext highlighter-rouge">Video.State</code>，这个设计更加稳定。</p><p>和它很类似的，而且经常被用错的例子还有 HTTP method。不少地方把它设计成了类似这样的枚举：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">HTTPMethod</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="k">get</span> <span class="o">=</span> <span class="s">"GET"</span>
+    <span class="k">case</span> <span class="n">post</span> <span class="o">=</span> <span class="s">"POST"</span>
+    <span class="k">case</span> <span class="n">put</span> <span class="o">=</span> <span class="s">"PUT"</span>
+    <span class="k">case</span> <span class="n">delete</span> <span class="o">=</span> <span class="s">"DELETE"</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>确实，这几个 method 几乎能覆盖所有 (“增删查改”) 的情况，但是 HTTP 标准中还定义了<a href="https://tools.ietf.org/html/rfc2616#page-36">很多其他 method</a>，比如 <code class="language-plaintext highlighter-rouge">HEAD</code> 或者 <code class="language-plaintext highlighter-rouge">OPTIONS</code> 也不算鲜见。而且只要服务端和客户端协商好，method 甚至是<a href="https://tools.ietf.org/html/rfc2616#section-9">可以随意扩展</a>的。在这种情况下，其实 enum 是不太理想的。类似上面的例子，使用 <code class="language-plaintext highlighter-rouge">RawRepresentable</code> 的 struct，则可以提供更好的扩展性。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" class="post-tag no-text-decoration" >最佳实践</a> <a href="/tags/api/" class="post-tag no-text-decoration" >api</a> <a href="/tags/codable/" class="post-tag no-text-decoration" >codable</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=使用 Property Wrapper 为 Codable 解码设定默认值 - OneV's Den&url=https://onevcat.com/2020/11/codable-default/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=使用 Property Wrapper 为 Codable 解码设定默认值 - OneV's Den&u=https://onevcat.com/2020/11/codable-default/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=使用 Property Wrapper 为 Codable 解码设定默认值 - OneV's Den&url=https://onevcat.com/2020/11/codable-default/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=使用 Property Wrapper 为 Codable 解码设定默认值 - OneV's Den&url=https://onevcat.com/2020/11/codable-default/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2016/01/create-framework/"><div class="card-body"> <span class="timeago small" > 2016-01-19 <i class="unloaded">2016-01-19T15:32:24+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>如何打造一个让人愉快的框架</h3><div class="text-muted small"><p> 这是我在今年 1 月 10 日 @Swift 开发者大会 上演讲的文字稿。相关的视频还在制作中，没有到现场的朋友可以通过这个文字稿了解到这个 session 的内容。 &lt;br&gt; 虽然我的工作是程序员，但是最近半年其实我的主要干的事儿是养了一个小孩。 所以这半年来可以说没有积累到什么技术，反而是积累了不少养小孩的心得。 当知道了有这么次会议可以分享这半年来的心得的时...</p></div></div></a></div><div class="card"> <a href="/2016/02/swift-performance/"><div class="card-body"> <span class="timeago small" > 2016-02-25 <i class="unloaded">2016-02-25T11:32:24+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Swift 性能探索和优化分析</h3><div class="text-muted small"><p> 本文首发在 CSDN《程序员》杂志，订阅地址 http://dingyue.programmer.com.cn/。 Apple 在推出 Swift 时就将其冠以先进，安全和高效的新一代编程语言之名。前两点在 Swift 的语法和语言特性中已经表现得淋漓尽致：像是尾随闭包，枚举关联值，可选值和强制的类型安全等都是 Swift 显而易见的优点。但是对于高效一点，就没有那么明显了。在 201...</p></div></div></a></div><div class="card"> <a href="/2016/03/swift-throws/"><div class="card-body"> <span class="timeago small" > 2016-03-29 <i class="unloaded">2016-03-29T15:37:24+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Swift 2 throws 全解析 - 从原理到实践</h3><div class="text-muted small"><p> 本文最初于 2015 年 12 月发布在 IBM developerWorks 中国网站发表，其网址是 http://www.ibm.com/developerworks/cn/mobile/mo-cn-swift/index.html。如需转载请保留此行声明。 Swift 2 错误处理简介 throws 关键字和异常处理机制是 Swift 2 中新加入的重要特性。Apple 希望通过在...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2020/10/use-options-pattern/" class="btn btn-outline-primary"><p>Swift 中使用 Option Pattern 改善可选项的 API 设计</p></a> <a href="/2021/01/2020-final/" class="btn btn-outline-primary"><p>迟到的 2020 年终总结</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

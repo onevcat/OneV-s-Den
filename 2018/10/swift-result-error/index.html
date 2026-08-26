@@ -1,0 +1,371 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt;" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="我之前在专栏文章里曾经发布这篇文章，由于这个话题其实还是挺重要的，可以说代表了 Swift 今后发展的方向流派，所以即使和专栏文章内容有些重复，我还是想把它再贴到博客来。经过半年以后，自己对于这个问题也有了更多的实践和想法，所以同时也更新了一下。我没有直接改动原文，而是把新的想法和需要补充的说明，用类似这段话的引用的方式写在合适的上下文里。" /><meta property="og:description" content="我之前在专栏文章里曾经发布这篇文章，由于这个话题其实还是挺重要的，可以说代表了 Swift 今后发展的方向流派，所以即使和专栏文章内容有些重复，我还是想把它再贴到博客来。经过半年以后，自己对于这个问题也有了更多的实践和想法，所以同时也更新了一下。我没有直接改动原文，而是把新的想法和需要补充的说明，用类似这段话的引用的方式写在合适的上下文里。" /><link rel="canonical" href="https://onevcat.com/2018/10/swift-result-error/" /><meta property="og:url" content="https://onevcat.com/2018/10/swift-result-error/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2018-10-31T11:38:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt;" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"我之前在专栏文章里曾经发布这篇文章，由于这个话题其实还是挺重要的，可以说代表了 Swift 今后发展的方向流派，所以即使和专栏文章内容有些重复，我还是想把它再贴到博客来。经过半年以后，自己对于这个问题也有了更多的实践和想法，所以同时也更新了一下。我没有直接改动原文，而是把新的想法和需要补充的说明，用类似这段话的引用的方式写在合适的上下文里。","url":"https://onevcat.com/2018/10/swift-result-error/","@type":"BlogPosting","headline":"Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt;","dateModified":"2018-10-31T11:38:00+09:00","datePublished":"2018-10-31T11:38:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2018/10/swift-result-error/"},"@context":"https://schema.org"}</script><title>Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt; | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt;</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt;</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Wed, Oct 31, 2018, 11:38 AM +0900" > 2018-10-31 <i class="unloaded">2018-10-31T11:38:00+09:00</i> </span></div><div> 最后更新: <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Thu, Oct 22, 2020, 5:03 PM +0900" > 2020-10-22 <i class="unloaded">2020-10-22T17:03:49+09:00</i> </span></div></div><div class="post-content"><blockquote><p>我之前在<a href="https://xiaozhuanlan.com/topic/4718350296">专栏文章</a>里曾经发布这篇文章，由于这个话题其实还是挺重要的，可以说代表了 Swift 今后发展的方向流派，所以即使和专栏文章内容有些重复，我还是想把它再贴到博客来。经过半年以后，自己对于这个问题也有了更多的实践和想法，所以同时也更新了一下。我没有直接改动原文，而是把新的想法和需要补充的说明，用类似这段话的引用的方式写在合适的上下文里。</p></blockquote><h3 id="开始先打个广告">开始先打个广告</h3><p>我个人经常会在<a href="https://www.lizhi.io">数码荔枝</a>用优惠价格购买面向中国用户的一些软件，相比于花美金直接购买，价格非常实惠。近年来国内的正版风气和对知识知识产权的尊重的进步，是有目共睹的，这很大程度上也要归功于像数码荔枝这样的分销商可以和开发商讨论出更适合国内的定价和销售策略。让我，或者让像我一样的开发者，能节省出一些奶粉钱和尿布钱…</p><p>最近我和数码荔枝有一些接触，有一些长期合作的推广。如果大家对某款软件有兴趣，不妨先到数码荔枝的店面找找看，也许能为你省下不少银子。另外也可以访问我的<a href="https://partner.lizhi.io/onevcat/cp">推广页面领取通用的优惠券</a>，然后再使用优惠券购买任意你中意的软件。优惠券也可以多次重复领取，任意使用。</p><p>最后，他们定期也会推出一些力度很大的半价促销，比如 ¥94 就能买到 $79.99 的 PDF Expert 这种不可思议的事情..这个促销到年底为止，如果有在 macOS 上看 PDF 又不满足于系统预览的羸弱功能和性能的小伙伴们可<a href="https://partner.lizhi.io/onevcat/pdf_expert_for_mac">千万不要错过</a>。</p><p><a href="https://partner.lizhi.io/onevcat/pdf_expert_for_mac"><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2018/pdf-expert.png" alt="" /></a></p><h3 id="背景知识">背景知识</h3><p>Cocoa API 中有很多接受回调的异步方法，比如 <code class="language-plaintext highlighter-rouge">URLSession</code> 的 <code class="language-plaintext highlighter-rouge">dataTask(with:completionHandler:)</code>。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">request</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">data</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+        <span class="k">if</span> <span class="n">error</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="nf">handle</span><span class="p">(</span><span class="nv">error</span><span class="p">:</span> <span class="n">error</span><span class="o">!</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="nf">handle</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">data</span><span class="o">!</span><span class="p">)</span>
+        <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>有些情况下，回调方法接受的参数比较复杂，比如这里有三个参数：<code class="language-plaintext highlighter-rouge">(Data?, URLResponse?, Error?)</code>，它们都是可选值。当 session 请求成功时，<code class="language-plaintext highlighter-rouge">Data</code> 参数包含 response 中的数据，<code class="language-plaintext highlighter-rouge">Error</code> 为 <code class="language-plaintext highlighter-rouge">nil</code>；当发生错误时，则正好相反，<code class="language-plaintext highlighter-rouge">Error</code> 指明具体的错误 (由于历史原因，它会是一个 <code class="language-plaintext highlighter-rouge">NSError</code> 对象)，<code class="language-plaintext highlighter-rouge">Data</code> 为 <code class="language-plaintext highlighter-rouge">nil</code>。</p><blockquote><p>关于这个事实，<code class="language-plaintext highlighter-rouge">dataTask(with:completionHandler:)</code> 的<a href="https://developer.apple.com/documentation/foundation/urlsession/1407613-datatask">文档的 Discussion 部分</a>有十分详细的说明。另外，<code class="language-plaintext highlighter-rouge">response: URLResponse?</code> 相对复杂一些：不论是请求成功还是失败，只要从 server 收到了 <code class="language-plaintext highlighter-rouge">response</code>，它就会被包含在这个变量里。</p></blockquote><p>这么做虽然看上去无害，但其实存在改善的余地。显然 <code class="language-plaintext highlighter-rouge">data</code> 和 <code class="language-plaintext highlighter-rouge">error</code> 是互斥的：事实上是不可能存在 <code class="language-plaintext highlighter-rouge">data</code> 和 <code class="language-plaintext highlighter-rouge">error</code> 同时为 <code class="language-plaintext highlighter-rouge">nil</code> 或者同时非 <code class="language-plaintext highlighter-rouge">nil</code> 的情况的，但是编译器却无法静态地确认这个事实。编译器没有制止我们在错误的 <code class="language-plaintext highlighter-rouge">if</code> 语句中对 <code class="language-plaintext highlighter-rouge">nil</code> 值进行解包，而这种行为将导致运行时的意外崩溃。</p><p>我们可以通过一个简单的封装来改进这个设计：如果你实际写过 Swift，可能已经对 <code class="language-plaintext highlighter-rouge">Result</code> 很熟悉了。它的思想非常简单，用泛型将可能的返回值包装起来，因为结果是成功或者失败二选一，所以我们可以藉此去除不必要的可选值。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">T</span><span class="p">,</span> <span class="kt">E</span><span class="p">:</span> <span class="kt">Error</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nf">success</span><span class="p">(</span><span class="kt">T</span><span class="p">)</span>
+    <span class="k">case</span> <span class="nf">failure</span><span class="p">(</span><span class="kt">E</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>把它运用到 <code class="language-plaintext highlighter-rouge">URLSession</code> 中的话，包装一下 <code class="language-plaintext highlighter-rouge">URLSession</code> 方法，上面调用可以变为：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre><td class="rouge-code"><pre><span class="c1">// 如果 Result 存在于标准库的话，</span>
+<span class="c1">// 这部分代码应该由标准库的 Foundataion 扩展进行实现</span>
+<span class="kd">extension</span> <span class="kt">URLSession</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">dataTask</span><span class="p">(</span><span class="n">with</span> <span class="nv">request</span><span class="p">:</span> <span class="kt">URLRequest</span><span class="p">,</span> <span class="nv">completionHandler</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="p">(</span><span class="kt">Data</span><span class="p">,</span> <span class="kt">URLResponse</span><span class="p">),</span> <span class="kt">NSError</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">URLSessionDataTask</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">request</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+            <span class="k">if</span> <span class="n">error</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+                <span class="nf">completionHandler</span><span class="p">(</span><span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="n">error</span><span class="o">!</span> <span class="k">as</span> <span class="kt">NSError</span><span class="p">))</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nf">completionHandler</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">((</span><span class="n">data</span><span class="o">!</span><span class="p">,</span> <span class="n">response</span><span class="o">!</span><span class="p">)))</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">request</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+    <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="p">(</span><span class="nv">data</span><span class="p">,</span> <span class="nv">_</span><span class="p">)):</span>
+        <span class="nf">handle</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+        <span class="nf">handle</span><span class="p">(</span><span class="nv">error</span><span class="p">:</span> <span class="n">error</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>这里原文代码中 <code class="language-plaintext highlighter-rouge">completionHandler</code> 里 <code class="language-plaintext highlighter-rouge">(Result&lt;(Data, URLResponse), NSError&gt;) -&gt; Void)</code> 这个类型是错误的。<code class="language-plaintext highlighter-rouge">Data</code> 存在时 <code class="language-plaintext highlighter-rouge">URLResponse</code> 一定存在，但是我们上面讨论过，当 <code class="language-plaintext highlighter-rouge">NSError</code> 不为 <code class="language-plaintext highlighter-rouge">nil</code> 时，<code class="language-plaintext highlighter-rouge">URLResponse</code> 也可能存在。原文代码忽略了这个事实，将导致 error 状况时无法获取到可能的 <code class="language-plaintext highlighter-rouge">URLResponse</code>。正确的类型应该是 <code class="language-plaintext highlighter-rouge">(Result&lt;(Data), NSError&gt;, URLResponse?) -&gt; Void</code></p><p>当然，在回调中对 <code class="language-plaintext highlighter-rouge">result</code> 的处理也需要对应进行修改。</p></blockquote><p>调用的时候看起来很棒，我们可以避免检查可选值的情况，让编译器保证在对应的 <code class="language-plaintext highlighter-rouge">case</code> 分支中有确定的非可选值。这个设计在很多存在异步代码的框架中被广泛使用，比如 <a href="https://github.com/apple/swift-package-manager/blob/master/Sources/Basic/Result.swift">Swift Package Manager</a>，<a href="https://github.com/Alamofire/Alamofire/blob/master/Source/Result.swift">Alamofire</a> 等中都可觅其踪。</p><blockquote><p>上面代码注释中提到，「如果 Result 存在于标准库的话，这部分代码应该由标准库的 Foundataion 扩展进行实现」。但是考虑到原有的可选值参数 (<code class="language-plaintext highlighter-rouge">(Data?, URLResponse?, Error?)</code>) 作为回调的 API 将会共享同样的函数名，所以上面的函数命名是不可取的，否则将导致冲突。在这类 public API 发布后，如何改善和迭代确实是个难题。一个可行的方法是把 Foundation 的 <code class="language-plaintext highlighter-rouge">URLSession</code> deprecate 掉，提取出相关方法放到诸如 Network.framework 里，并让它跨平台。另一种可行方案是通过自动转换工具，强制 Swift 使用 <code class="language-plaintext highlighter-rouge">Result</code> 的回调，并保持 OC 中的多参数回调。如果你正在打算使用 <code class="language-plaintext highlighter-rouge">Result</code> 改善现有设计，并且需要考虑保持 API 的兼容性时，这会是一个不小的挑战。</p></blockquote><h3 id="错误类型泛型参数">错误类型泛型参数</h3><p>如此常用的一个可以改善设计的定义，为什么没有存在于标准库中呢？关于 <code class="language-plaintext highlighter-rouge">Result</code>，其实已经有<a href="https://github.com/apple/swift-evolution/pull/757">相关的提案</a>：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2018/result-type.png" alt="" /></p><p>这个提案中值得注意的地方在于，<code class="language-plaintext highlighter-rouge">Result</code> 的泛型类型只对成功时的值进行了类型约束，而忽略了错误类型。给出的 <code class="language-plaintext highlighter-rouge">Result</code> 定义类似这样：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">T</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="nf">success</span><span class="p">(</span><span class="kt">T</span><span class="p">)</span>
+    <span class="k">case</span> <span class="nf">failure</span><span class="p">(</span><span class="kt">Error</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>很快，在 1 楼就有人质疑，问这样做的意义何在，因为毕竟很多已存在的 <code class="language-plaintext highlighter-rouge">Result</code> 实现都是包含了 <code class="language-plaintext highlighter-rouge">Error</code> 类型约束的。确定的 <code class="language-plaintext highlighter-rouge">Error</code> 类型也让人在使用时多了一份“安全感”。</p><p>不过，其实我们实际类比一下 Swift 中已经存在的错误处理的设计。Swift 中的 <code class="language-plaintext highlighter-rouge">Error</code> 只是一个协议，在 throw 的时候，我们也并不会指明需要抛出的错误的类型：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">methodCanThrow</span><span class="p">()</span> <span class="k">throws</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="n">somethingGoesWrong</span> <span class="p">{</span>
+        <span class="c1">// 在这里可以 throw 任意类型的 Error</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">do</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="nf">methodCanThrow</span><span class="p">()</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="n">error</span> <span class="k">is</span> <span class="kt">SomeErrorType</span> <span class="p">{</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="n">error</span> <span class="k">is</span> <span class="kt">AnotherErrorType</span> <span class="p">{</span>
+        <span class="c1">// ...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>但是，在带有错误类型约束的 <code class="language-plaintext highlighter-rouge">Result&lt;T, E: Error&gt;</code> 中，我们需要为 <code class="language-plaintext highlighter-rouge">E</code> 指定一个确定的错误类型 (或者说，Swift 并不支持在特化时使用协议，<code class="language-plaintext highlighter-rouge">Result&lt;Response, Error&gt;</code> 这样的类型是非法的)。这与现有的 Swift 错误处理机制是背道而驰的。</p><blockquote><p>关于 Swift 是否应该抛出带有类型的错误，曾经存在过一段时间的争论。最终问题归结于，如果一个函数可以抛出多种错误 (不论是该函数自身产生的错误，还是在函数中 try 其他函数时它们所带来的更底层的错误)，那么 <code class="language-plaintext highlighter-rouge">throws</code> 语法将会变得非常复杂且不可控 (试想极端情况下某个函数可能会抛出数十种错误)。现在大家一致的看法是已有的用 <code class="language-plaintext highlighter-rouge">protocol Error</code> 来定义错误的做法是可取的，而且这也编码在了语言层级，我们对「依赖编译器来确定 <code class="language-plaintext highlighter-rouge">try catch</code> 会得到具体哪种错误」这件事，几乎无能为力。</p><p>另外，半开玩笑地说，要是 Swift 能类似这样 <code class="language-plaintext highlighter-rouge">extension Swift.Error: Swift.Error {}</code>，支持协议遵守自身协议的话，一切就很完美了，XD。</p></blockquote><h3 id="选择哪个比较好">选择哪个比较好？</h3><p>两种方式各有优缺点，特别在如果需要考虑 Cocoa 兼容的情况下，更并说不上哪一个就是完胜。这里将两种写法的优缺点简单比较一下，在实践中最好是根据项目情况进行选择。</p><h4 id="resultt-e-error">Result&lt;T, E: Error&gt;</h4><h5 id="优点">优点</h5><ol><li><p>可以由编译器帮助进行确定错误类型</p><p>当通过使用某个具体的错误类型扩展 <code class="language-plaintext highlighter-rouge">Error</code> 并将它设定为 <code class="language-plaintext highlighter-rouge">Result</code> 的错误类型约束后，在判断错误时我们就可以比较容易地检查错误处理的完备情况了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre> <span class="kd">enum</span> <span class="kt">UserRegisterError</span><span class="p">:</span> <span class="kt">Error</span> <span class="p">{</span>
+     <span class="k">case</span> <span class="n">duplicatedUsername</span>
+     <span class="k">case</span> <span class="n">unsafePassword</span>
+ <span class="p">}</span>
+        
+ <span class="n">userService</span><span class="o">.</span><span class="nf">register</span><span class="p">(</span><span class="s">"user"</span><span class="p">,</span> <span class="s">"password"</span><span class="p">)</span> <span class="p">{</span>
+     <span class="nv">result</span><span class="p">:</span> <span class="kt">Result</span><span class="o">&lt;</span><span class="kt">User</span><span class="p">,</span> <span class="kt">UserRegisterError</span><span class="o">&gt;</span> <span class="k">in</span>
+     <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">user</span><span class="p">):</span>
+         <span class="nf">print</span><span class="p">(</span><span class="s">"User registered: </span><span class="se">\(</span><span class="n">user</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+         <span class="k">if</span> <span class="n">error</span> <span class="o">==</span> <span class="o">.</span><span class="n">duplicatedUsername</span> <span class="p">{</span>
+             <span class="c1">// ...</span>
+         <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="n">error</span> <span class="o">==</span> <span class="o">.</span><span class="n">unsafePassword</span> <span class="p">{</span>
+             <span class="c1">// ...</span>
+         <span class="p">}</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</pre></table></code></div></div><p>上例中，由于 <code class="language-plaintext highlighter-rouge">Error</code> 的类型已经可以被确定是 <code class="language-plaintext highlighter-rouge">UserRegisterError</code>，因此在 <code class="language-plaintext highlighter-rouge">failure</code> 分支中的检查变得相对容易。</p><blockquote><p>这种编译器的类型保证给了 API 使用者相当强的信心，来从容进行错误处理。如果只是一个单纯的 <code class="language-plaintext highlighter-rouge">Error</code> 类型，API 的用户将面临相当大的压力，因为不翻阅文档的话，就无从知晓需要处理怎样的错误，而更多的情况会是文档和事实不匹配…</p><p>但是带有类型的错误就相当容易了，查看该类型的 public member 就能知道会面临的情况了。在制作和发布框架，以及提供给他人使用的 API 的时候，这一点非常重要。</p></blockquote><li><p>按条件的协议扩展</p><p>使用泛型约束的另一个好处是可以方便地对某些情况的 <code class="language-plaintext highlighter-rouge">Result</code> 进行扩展。</p><p>举例来说，某些异步操作可能永远不会失败，对于这些操作，我们没有必要再使用 switch 去检查分支情况。一个很好的例子就是 <code class="language-plaintext highlighter-rouge">Timer</code>，我们设定一个在一段时间后执行的 Timer 后，如果不考虑人为取消，这个 Timer 总是可以正确执行完毕，而不会发生任何错误的。我们可能会选择使用一个特定的类型来代表这种情况：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre> <span class="kd">enum</span> <span class="kt">NoError</span><span class="p">:</span> <span class="kt">Error</span> <span class="p">{}</span>
+    
+ <span class="kd">func</span> <span class="nf">run</span><span class="p">(</span><span class="nv">after</span><span class="p">:</span> <span class="kt">TimeInterval</span><span class="p">,</span> <span class="nv">done</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Result</span><span class="o">&lt;</span><span class="kt">Timer</span><span class="p">,</span> <span class="kt">NoError</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span> <span class="p">)</span> <span class="p">{</span>
+     <span class="kt">Timer</span><span class="o">.</span><span class="nf">scheduledTimer</span><span class="p">(</span><span class="nv">withTimeInterval</span><span class="p">:</span> <span class="n">after</span><span class="p">,</span> <span class="nv">repeats</span><span class="p">:</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span> <span class="n">timer</span> <span class="k">in</span>
+         <span class="nf">done</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="n">timer</span><span class="p">))</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</pre></table></code></div></div><p>在使用的时候，本来我们需要这样的代码：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre> <span class="nf">run</span><span class="p">(</span><span class="nv">after</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+     <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">timer</span><span class="p">):</span>
+         <span class="nf">print</span><span class="p">(</span><span class="n">timer</span><span class="p">)</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nv">failure</span><span class="p">:</span>
+         <span class="nf">fatalError</span><span class="p">(</span><span class="s">"Never happen"</span><span class="p">)</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</pre></table></code></div></div><p>但是，通过对 <code class="language-plaintext highlighter-rouge">E</code> 为 <code class="language-plaintext highlighter-rouge">NoError</code> 的情况添加扩展，可以让事情简单不少：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre> <span class="kd">extension</span> <span class="kt">Result</span> <span class="k">where</span> <span class="kt">E</span> <span class="o">==</span> <span class="kt">NoError</span> <span class="p">{</span>
+     <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">T</span> <span class="p">{</span>
+         <span class="k">if</span> <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">v</span><span class="p">)</span> <span class="o">=</span> <span class="k">self</span> <span class="p">{</span>
+             <span class="k">return</span> <span class="n">v</span>
+         <span class="p">}</span>
+         <span class="nf">fatalError</span><span class="p">(</span><span class="s">"Never happen"</span><span class="p">)</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+    
+ <span class="nf">run</span><span class="p">(</span><span class="nv">after</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+     <span class="c1">// $0.value is the timer object</span>
+     <span class="nf">print</span><span class="p">(</span><span class="nv">$0</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+ <span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>这个 <code class="language-plaintext highlighter-rouge">Timer</code> 的例子虽然很简单，但是可能实际上意义不大，因为我们可以直接使用 <code class="language-plaintext highlighter-rouge">Timer.scheduledTimer</code> 并使用简单的 block 完成。但是当回调 block 有多个参数时，或者需要链式调用 (比如为 <code class="language-plaintext highlighter-rouge">Result</code> 添加 <code class="language-plaintext highlighter-rouge">map</code>，<code class="language-plaintext highlighter-rouge">filter</code> 之类的支持时)，类似 <code class="language-plaintext highlighter-rouge">NoError</code> 这样的扩展方式就会很有用。</p></blockquote><blockquote><p>在 NSHipster 里有一篇<a href="https://nshipster.com/never/">关于 <code class="language-plaintext highlighter-rouge">Never</code> 的文章</a>，提到使用 <code class="language-plaintext highlighter-rouge">Never</code> 来代表无值的方式。其中就给出了一个和 <code class="language-plaintext highlighter-rouge">Result</code> 一起使用的例子。我们只需要使 <code class="language-plaintext highlighter-rouge">extension Never: Error {}</code> 就可以将它指定为 <code class="language-plaintext highlighter-rouge">Result&lt;T, E: Error&gt;</code> 的第二个类型参数，从而去除掉代码中对 <code class="language-plaintext highlighter-rouge">.failure</code> case 的判断。这是比 <code class="language-plaintext highlighter-rouge">NoError</code> 更好的一种方式。</p><p>当然，如果你需要一个只会失败不会成功的 <code class="language-plaintext highlighter-rouge">Result</code> 的话，也可以将 <code class="language-plaintext highlighter-rouge">Never</code> 放到第一个类型参数的位置：<code class="language-plaintext highlighter-rouge">Result&lt;Never, E: Error&gt;</code>。</p></blockquote></ol><h5 id="缺点">缺点</h5><ol><li><p>与 Cocoa 兼容不良</p><p>由于历史原因，Cocoa API 中表达的错误都是”无类型“的 <code class="language-plaintext highlighter-rouge">NSError</code> 的。如果你跳出 Swift 标准库，要去使用 Cocoa 的方法 (对于在 Apple 平台开发来说，这简直是一定的)，就不得不面临这个问题。很多时候，你可能会被迫写成 <code class="language-plaintext highlighter-rouge">Result&lt;SomeValue, NSError&gt;</code> 的形式，这样我们上面提到的优点几乎就丧失殆尽了。</p><li><p>可能需要多层嵌套或者封装</p><p>即使对于限定在 Swift 标准库的情况来说，也有可能存在某个 API 产生若干种不同的错误的情况。如果想要完整地按照类型处理这些情况，我们可能会需要将错误嵌套起来：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre><td class="rouge-code"><pre> <span class="c1">// 用户注册可能产生的错误</span>
+ <span class="c1">// 当用户注册的请求完成且返回有效数据，但数据表明注册失败时触发</span>
+ <span class="kd">enum</span> <span class="kt">UserRegisterError</span><span class="p">:</span> <span class="kt">Error</span> <span class="p">{</span>
+     <span class="k">case</span> <span class="n">duplicatedUsername</span>
+     <span class="k">case</span> <span class="n">unsafePassword</span>
+ <span class="p">}</span>
+    
+ <span class="c1">// Server API 整体可能产生的错误</span>
+ <span class="c1">// 当请求成功但 response status code 不是 200 时触发</span>
+ <span class="kd">enum</span> <span class="kt">APIResponseError</span><span class="p">:</span> <span class="kt">Error</span> <span class="p">{</span>
+     <span class="k">case</span> <span class="n">permissionDenied</span> <span class="c1">// 403</span>
+     <span class="k">case</span> <span class="n">entryNotFound</span>    <span class="c1">// 404</span>
+     <span class="k">case</span> <span class="n">serverDied</span>       <span class="c1">// 500</span>
+ <span class="p">}</span>
+    
+ <span class="c1">// 所有的 API Client 可能发生的错误</span>
+ <span class="kd">enum</span> <span class="kt">APIClientError</span><span class="p">:</span> <span class="kt">Error</span> <span class="p">{</span>
+     <span class="c1">// 没有得到响应</span>
+     <span class="k">case</span> <span class="n">requestTimeout</span>
+    
+     <span class="c1">// 得到了响应，但是 HTTP Status Code 非 200</span>
+     <span class="k">case</span> <span class="nf">apiFailed</span><span class="p">(</span><span class="kt">APIResponseError</span><span class="p">)</span>
+                
+     <span class="c1">// 得到了响应且为 200，但数据无法解析为期望数据</span>
+     <span class="k">case</span> <span class="nf">invalidResponse</span><span class="p">(</span><span class="kt">Data</span><span class="p">)</span>
+    
+     <span class="c1">// 请求和响应一切正常，但 API 的结果是失败 (比如注册不成功)</span>
+     <span class="k">case</span> <span class="nf">apiResultFailed</span><span class="p">(</span><span class="kt">Error</span><span class="p">)</span>
+ <span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>上面的错误嵌套比较幼稚。更好的类型结构是将 <code class="language-plaintext highlighter-rouge">UserRegisterError</code> 和 <code class="language-plaintext highlighter-rouge">APIResponseError</code> 定义到 <code class="language-plaintext highlighter-rouge">APIClientError</code> 里，另外，因为不会直接抛出，因此没有必要让 <code class="language-plaintext highlighter-rouge">UserRegisterError</code> 和 <code class="language-plaintext highlighter-rouge">APIResponseError</code> 遵守 <code class="language-plaintext highlighter-rouge">Error</code> 协议，它们只需要承担说明错误原因的任务即可。</p><p>对这几个类型加以整理，并重新命名，现在我认为比较合理的错误定义如下 (为了简短一些，我去除了注释)：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">APIClientError</span><span class="p">:</span> <span class="kt">Error</span> <span class="p">{</span>
+
+    <span class="kd">enum</span> <span class="kt">ResponseErrorReason</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">permissionDenied</span>
+        <span class="k">case</span> <span class="n">entryNotFound</span>
+        <span class="k">case</span> <span class="n">serverDied</span>
+    <span class="p">}</span>
+
+    <span class="kd">enum</span> <span class="kt">ResultErrorReason</span> <span class="p">{</span>
+        <span class="kd">enum</span> <span class="kt">UserRegisterError</span> <span class="p">{</span>
+            <span class="k">case</span> <span class="n">duplicatedUsername</span>
+            <span class="k">case</span> <span class="n">unsafePassword</span>
+        <span class="p">}</span>
+
+        <span class="k">case</span> <span class="nf">userRegisterError</span><span class="p">(</span><span class="kt">UserRegisterError</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="k">case</span> <span class="n">requestTimeout</span>
+    <span class="k">case</span> <span class="nf">apiFailed</span><span class="p">(</span><span class="kt">ResponseErrorReason</span><span class="p">)</span>
+    <span class="k">case</span> <span class="nf">invalidResponse</span><span class="p">(</span><span class="kt">Data</span><span class="p">)</span>
+    <span class="k">case</span> <span class="nf">apiResultFailed</span><span class="p">(</span><span class="kt">ResultErrorReason</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>当然，如果随着嵌套过深而缩进变多时，你也可以把内嵌的 <code class="language-plaintext highlighter-rouge">Reason</code> enum 放到 <code class="language-plaintext highlighter-rouge">APIClientError</code> 的 extension 里去。</p></blockquote><p>上面的 <code class="language-plaintext highlighter-rouge">APIClientError</code> 涵盖了进行一次 API 请求时所有可能的错误，但是这套方式在使用时会很痛苦：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre><td class="rouge-code"><pre> <span class="kt">API</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="n">request</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+     <span class="k">switch</span> <span class="n">result</span> <span class="p">{</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nf">success</span><span class="p">(</span><span class="k">let</span> <span class="nv">response</span><span class="p">):</span> <span class="c1">//...</span>
+     <span class="k">case</span> <span class="o">.</span><span class="nf">failure</span><span class="p">(</span><span class="k">let</span> <span class="nv">error</span><span class="p">):</span>
+         <span class="k">switch</span> <span class="n">error</span> <span class="p">{</span>
+         <span class="k">case</span> <span class="o">.</span><span class="nv">requestTimeout</span><span class="p">:</span> <span class="nf">print</span><span class="p">(</span><span class="s">"Timeout!"</span><span class="p">)</span>
+         <span class="k">case</span> <span class="o">.</span><span class="nf">apiFailed</span><span class="p">(</span><span class="k">let</span> <span class="nv">apiFailedError</span><span class="p">):</span>
+             <span class="k">switch</span> <span class="nv">apiFailedError</span><span class="p">:</span> <span class="p">{</span>
+                 <span class="k">case</span> <span class="o">.</span><span class="nv">permissionDenied</span><span class="p">:</span> <span class="nf">print</span><span class="p">(</span><span class="s">"403"</span><span class="p">)</span>
+                 <span class="k">case</span> <span class="o">.</span><span class="nv">entryNotFound</span><span class="p">:</span> <span class="nf">print</span><span class="p">(</span><span class="s">"404"</span><span class="p">)</span>
+                 <span class="k">case</span> <span class="o">.</span><span class="nv">serverDied</span><span class="p">:</span> <span class="nf">print</span><span class="p">(</span><span class="s">"500"</span><span class="p">)</span>
+             <span class="p">}</span>
+         <span class="k">case</span> <span class="o">.</span><span class="nf">invalidResponse</span><span class="p">(</span><span class="k">let</span> <span class="nv">data</span><span class="p">):</span>
+             <span class="nf">print</span><span class="p">(</span><span class="s">"Invalid response body data: </span><span class="se">\(</span><span class="n">data</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+         <span class="k">case</span> <span class="o">.</span><span class="nf">apiResultFailed</span><span class="p">(</span><span class="k">let</span> <span class="nv">apiResultError</span><span class="p">):</span>
+             <span class="k">if</span> <span class="k">let</span> <span class="nv">apiResultError</span> <span class="o">=</span> <span class="n">apiResultError</span> <span class="k">as?</span> <span class="kt">UserRegisterError</span> <span class="p">{</span>
+                 <span class="k">switch</span> <span class="n">apiResultError</span> <span class="p">{</span>
+                     <span class="k">case</span> <span class="o">.</span><span class="nv">duplicatedUsername</span><span class="p">:</span> <span class="nf">print</span><span class="p">(</span><span class="s">"User already exists."</span><span class="p">)</span>
+                     <span class="k">case</span> <span class="o">.</span><span class="nv">unsafePassword</span><span class="p">:</span> <span class="nf">print</span><span class="p">(</span><span class="s">"Password too simple."</span><span class="p">)</span>
+                 <span class="p">}</span>
+             <span class="p">}</span>
+         <span class="p">}</span>
+     <span class="p">}</span>
+ <span class="p">}</span>
+</pre></table></code></div></div><p>相信我，你不会想要写这种代码的。</p><blockquote><p>经过半年的实践，事实是我发现这样的代码并没有想象中的麻烦，而它带来的好处远远超过所造成的不便。</p><p>这里代码中有唯一一个 <code class="language-plaintext highlighter-rouge">as?</code> 对 <code class="language-plaintext highlighter-rouge">UserRegisterError</code> 的转换，如果采用更上面引用中定义的 <code class="language-plaintext highlighter-rouge">ResultErrorReason</code>，则可以去除这个类型转换，而使类型系统覆盖到整个错误处理中。</p><p>相较于对每个 API 都写这样一堆错误处理的代码，我们显然更倾向于集中在一个地方处理这些错误，这在某种程度上“强迫”我们思考如何将错误处理的代码抽象化和一般化，对于减少冗余和改善设计是有好处的。另外，在设计 API 时，我们可以提供一系列的便捷方法，来让 API 的用户能很快定位到某几个特定的感兴趣的错误，并作出处理。比如：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">APIClientError</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">isLoginRequired</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="k">case</span> <span class="o">.</span><span class="nf">apiFailed</span><span class="p">(</span><span class="o">.</span><span class="n">permissionDenied</span><span class="p">)</span> <span class="o">=</span> <span class="k">self</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">true</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="kc">false</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>用 <code class="language-plaintext highlighter-rouge">error.isLoginRequired</code> 即可迅速确定是否是由于用户权限不足，需要登录，产生的错误。这部分内容可以由 API 的提供者主动定义 (这样做也起到一种指导作用，来告诉 API 用户到底哪些错误是特别值得关心的)，也可以由使用者在之后自行进行扩展。</p></blockquote><p>另一种”方便“的做法是使用像是 <code class="language-plaintext highlighter-rouge">AnyError</code> 的类型来对 <code class="language-plaintext highlighter-rouge">Error</code> 提供封装：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre> <span class="kd">struct</span> <span class="kt">AnyError</span><span class="p">:</span> <span class="kt">Error</span> <span class="p">{</span>
+     <span class="k">let</span> <span class="nv">error</span><span class="p">:</span> <span class="kt">Error</span>
+ <span class="p">}</span>
+</pre></table></code></div></div><p>这可以把任意 <code class="language-plaintext highlighter-rouge">Error</code> 封装并作为 <code class="language-plaintext highlighter-rouge">Result&lt;Value, AnyError&gt;</code> 的 <code class="language-plaintext highlighter-rouge">.failure</code> 成员进行使用。但是这时 <code class="language-plaintext highlighter-rouge">Result&lt;T, E: Error&gt;</code> 中的 <code class="language-plaintext highlighter-rouge">E</code> 几乎就没有意义了。</p><blockquote><p>Swift 中存在不少 <code class="language-plaintext highlighter-rouge">Any</code> 开头的类型，比如 <code class="language-plaintext highlighter-rouge">AnyIterator</code>，<code class="language-plaintext highlighter-rouge">AnyCollection</code>，<code class="language-plaintext highlighter-rouge">AnyIndex</code> 等等。这些类型起到的作用是类型抹消，有它们存在的历史原因，但是随着 Swift 的发展，特别是加入了 Conditional Conformance 以后，这一系列 <code class="language-plaintext highlighter-rouge">Any</code> 类型存在的意义就变小了。</p><p>使用 <code class="language-plaintext highlighter-rouge">AnyError</code> 来进行封装 (或者说对具体 Error 类型进行抹消)，可以让我们抛出任意类型的错误。这更多的是一种对现有 Cocoa API 的妥协。对于纯 Swift 环境来说，<code class="language-plaintext highlighter-rouge">AnyError</code> 并不是理想中应该存在的类型。因此如果你选择了 <code class="language-plaintext highlighter-rouge">Result&lt;T, E: Error&gt;</code> 的话，我们就应该尽可能避免抛出这种无类型的错误。</p><p>那问题就回到了，对于 Cocoa API 抛出的错误 (也就是以前的 <code class="language-plaintext highlighter-rouge">NSError</code>)，我们应该怎样处理？一种方式是按照文档进行封装，比如将所有 <code class="language-plaintext highlighter-rouge">NSURLSessionError</code> 归类到一个 <code class="language-plaintext highlighter-rouge">URLSessionErrorReason</code>，然后把从 Cocoa 得到的 <code class="language-plaintext highlighter-rouge">NSError</code> 作为关联值传递给使用者；另一种方式是在抛出给 API 使用者之前，在内部就对这个 Cocoa 错误进行“消化”，将它转换为有意义的特定的某个已经存在的 Error Reason。后者虽然减轻了 API 使用者的压力，但是势必会丢失一些信息，所以如果没有特别理由的话，第一种的做法可能更加合适。</p></blockquote><li><p>错误处理的 API 兼容存在风险</p><p>现在来说，为 enum 添加一个 case 的操作是无法做到 API 兼容的。使用侧如果枚举了所有的 case 进行处理的话，在 case 增加时，原来的代码将无法编译。(不过对于错误处理来说，这倒可能对强制开发者对应错误情况是一种督促 233..)</p><p>如果一个框架或者一套 API 严格遵守 <a href="https://semver.org">semantic version</a> 的话，这意味着一个大版本的更新。但是其实我们都心知肚明，增加一个之前可能忽略了的错误情况，却带来一个大版本更新，带来的麻烦显然得不偿失。</p><p>Swift 社区现在对于增加 enum case 时如何保持 API compatibility 也有一个<a href="https://github.com/apple/swift-evolution/blob/af284b519443d3d985f77cc366005ea908e2af59/proposals/0192-non-exhaustive-enums.md">成熟而且已经被接受了的提案</a>。将 enum 定义为 <code class="language-plaintext highlighter-rouge">frozen</code> 和 <code class="language-plaintext highlighter-rouge">nonFrozen</code>，并对 <code class="language-plaintext highlighter-rouge">nonFrozen</code> 的 enum 使用 <code class="language-plaintext highlighter-rouge">unknown</code> 关键字来保证源码兼容。我们在下个版本的 Swift 中应该就可以使用这个特性了。</p></ol><h4 id="result">Result<T></T></h4><p>不带 <code class="language-plaintext highlighter-rouge">Error</code> 类型的优缺点正好和上面相反。</p><p>相对于 <code class="language-plaintext highlighter-rouge">Result&lt;T, E: Error&gt;</code>，<code class="language-plaintext highlighter-rouge">Result&lt;T&gt;</code> 不在外部对错误类型提出任何限制，API 的创建者可以摆脱 <code class="language-plaintext highlighter-rouge">AnyError</code>，直接将任意的 <code class="language-plaintext highlighter-rouge">Error</code> 作为 <code class="language-plaintext highlighter-rouge">.failure</code> 值使用。</p><p>但同时很明显，相对的，一个最重要的特性缺失就是我们无法针对错误类型的特点为 <code class="language-plaintext highlighter-rouge">Result</code> 进行扩展了。</p><h3 id="结论">结论</h3><p>因为 Swift 并没有提供使用协议类型作为泛型中特化的具体类型的支持，这导致在 API 的强类型严谨性和灵活性上无法取得两端都完美的做法。硬要对比的话，可能 <code class="language-plaintext highlighter-rouge">Result&lt;T, E: Error&gt;</code> 对使用者更加友好一些，因为它提供了一个定义错误类型的机会。但是相对地，如果创建者没有掌握好错误类型的程度，而将多层嵌套的错误传递时，反而会增加使用者的负担。同时，由于错误类型被限定，导致 API 的变更要比只定义了结果类型的 <code class="language-plaintext highlighter-rouge">Result&lt;T&gt;</code> 困难得多。</p><p>不过 <code class="language-plaintext highlighter-rouge">Result</code> 暂时看起来不太可能被添加到标准库中，因为它背后存在一个更大的协程和整个语言的异步模型该如何处理错误的话题。在有更多的实践和讨论之前，如果没有革命性和语言创新的话，对如何进行处理的话题，恐怕很难达成完美的共识。</p><p>结论：错误处理真的是一件相当艰难的事情。</p><blockquote><p>最近这半年，在不同项目里，我对 <code class="language-plaintext highlighter-rouge">Result&lt;T, E: Error&gt;</code> 和 <code class="language-plaintext highlighter-rouge">Result&lt;T&gt;</code> 两种方式都进行了一些尝试。现在看来，我会更多地选择带有错误类型的 <code class="language-plaintext highlighter-rouge">Result&lt;T, E: Error&gt;</code> 的形式，特别是在开发框架或者需要严谨的错误处理的时候。将框架中可能抛出的错误进行统一封装，可以很大程度上减轻使用者的压力，让错误处理的代码更加健壮。如果设计得当，它也能提供更好的扩展性。</p></blockquote></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" class="post-tag no-text-decoration" >最佳实践</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="post-tag no-text-decoration" >设计模式</a> <a href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/" class="post-tag no-text-decoration" >开发者体验</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" class="post-tag no-text-decoration" >编程语言</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt; - OneV's Den&url=https://onevcat.com/2018/10/swift-result-error/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt; - OneV's Den&u=https://onevcat.com/2018/10/swift-result-error/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt; - OneV's Den&url=https://onevcat.com/2018/10/swift-result-error/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt; - OneV's Den&url=https://onevcat.com/2018/10/swift-result-error/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2014/06/my-opinion-about-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-03 <i class="unloaded">2014-06-03T12:05:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>关于 Swift 的一点初步看法</h3><div class="text-muted small"><p> 虽然四点半就起床去排队等入场，结果还是只能坐在了蛮后面的位置看着大屏幕参加了今年的 Keynote。其实今年 OS X 和 iOS 的更新亮点都不少，但是显然风头和光芒都让横空出世的 Swift 给抢走了。这部分内容因为不是 NDA，所以可以提前说一说。 Swift 是 Apple 自创的一门专门为 Cocoa 和 CocoaTouch 设计的语言，意在用来替代 objc。早上发布的时候有...</p></div></div></a></div><div class="card"> <a href="/2014/06/walk-in-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-07 <i class="unloaded">2014-06-07T18:23:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>行走于 Swift 的世界中</h3><div class="text-muted small"><p> 2014 年 7 月 13 日更新：根据 beta 3 的情况修正了文中过时的部分 从周一 Swift 正式公布，到现在周五，这几天其实基本一直在关注和摸索 Swift 了。对于一门新语言来说，开荒阶段的探索自然是激动人心的，但是很多时候资料的缺失和细节的隐藏也让人着实苦恼。这一周，特别是最近几天的感受是，Swift 并不像我上一篇表达自己初步看法的文章里所说的那样，相对于 obj...</p></div></div></a></div><div class="card"> <a href="/2016/02/swift-performance/"><div class="card-body"> <span class="timeago small" > 2016-02-25 <i class="unloaded">2016-02-25T11:32:24+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Swift 性能探索和优化分析</h3><div class="text-muted small"><p> 本文首发在 CSDN《程序员》杂志，订阅地址 http://dingyue.programmer.com.cn/。 Apple 在推出 Swift 时就将其冠以先进，安全和高效的新一代编程语言之名。前两点在 Swift 的语法和语言特性中已经表现得淋漓尽致：像是尾随闭包，枚举关联值，可选值和强制的类型安全等都是 Swift 显而易见的优点。但是对于高效一点，就没有那么明显了。在 201...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2018/10/diary/" class="btn btn-outline-primary"><p>十年前的日记们</p></a> <a href="/2018/11/defer/" class="btn btn-outline-primary"><p>关于 Swift defer 的正确使用</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

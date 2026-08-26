@@ -1,0 +1,785 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="TCA - SwiftUI 的救星？(四)" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="这是一系列关于 TCA 文章的最后一篇。在系列中前面的几篇里，我们简述了 TCA 的最小 Feature 核心思想，并研究了绑定和环境值的处理，以及 Effect 角色和 Feature 组合的方式等话题。作为贯穿整个系列的示例 app，现在应该已经拥有一个可用的猜数字游戏了。这篇文章会综合运用之前的内容，来看看和 UI 以及日常操作更贴近的一些话题，比如如何用 TCA 的方式展示 List 并让结果可以被删除，如何处理导航以及 alert 弹窗等。" /><meta property="og:description" content="这是一系列关于 TCA 文章的最后一篇。在系列中前面的几篇里，我们简述了 TCA 的最小 Feature 核心思想，并研究了绑定和环境值的处理，以及 Effect 角色和 Feature 组合的方式等话题。作为贯穿整个系列的示例 app，现在应该已经拥有一个可用的猜数字游戏了。这篇文章会综合运用之前的内容，来看看和 UI 以及日常操作更贴近的一些话题，比如如何用 TCA 的方式展示 List 并让结果可以被删除，如何处理导航以及 alert 弹窗等。" /><link rel="canonical" href="https://onevcat.com/2022/05/tca-4/" /><meta property="og:url" content="https://onevcat.com/2022/05/tca-4/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2022-05-18T12:00:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="TCA - SwiftUI 的救星？(四)" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"这是一系列关于 TCA 文章的最后一篇。在系列中前面的几篇里，我们简述了 TCA 的最小 Feature 核心思想，并研究了绑定和环境值的处理，以及 Effect 角色和 Feature 组合的方式等话题。作为贯穿整个系列的示例 app，现在应该已经拥有一个可用的猜数字游戏了。这篇文章会综合运用之前的内容，来看看和 UI 以及日常操作更贴近的一些话题，比如如何用 TCA 的方式展示 List 并让结果可以被删除，如何处理导航以及 alert 弹窗等。","url":"https://onevcat.com/2022/05/tca-4/","@type":"BlogPosting","headline":"TCA - SwiftUI 的救星？(四)","dateModified":"2022-05-18T12:00:00+09:00","datePublished":"2022-05-18T12:00:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2022/05/tca-4/"},"@context":"https://schema.org"}</script><title>TCA - SwiftUI 的救星？(四) | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>TCA - SwiftUI 的救星？(四)</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>TCA - SwiftUI 的救星？(四)</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Wed, May 18, 2022, 12:00 PM +0900" > 2022-05-18 <i class="unloaded">2022-05-18T12:00:00+09:00</i> </span></div></div><div class="post-content"><p>这是一系列关于 TCA 文章的最后一篇。在系列中前面的几篇里，我们简述了 <a href="/2021/12/tca-1/">TCA 的最小 Feature 核心思想</a>，并研究了<a href="/2021/12/tca-2/">绑定和环境值的处理</a>，以及 <a href="/2022/03/tca-3/">Effect 角色和 Feature 组合的方式</a>等话题。作为贯穿整个系列的示例 app，现在应该已经拥有一个可用的猜数字游戏了。这篇文章会综合运用之前的内容，来看看和 UI 以及日常操作更贴近的一些话题，比如如何用 TCA 的方式展示 <code class="language-plaintext highlighter-rouge">List</code> 并让结果可以被删除，如何处理导航以及 alert 弹窗等。</p><blockquote><p>如果你想要跟做，可以直接使用上一篇文章完成练习后最后的状态，或者从<a href="https://github.com/onevcat/CounterDemo/releases/tag/part-3-finish">这里</a>获取到起始代码。</p></blockquote><h2 id="展示结果-list">展示结果 List</h2><p>在前一篇文章<a href="/2022/03/tca-3/#记录结果并显示数据">最后的练习中</a>，我们使用了 <code class="language-plaintext highlighter-rouge">var results: [GameResult]</code> 来存放结果并显示已完成的状态数字。现在我们的 app 还只有一个单一页面，我们打算为 app 添加一个展示所有已猜测结果，并且可以对结果进行删除的新页面。</p><h3 id="使用-identifiedarray-进行改造">使用 <code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 进行改造</h3><p>在实际开始之前，来对 <code class="language-plaintext highlighter-rouge">results</code> 数组进行一些改造：使用 TCA 中定义的 <code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 来代替简单的 Swift <code class="language-plaintext highlighter-rouge">Array</code>：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">GameState</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">counter</span><span class="p">:</span> <span class="kt">Counter</span> <span class="o">=</span> <span class="o">.</span><span class="nf">init</span><span class="p">()</span>
+  <span class="k">var</span> <span class="nv">timer</span><span class="p">:</span> <span class="kt">TimerState</span> <span class="o">=</span> <span class="o">.</span><span class="nf">init</span><span class="p">()</span>
+  
+<span class="gd">- var results: [GameResult] = []
+</span><span class="gi">+ var results = IdentifiedArrayOf&lt;GameResult&gt;()
+</span>  <span class="k">var</span> <span class="nv">lastTimestamp</span> <span class="o">=</span> <span class="mf">0.0</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这会导致编译无法通过，我们先把错误放一放，来看看相比起 <code class="language-plaintext highlighter-rouge">Array</code> 来说，<code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 的优势：</p><ul><li>和普通 <code class="language-plaintext highlighter-rouge">Array</code> 一样，<code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 也尊重元素顺序，并支持基于 index 的 O(1) 随机存取。而且它提供了和 <code class="language-plaintext highlighter-rouge">Array</code> 兼容的 API。<li>但是和 <code class="language-plaintext highlighter-rouge">Array</code> 不同，<code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 要求其中元素遵守 <code class="language-plaintext highlighter-rouge">Identifiable</code> 协议：也就是只有包含 <code class="language-plaintext highlighter-rouge">id</code> 属性的实例能被放入其中，而且需要确保唯一，不能有同样 <code class="language-plaintext highlighter-rouge">id</code> 的元素被放入。<li>有了 <code class="language-plaintext highlighter-rouge">Identifiable</code> 和唯一性的保证，<code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 就可以利用类似字典的方式通过 <code class="language-plaintext highlighter-rouge">id</code> 快速地查找元素。</ul><p>使用 <code class="language-plaintext highlighter-rouge">Array</code> 对一组数据建模，是最容易和最简单的想法。但当 app 更复杂时，处理 <code class="language-plaintext highlighter-rouge">Array</code> 很容易造成性能退化或者出错：</p><ul><li>要根据相等 (也就是 <code class="language-plaintext highlighter-rouge">Array.firstIndex(of:)</code>) 来查找其中的某个元素会需要 O(n) 的复杂度。<li>使用 index 来获取元素虽然是 O(1)，但是如果处理异步的情况，异步操作开始时的 index 有可能和之后的 index 不一致，导致错误 (试想在异步期间，以同步的方式删除了某些元素的情况：异步操作之前保存的 index 将会失效，访问这个 index 可能获取到不同的元素，甚至引起崩溃)。</ul><p><code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 通过提供基于 <code class="language-plaintext highlighter-rouge">Identifiable</code> 的访问方式，可以同时解决上面两个问题。虽然在我们的这个简单例子中使用 <code class="language-plaintext highlighter-rouge">Array</code> 也无伤大雅，但是在 TCA 的世界，甚至在普通的其他 Swift 开发时，如果被上面的问题困扰，我们都可以用 <code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 来处理。</p><p>回到 app，为了让 <code class="language-plaintext highlighter-rouge">IdentifiedArrayOf&lt;GameResult&gt;</code> 能成立 (它是 <code class="language-plaintext highlighter-rouge">IdentifiedArray&lt;Element.ID, Element&gt;</code> 的类型别名)，我们需要 <code class="language-plaintext highlighter-rouge">GameResult</code> 满足 <code class="language-plaintext highlighter-rouge">Identifiable</code>。因为 <code class="language-plaintext highlighter-rouge">Counter</code> 已经满足 <code class="language-plaintext highlighter-rouge">Identifiable</code> 了，所以一个简单的方法就是重构一下 <code class="language-plaintext highlighter-rouge">GameResult</code>，让它直接包含 <code class="language-plaintext highlighter-rouge">Counter</code>：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="gd">- struct GameResult: Equatable {
+</span><span class="gi">+ struct GameResult: Equatable, Identifiable {
+</span><span class="gd">-   let secret: Int
+-   let guess: Int
+</span><span class="gi">+   let counter: Counter
+</span>    <span class="k">let</span> <span class="nv">timeSpent</span><span class="p">:</span> <span class="kt">TimeInterval</span>
+
+<span class="gd">-   var correct: Bool { secret == guess }
+</span><span class="gi">+   var correct: Bool { counter.secret == counter.count }
++   var id: UUID { counter.id }
+</span><span class="p">}</span>
+</pre></table></code></div></div><p>然后，更新 <code class="language-plaintext highlighter-rouge">reducer</code> 和 <code class="language-plaintext highlighter-rouge">body</code> 的部分，让编译通过：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">gameReducer</span> <span class="o">=</span> <span class="kt">Reducer</span><span class="o">&lt;</span><span class="kt">GameState</span><span class="p">,</span> <span class="kt">GameAction</span><span class="p">,</span> <span class="kt">GameEnvironment</span><span class="o">&gt;.</span><span class="nf">combine</span><span class="p">(</span>
+  <span class="o">.</span><span class="kd">init</span> <span class="p">{</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">environment</span> <span class="k">in</span>
+    <span class="k">switch</span> <span class="n">action</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">counter</span><span class="p">(</span><span class="o">.</span><span class="n">playNext</span><span class="p">):</span>
+      <span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="kt">GameResult</span><span class="p">(</span>
+<span class="gd">-       secret: state.counter.secret,
+-       guess: state.counter.count,
+</span><span class="gi">+       counter: state.counter,
+</span>        <span class="nv">timeSpent</span><span class="p">:</span> <span class="n">state</span><span class="o">.</span><span class="n">timer</span><span class="o">.</span><span class="n">duration</span> <span class="o">-</span> <span class="n">state</span><span class="o">.</span><span class="n">lastTimestamp</span>
+      <span class="p">)</span>
+      <span class="c1">// ...</span>
+  <span class="p">},</span>
+  <span class="c1">// ...</span>
+<span class="p">)</span>
+
+<span class="kd">struct</span> <span class="kt">GameView</span><span class="p">:</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="gd">-      resultLabel(viewStore.state)
+</span><span class="gi">+      resultLabel(viewStore.state.elements)
+</span>  <span class="p">}</span>
+  
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>编译并运行，app 的行为应该没有改变，不过在底层我们已经转为使用 <code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 来存储结果数据了。</p><blockquote><p>这个重构在我们的 app 中不是必要的，但是 TCA 里大量使用了 <code class="language-plaintext highlighter-rouge">IdentifiedArray</code>。有意识地从一开始就使用 <code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 很多时候可以节省不必要的麻烦。</p></blockquote><h3 id="使用独立-feature-的方式进行构建">使用独立 feature 的方式进行构建</h3><p>和之前的各个 feature 一样，result list 的画面也是由 state，reducer，environment 和 action 等要素组成的。需要再次强调，这就是 TCA 最优秀的一点：<strong>我们只需要着眼创建简单的小组件，然后通过组合的方式把它们添加到大组件中</strong>。</p><p>对于 State 角色，暂时只需要一个数组，我们可以简单地用 <code class="language-plaintext highlighter-rouge">IdentifiedArrayOf&lt;GameResult&gt;</code> 来表示。创建一个新的 <code class="language-plaintext highlighter-rouge">GameResultListView.swift</code> 文件，添加如下内容：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">import</span> <span class="kt">ComposableArchitecture</span>
+
+<span class="kd">typealias</span> <span class="kt">GameResultListState</span> <span class="o">=</span> <span class="kt">IdentifiedArrayOf</span><span class="o">&lt;</span><span class="kt">GameResult</span><span class="o">&gt;</span>
+</pre></table></code></div></div><p>除了展示外，我们还希望能够删除结果，所以 action 需要能反应这个操作。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">GameResultListAction</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="nf">remove</span><span class="p">(</span><span class="nv">offset</span><span class="p">:</span> <span class="kt">IndexSet</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">GameResultListView</code> 不需要特殊的 Environment，reducer 也非常简单：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">GameResultListEnvironment</span> <span class="p">{}</span>
+
+<span class="k">let</span> <span class="nv">gameResultListReducer</span> <span class="o">=</span> <span class="kt">Reducer</span><span class="o">&lt;</span><span class="kt">GameResultListState</span><span class="p">,</span> <span class="kt">GameResultListAction</span><span class="p">,</span> <span class="kt">GameResultListEnvironment</span><span class="o">&gt;</span> <span class="p">{</span> 
+  <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">environment</span> <span class="k">in</span>
+  <span class="k">switch</span> <span class="n">action</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="o">.</span><span class="nf">remove</span><span class="p">(</span><span class="k">let</span> <span class="nv">offset</span><span class="p">):</span>
+    <span class="n">state</span><span class="o">.</span><span class="nf">remove</span><span class="p">(</span><span class="nv">atOffsets</span><span class="p">:</span> <span class="n">offset</span><span class="p">)</span>
+    <span class="k">return</span> <span class="o">.</span><span class="k">none</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>相信你已经对这些部分非常熟悉了。最后，创建 <code class="language-plaintext highlighter-rouge">GameResultListView</code> 并把这些东西组合起来就好了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">GameResultListView</span><span class="p">:</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="o">&lt;</span><span class="kt">GameResultListState</span><span class="p">,</span> <span class="kt">GameResultListAction</span><span class="o">&gt;</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="kt">WithViewStore</span><span class="p">(</span><span class="n">store</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span> <span class="k">in</span>
+      <span class="kt">List</span> <span class="p">{</span>
+        <span class="kt">ForEach</span><span class="p">(</span><span class="n">viewStore</span><span class="o">.</span><span class="n">state</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+          <span class="kt">HStack</span> <span class="p">{</span>
+            <span class="kt">Image</span><span class="p">(</span><span class="nv">systemName</span><span class="p">:</span> <span class="n">result</span><span class="o">.</span><span class="n">correct</span> <span class="p">?</span> <span class="s">"checkmark.circle"</span> <span class="p">:</span> <span class="s">"x.circle"</span><span class="p">)</span>
+            <span class="kt">Text</span><span class="p">(</span><span class="s">"Secret: </span><span class="se">\(</span><span class="n">result</span><span class="o">.</span><span class="n">counter</span><span class="o">.</span><span class="n">secret</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+            <span class="kt">Text</span><span class="p">(</span><span class="s">"Answer: </span><span class="se">\(</span><span class="n">result</span><span class="o">.</span><span class="n">counter</span><span class="o">.</span><span class="n">count</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+          <span class="p">}</span><span class="o">.</span><span class="nf">foregroundColor</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">correct</span> <span class="p">?</span> <span class="o">.</span><span class="nv">green</span> <span class="p">:</span> <span class="o">.</span><span class="n">red</span><span class="p">)</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>我们还没有把 <code class="language-plaintext highlighter-rouge">GameResultListView</code> 添加到 app 里，想要先验证它，可以添加 preview：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">GameResultListView_Previews</span><span class="p">:</span> <span class="kt">PreviewProvider</span> <span class="p">{</span>
+  <span class="kd">static</span> <span class="k">var</span> <span class="nv">previews</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="kt">GameResultListView</span><span class="p">(</span>
+      <span class="nv">store</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+        <span class="nv">initialState</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">rows</span><span class="p">:</span> <span class="p">[</span>
+          <span class="kt">GameResult</span><span class="p">(</span>
+            <span class="nv">counter</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span>
+              <span class="nv">count</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="nv">secret</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="nv">id</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">()</span>
+            <span class="p">),</span>
+            <span class="nv">timeSpent</span><span class="p">:</span> <span class="mi">100</span><span class="p">),</span>
+          <span class="kt">GameResult</span><span class="p">(</span>
+            <span class="nv">counter</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(),</span>
+            <span class="nv">timeSpent</span><span class="p">:</span> <span class="mi">100</span><span class="p">)</span>
+        <span class="p">]),</span>
+        <span class="nv">reducer</span><span class="p">:</span> <span class="n">gameResultListReducer</span><span class="p">,</span>
+        <span class="nv">environment</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">()</span>
+      <span class="p">)</span>
+    <span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2022/tca-resultlist-preview.png" alt="" /></p><h3 id="支持删除">支持删除</h3><p>在 SwiftUI 中添加默认的删除操作非常简单，只需要为 cell 添加 <code class="language-plaintext highlighter-rouge">onDelete</code> 就行了。作为通用 UI，我们也添加一个 <code class="language-plaintext highlighter-rouge">EditButton</code>：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">GameResultListView</span><span class="p">:</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="o">&lt;</span><span class="kt">GameResultListState</span><span class="p">,</span> <span class="kt">GameResultListAction</span><span class="o">&gt;</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="kt">WithViewStore</span><span class="p">(</span><span class="n">store</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span> <span class="k">in</span>
+      <span class="kt">List</span> <span class="p">{</span>
+        <span class="kt">ForEach</span><span class="p">(</span><span class="n">viewStore</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span> <span class="p">{</span> <span class="n">result</span> <span class="k">in</span>
+          <span class="c1">// ...</span>
+        <span class="p">}</span>
+<span class="gi">+       .onDelete { viewStore.send(.remove(offset: $0)) }
+</span>      <span class="p">}</span>
+<span class="gi">+     .toolbar {
++       EditButton()
++     }
+</span>    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在 <code class="language-plaintext highlighter-rouge">onDelete</code> 中，向 <code class="language-plaintext highlighter-rouge">viewStore</code> 发送 <code class="language-plaintext highlighter-rouge">.remove</code> action，从而触发 reducer 并更新状态即可。如果在 Preview 中选择运行，我们就可以在预览画布中直接删除显示的项目了。</p><h2 id="navigation-导航">Navigation 导航</h2><h3 id="基本导航">基本导航</h3><p>接下来通过导航的方式显示这个新创建的 <code class="language-plaintext highlighter-rouge">GameResultListView</code>。在 app 主页面中，我们已经看到过如何将小组件使用 <code class="language-plaintext highlighter-rouge">pullback</code> 的方式进行组合了。将 list feature 和 app 其他部分的 feature 进行组合的方式并没有什么不同：也就是把子组件的 state，action，reducer 和 view 都集成到父组件去。</p><p>在这里，我们计划在导航栏上添加一个 “Detail” 按钮，通过 <code class="language-plaintext highlighter-rouge">NavigationLink</code> 的方式显示结果列表。首先，在 <code class="language-plaintext highlighter-rouge">CounterDemoApp.swift</code> 中添加一个 <code class="language-plaintext highlighter-rouge">NavigationView</code>，作为整个 app 的容器：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">CounterDemoApp</span><span class="p">:</span> <span class="kt">App</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">Scene</span> <span class="p">{</span>
+    <span class="kt">WindowGroup</span> <span class="p">{</span>
+<span class="gi">+     NavigationView {
+</span>        <span class="kt">GameView</span><span class="p">(</span>
+          <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="p">(</span>
+            <span class="nv">initialState</span><span class="p">:</span> <span class="kt">GameState</span><span class="p">(),</span>
+            <span class="nv">reducer</span><span class="p">:</span> <span class="n">gameReducer</span><span class="p">,</span>
+            <span class="nv">environment</span><span class="p">:</span> <span class="o">.</span><span class="n">live</span><span class="p">)</span>
+        <span class="p">)</span>
+<span class="gi">+     }
+</span>    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h5 id="state">State</h5><p>在 <code class="language-plaintext highlighter-rouge">GameState</code> 中，已经存在 <code class="language-plaintext highlighter-rouge">var results: IdentifiedArrayOf&lt;GameResult&gt;</code> 数据源了，我们可以直接将它作为列表画面的数据源。</p><h5 id="action">Action</h5><p>在 <code class="language-plaintext highlighter-rouge">GameResultListView</code> 操作结果数组的同时，我们希望把结果拉回到 <code class="language-plaintext highlighter-rouge">GameState.results</code> 里，为此，我们需要一个能处理 <code class="language-plaintext highlighter-rouge">GameResultListAction</code> 的 action。在 <code class="language-plaintext highlighter-rouge">GameAction</code> 中新加入一个成员：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">GameAction</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="nf">counter</span><span class="p">(</span><span class="kt">CounterAction</span><span class="p">)</span>
+  <span class="k">case</span> <span class="nf">timer</span><span class="p">(</span><span class="kt">TimerAction</span><span class="p">)</span>
+<span class="gi">+ case listResult(GameResultListAction) 
+</span><span class="p">}</span>
+</pre></table></code></div></div><h5 id="reducer">Reducer</h5><p>更新 <code class="language-plaintext highlighter-rouge">gameReducer</code>，让 <code class="language-plaintext highlighter-rouge">gameResultListReducer</code> 根据 <code class="language-plaintext highlighter-rouge">.listResult</code> 的行为把操作的结果拉回到 <code class="language-plaintext highlighter-rouge">results</code>。在 <code class="language-plaintext highlighter-rouge">gameReducer</code> 中 <code class="language-plaintext highlighter-rouge">combine</code> 的最后，添加：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">gameReducer</span> <span class="o">=</span> <span class="kt">Reducer</span><span class="o">&lt;</span><span class="kt">GameState</span><span class="p">,</span> <span class="kt">GameAction</span><span class="p">,</span> <span class="kt">GameEnvironment</span><span class="o">&gt;.</span><span class="nf">combine</span><span class="p">(</span>
+  <span class="o">.</span><span class="kd">init</span> <span class="p">{</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">environment</span> <span class="k">in</span>
+    <span class="c1">// ...</span>
+  <span class="p">},</span>
+  <span class="c1">// ...</span>
+  <span class="n">timerReducer</span><span class="o">.</span><span class="nf">pullback</span><span class="p">(</span>
+    <span class="nv">state</span><span class="p">:</span> <span class="p">\</span><span class="o">.</span><span class="n">timer</span><span class="p">,</span>
+    <span class="nv">action</span><span class="p">:</span> <span class="o">/</span><span class="kt">GameAction</span><span class="o">.</span><span class="n">timer</span><span class="p">,</span>
+    <span class="nv">environment</span><span class="p">:</span> <span class="p">{</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">date</span><span class="p">:</span> <span class="nv">$0</span><span class="o">.</span><span class="n">date</span><span class="p">,</span> <span class="nv">mainQueue</span><span class="p">:</span> <span class="nv">$0</span><span class="o">.</span><span class="n">mainQueue</span><span class="p">)</span> <span class="p">}</span>
+<span class="gi">+  ),
++ gameResultListReducer.pullback(
++   state: \.results,
++   action: /GameAction.listResult,
++   environment: { _ in .init() }
+</span>  <span class="p">)</span>
+<span class="p">)</span>
+</pre></table></code></div></div><p>这样，接收到 <code class="language-plaintext highlighter-rouge">.listResult</code> action 时 <code class="language-plaintext highlighter-rouge">gameResultListReducer</code> 造成的结果 (新的 result list state，也就是 <code class="language-plaintext highlighter-rouge">IdentifiedArrayOf&lt;GameResult&gt;</code>) 将通过 <code class="language-plaintext highlighter-rouge">\.results</code> 这个 <code class="language-plaintext highlighter-rouge">WritableKeyPath</code> 写回到 <code class="language-plaintext highlighter-rouge">GameState.results</code> 属性中，以完成 state 的更新。</p><h5 id="view">View</h5><p>最后，在 <code class="language-plaintext highlighter-rouge">body</code> 中创建 <code class="language-plaintext highlighter-rouge">NavigationLink</code>，用 <code class="language-plaintext highlighter-rouge">scope</code> 把 <code class="language-plaintext highlighter-rouge">results</code> 切割出来，把新的 store 传递给 <code class="language-plaintext highlighter-rouge">GameResultListView</code> 作为目标 view，导航就完成了：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">GameView</span><span class="p">:</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="o">&lt;</span><span class="kt">GameState</span><span class="p">,</span> <span class="kt">GameAction</span><span class="o">&gt;</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="kt">WithViewStore</span><span class="p">(</span><span class="n">store</span><span class="o">.</span><span class="nf">scope</span><span class="p">(</span><span class="nv">state</span><span class="p">:</span> <span class="p">\</span><span class="o">.</span><span class="n">results</span><span class="p">))</span> <span class="p">{</span> <span class="n">viewStore</span> <span class="k">in</span>
+      <span class="kt">VStack</span> <span class="p">{</span>
+        <span class="c1">// ...</span>
+      <span class="p">}</span><span class="o">.</span><span class="n">onAppear</span> <span class="p">{</span>
+        <span class="n">viewStore</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="nf">timer</span><span class="p">(</span><span class="o">.</span><span class="n">start</span><span class="p">))</span>
+      <span class="p">}</span>
+<span class="gi">+   }.toolbar {
++     ToolbarItem(placement: .navigationBarTrailing) {
++       NavigationLink("Detail") {
++         GameResultListView(store: store.scope(state: \.results, action: GameAction.listResult))
++       }
++     }
+</span>    <span class="p">}</span>
+  <span class="p">}</span>
+</pre></table></code></div></div><h5 id="结果">结果</h5><p>运行 app，现在主页面 <code class="language-plaintext highlighter-rouge">GameView</code> 处于 <code class="language-plaintext highlighter-rouge">NavigationView</code> 环境中。当进行几个猜数字后，点击 “Detail” 按钮，app 可以导航到 <code class="language-plaintext highlighter-rouge">GameResultListView</code> 中，你也可以在详细页面里删除几个结果，然后返回到主页面：注意主页面上的计数将随着详细页面的修改而变动，它们共享单一的数据源，这避免了数据在两个页面中的不同步，一般来说是非常好的实践：</p><video width="272" height="480" controls=""> <source src="/assets/images/2022/tca-navigation.mp4" type="video/mp4" /> </video><p>如果你对 pullback 的行为还不清楚，推荐对照前一篇文章中的这张流程图再次确认：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2022/tca-pullback-flow.png" alt="" /></p><h4 id="存在的问题">存在的问题</h4><p>TCA 这类类似 Elm 的架构形式，一大特点是 State 完全决定 UI，这也是在进行 UI 测试时很重要的手段：只要我们能构建出合适的 State (model 层)，我们就能期待固定的 UI，这让整个 app 的界面成为一个“纯函数”：<code class="language-plaintext highlighter-rouge">UI = F(State)</code>。</p><p>但不幸的是，上面这种简单的导航形式破坏了这个公式：显示主页面时的 State 和显示列表页面时的 State 是无法区分的，同一种状态可能会对应不同的 UI。这是因为管理导航的状态存在于 SwiftUI 内部，它在我们的 State 中没有体现出来。</p><p>如果不是很计较 app 的严肃性，那么这种简单的导航关系也不是不能接受。不过为了满足纯函数的要求，我们来看看 SwiftUI 提供的另一种导航方式，也就是基于 Binding 值控制的导航，要如何与 TCA 协同工作。</p><h3 id="基于-binding-的导航">基于 Binding 的导航</h3><p>除了上面用到的最简单的 <code class="language-plaintext highlighter-rouge">init(_:destination:)</code> 以外，<code class="language-plaintext highlighter-rouge">NavigationLink</code> 还有一些带有 <code class="language-plaintext highlighter-rouge">Binding</code> 的变种版本，比如：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="nf">init</span><span class="p">(</span>
+  <span class="n">_</span> <span class="nv">titleKey</span><span class="p">:</span> <span class="kt">LocalizedStringKey</span><span class="p">,</span> 
+  <span class="nv">isActive</span><span class="p">:</span> <span class="kt">Binding</span><span class="o">&lt;</span><span class="kt">Bool</span><span class="o">&gt;</span><span class="p">,</span> 
+  <span class="kd">@ViewBuilder</span> <span class="nv">destination</span><span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Destination</span>
+<span class="p">)</span>
+
+<span class="kd">init</span><span class="o">&lt;</span><span class="kt">V</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="n">_</span> <span class="nv">titleKey</span><span class="p">:</span> <span class="kt">LocalizedStringKey</span><span class="p">,</span> 
+  <span class="nv">tag</span><span class="p">:</span> <span class="kt">V</span><span class="p">,</span> 
+  <span class="nv">selection</span><span class="p">:</span> <span class="kt">Binding</span><span class="o">&lt;</span><span class="kt">V</span><span class="p">?</span><span class="o">&gt;</span><span class="p">,</span> 
+  <span class="kd">@ViewBuilder</span> <span class="nv">destination</span><span class="p">:</span> <span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Destination</span>
+<span class="p">)</span> <span class="k">where</span> <span class="kt">V</span> <span class="p">:</span> <span class="kt">Hashable</span>
+</pre></table></code></div></div><p>前者接受 <code class="language-plaintext highlighter-rouge">Binding&lt;Bool&gt;</code>，这个 <code class="language-plaintext highlighter-rouge">Binding</code> 可以通过两种方式控制导航状态：</p><ul><li>当用户通过 UI 触发导航时，SwiftUI 负责将这个值设为 <code class="language-plaintext highlighter-rouge">true</code>。在使用回退按钮返回时，SwiftUI 负责将这个值设为 <code class="language-plaintext highlighter-rouge">false</code>。<li>我们也可以通过代码把这个 <code class="language-plaintext highlighter-rouge">Binding</code> 值设置为 <code class="language-plaintext highlighter-rouge">true</code> 或 <code class="language-plaintext highlighter-rouge">false</code> 来触发相应的导航和回退行为。</ul><p>相比起前者的 <code class="language-plaintext highlighter-rouge">Bool</code>，后者接受 <code class="language-plaintext highlighter-rouge">V?</code> 的绑定值和一个代表当前 <code class="language-plaintext highlighter-rouge">NavigationLink</code> 的 <code class="language-plaintext highlighter-rouge">tag</code> 值：当 <code class="language-plaintext highlighter-rouge">selection</code> 的 <code class="language-plaintext highlighter-rouge">V</code> 和 <code class="language-plaintext highlighter-rouge">tag</code> 的 <code class="language-plaintext highlighter-rouge">V</code> 相同时，导航生效并展示 <code class="language-plaintext highlighter-rouge">destination</code> 的内容。为了判断这个相同，SwiftUI 要求 <code class="language-plaintext highlighter-rouge">V</code> 满足 <code class="language-plaintext highlighter-rouge">Hashable</code>。</p><p>这两个变体为 TCA 提供了机会，可以通过 State 来控制导航状态：只要我们在 <code class="language-plaintext highlighter-rouge">GameState</code> 中添加一个代表的导航状态的变量，就可以通过把这个变量转换为 Binding 并设置它，来让状态和 UI 一一对应：即 state 为 <code class="language-plaintext highlighter-rouge">true</code> 或者 non-nil 值时，显示详细页面；否则为 <code class="language-plaintext highlighter-rouge">false</code> 或 <code class="language-plaintext highlighter-rouge">nil</code> 时，显示主页面。</p><h4 id="identified">Identified</h4><p>在这个例子中，我们选用 <code class="language-plaintext highlighter-rouge">Binding&lt;V?&gt;</code> 的方法来控制。在 <code class="language-plaintext highlighter-rouge">GameState</code> 中添加一个属性：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">GameState</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="gi">+ var resultListState: Identified&lt;UUID, GameResultListState&gt;?
+</span><span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">Binding&lt;V?&gt;</code> 中需要 <code class="language-plaintext highlighter-rouge">V</code> 满足 <code class="language-plaintext highlighter-rouge">Hashable</code>，这里我们原本的目标是让 <code class="language-plaintext highlighter-rouge">GameResultListState</code> (也就是 <code class="language-plaintext highlighter-rouge">IdentifiedArrayOf&lt;GameResult&gt;</code>) 满足 <code class="language-plaintext highlighter-rouge">Hashable</code>。这是一个相对困难的任务：我们可以为 <code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 添加 <code class="language-plaintext highlighter-rouge">Hashable</code> 实现，但是这并不是一个好选择：这两个类型定义都不属于我们，我们无法控制将来 TCA 是否会为 <code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 引入 <code class="language-plaintext highlighter-rouge">Hashable</code> 实现。TCA 中将一个任意值转为 <code class="language-plaintext highlighter-rouge">Hashable</code> 更简单的方式就是用 <code class="language-plaintext highlighter-rouge">Identified</code> 包装它，手动为它赋予一个 id 值，用它作为 <code class="language-plaintext highlighter-rouge">V</code> 的类型。在我们的例子中，导航只有一个单一的状态，所以我们完全可以定义一个通用的 <code class="language-plaintext highlighter-rouge">UUID</code> 作为 <code class="language-plaintext highlighter-rouge">NavigationLink</code> 的 <code class="language-plaintext highlighter-rouge">tag</code>，在 <code class="language-plaintext highlighter-rouge">GameView.swift</code> 的顶层 scope 添加下面的定义：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">resultListStateTag</span> <span class="o">=</span> <span class="kt">UUID</span><span class="p">()</span>
+</pre></table></code></div></div><blockquote><p>使用 <code class="language-plaintext highlighter-rouge">Binding&lt;V?&gt;</code> 和 <code class="language-plaintext highlighter-rouge">tag</code> 的版本，更多是为了区分多个可能的导航情况 (比如一个列表中的各个选项都可能导航至下一个页面)。</p><p>实际上，对于我们这里的例子，因为只有一个可能的触发导航的情况它，所以并没有必要使用 <code class="language-plaintext highlighter-rouge">tag</code> 的方式控制，只需要使用 <code class="language-plaintext highlighter-rouge">Binding&lt;Bool&gt;</code> 就可以了。不过我们还是选择 <code class="language-plaintext highlighter-rouge">Binding</code> 的版本作为例子，因为它更具一般性。</p></blockquote><h4 id="binding-和导航-action-处理">Binding 和导航 Action 处理</h4><p>如果你还记得 <a href="/2021/12/tca-2/#在-tca-中实现单个绑定">TCA 中绑定值的处理方式</a>，通过 <code class="language-plaintext highlighter-rouge">viewStore.binding</code> 操作绑定值时，可以在这个值发生变化时让 TCA 发送一个 action。我们需要在 reducer 中捕获这个 action 并为 <code class="language-plaintext highlighter-rouge">resultListState</code> 设置合适的值。在 <code class="language-plaintext highlighter-rouge">GameAction</code> 里添加控制导航的 action 成员：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">GameAction</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="nf">counter</span><span class="p">(</span><span class="kt">CounterAction</span><span class="p">)</span>
+  <span class="k">case</span> <span class="nf">listResult</span><span class="p">(</span><span class="kt">GameResultListAction</span><span class="p">)</span>
+  <span class="k">case</span> <span class="nf">timer</span><span class="p">(</span><span class="kt">TimerAction</span><span class="p">)</span>
+<span class="gi">+ case setNavigation(UUID?)
+</span><span class="p">}</span>
+</pre></table></code></div></div><p>然后将 <code class="language-plaintext highlighter-rouge">body</code> 中 <code class="language-plaintext highlighter-rouge">NavigationLink</code> 的部分替换为基于 <code class="language-plaintext highlighter-rouge">Binding</code> 的方式：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">GameView</span><span class="p">:</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="o">&lt;</span><span class="kt">GameState</span><span class="p">,</span> <span class="kt">GameAction</span><span class="o">&gt;</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="kt">WithViewStore</span><span class="p">(</span><span class="n">store</span><span class="o">.</span><span class="nf">scope</span><span class="p">(</span><span class="nv">state</span><span class="p">:</span> <span class="p">\</span><span class="o">.</span><span class="n">results</span><span class="p">))</span> <span class="p">{</span> <span class="n">viewStore</span> <span class="k">in</span>
+      <span class="c1">// ...</span>
+    <span class="p">}</span><span class="o">.</span><span class="n">toolbar</span> <span class="p">{</span>
+      <span class="kt">ToolbarItem</span><span class="p">(</span><span class="nv">placement</span><span class="p">:</span> <span class="o">.</span><span class="n">navigationBarTrailing</span><span class="p">)</span> <span class="p">{</span>
+<span class="gd">-       NavigationLink("Detail") {
+-          GameResultListView(store: store.scope(state: \.results, action: GameAction.listResult))
+-       }
+</span><span class="gi">+       WithViewStore(store) { viewStore in
++         NavigationLink(
++           "Detail",
++           tag: resultListStateTag,
++           selection: viewStore.binding(get: \.resultListState?.id, send: GameAction.setNavigation),
++           destination: {
++             Text("Sample")
++           }
++         )
++       }
+</span>      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+</pre></table></code></div></div><p>当 <code class="language-plaintext highlighter-rouge">NavigationLink</code> 的 selection 被触发时，<code class="language-plaintext highlighter-rouge">.setNavigation(resultListStateTag)</code> 被发送，在 <code class="language-plaintext highlighter-rouge">gameReducer</code> 中，捕获这个 action 并进行处理：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">gameReducer</span> <span class="o">=</span> <span class="kt">Reducer</span><span class="o">&lt;</span><span class="kt">GameState</span><span class="p">,</span> <span class="kt">GameAction</span><span class="p">,</span> <span class="kt">GameEnvironment</span><span class="o">&gt;.</span><span class="nf">combine</span><span class="p">(</span>
+  <span class="o">.</span><span class="kd">init</span> <span class="p">{</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">environment</span> <span class="k">in</span>
+    <span class="k">switch</span> <span class="n">action</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="gi">+   case .setNavigation(.some(let id)):
++     state.resultListState = .init(state.results, id: id)
++     return .none
++   case .setNavigation(.none):
++     state.results = state.resultListState?.value ?? []
++     state.resultListState = nil
++     return .none
+</span>    <span class="p">}</span>
+  <span class="p">},</span>
+  <span class="c1">// ...</span>
+<span class="p">)</span>
+</pre></table></code></div></div><p>接收到带有 <code class="language-plaintext highlighter-rouge">id</code> 的 <code class="language-plaintext highlighter-rouge">.setNavigation</code> action 时，我们手动设置 <code class="language-plaintext highlighter-rouge">resultListState</code>，这会触发导航。在用户退出导航时，接收到 <code class="language-plaintext highlighter-rouge">.setNavigation(.none)</code>，这时我们把 <code class="language-plaintext highlighter-rouge">resultListState.value</code> 设置回 <code class="language-plaintext highlighter-rouge">result</code>，然后把整个 <code class="language-plaintext highlighter-rouge">resultListState</code> 置为 <code class="language-plaintext highlighter-rouge">nil</code>，从导航中返回。</p><p>现在，<code class="language-plaintext highlighter-rouge">gameReducer</code> 对 <code class="language-plaintext highlighter-rouge">gameResultListReducer</code> 进行 <code class="language-plaintext highlighter-rouge">pullback</code> 时，将结果拉回 <code class="language-plaintext highlighter-rouge">results</code>。但是现在我们想要传递给 <code class="language-plaintext highlighter-rouge">GameResultListView</code> 的值已经是 <code class="language-plaintext highlighter-rouge">resultListState.value</code>，而非原来的 <code class="language-plaintext highlighter-rouge">results</code>。我们需要修改 <code class="language-plaintext highlighter-rouge">gameResultListReducer.pullback</code> 的部分：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">gameReducer</span> <span class="o">=</span> 
+  <span class="c1">// ...</span>
+  <span class="n">gameResultListReducer</span>
+<span class="gd">-   .pullback(
+-     state: \.results,
+-     action: /GameAction.listResult,
+-     environment: { _ in .init() }
+-   )
+</span><span class="gi">+   .pullback(
++     state: \Identified.value,
++     action: .self,
++     environment: { $0 }
++   )
++   .optional()
++   .pullback(
++     state: \.resultListState,
++     action: /GameAction.listResult,
++     environment: { _ in .init() }
++   )
+</span><span class="p">)</span> 
+</pre></table></code></div></div><p>如果你还记得 <code class="language-plaintext highlighter-rouge">pullback</code> 的初衷，你应该记得，它的目的是把原本作用在本地域上的 reducer 转换为能够作用在全局域的 reducer。在这里，我们想要做的是把 <code class="language-plaintext highlighter-rouge">gameResultListReducer</code> 对 <code class="language-plaintext highlighter-rouge">GameResultListState</code> 造成的变更，拉回到 <code class="language-plaintext highlighter-rouge">GameState.resultListState.value</code> 中。因为 <code class="language-plaintext highlighter-rouge">resultListState</code> 是一个可选值，因此原本在 pullback 中我们应该把 <code class="language-plaintext highlighter-rouge">state</code> 写为 <code class="language-plaintext highlighter-rouge">\.resultListState?.value</code>。不过这种写法只能给我们不可写的 <code class="language-plaintext highlighter-rouge">KeyPath</code>，而非 <code class="language-plaintext highlighter-rouge">pullback</code> 要求的 <code class="language-plaintext highlighter-rouge">WritableKeyPath</code>。为了处理可选值，TCA 提供了 <code class="language-plaintext highlighter-rouge">optional()</code> 操作，来处理可选值的 <code class="language-plaintext highlighter-rouge">WritableKeyPath</code>。这里我们可以理解为，先把 <code class="language-plaintext highlighter-rouge">GameResultListState</code> 的结果写到某个 <code class="language-plaintext highlighter-rouge">Identified</code> 的 <code class="language-plaintext highlighter-rouge">value</code> 里，然后把这个 <code class="language-plaintext highlighter-rouge">Identified</code> 包裹在一个可选值里，最后再通过 <code class="language-plaintext highlighter-rouge">\.resultListState</code> 写到 <code class="language-plaintext highlighter-rouge">GameState</code> 里。</p><h4 id="ifletstore">IfLetStore</h4><p>整个过程的最后一步，是在 <code class="language-plaintext highlighter-rouge">NavigationLink</code> 的 <code class="language-plaintext highlighter-rouge">destination</code> 里创建正确的 <code class="language-plaintext highlighter-rouge">GameResultListView</code>。和上面 pullback 的情况类似，我们不再选择使用 <code class="language-plaintext highlighter-rouge">results</code>，而是使用 <code class="language-plaintext highlighter-rouge">\.resultListState?.value</code> 来切分 store：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="c1">// 注意，无法编译</span>
+<span class="n">store</span><span class="o">.</span><span class="nf">scope</span><span class="p">(</span>
+  <span class="nv">state</span><span class="p">:</span> <span class="p">\</span><span class="o">.</span><span class="n">resultListState</span><span class="p">?</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> 
+  <span class="nv">action</span><span class="p">:</span> <span class="kt">GameAction</span><span class="o">.</span><span class="n">listResult</span>
+<span class="p">)</span>
+</pre></table></code></div></div><p>但这样做得到的是一个可选值 state 的类型 <code class="language-plaintext highlighter-rouge">Store&lt;GameResultListState?, GameResultListAction&gt;</code>，它并不能满足 <code class="language-plaintext highlighter-rouge">GameResultListView</code> 所需要的 <code class="language-plaintext highlighter-rouge">Store&lt;GameResultListState, GameResultListAction&gt;</code>。TCA 在处理 store 中可选值属性的切割时，使用 <code class="language-plaintext highlighter-rouge">IfLetStore</code> 来进行包装，它会根据其中状态可选值是否为 <code class="language-plaintext highlighter-rouge">nil</code> 来构建不同的 view：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+  <span class="kt">NavigationLink</span><span class="p">(</span>
+    <span class="s">"Detail"</span><span class="p">,</span>
+    <span class="nv">tag</span><span class="p">:</span> <span class="n">resultListStateTag</span><span class="p">,</span>
+    <span class="nv">selection</span><span class="p">:</span> <span class="n">viewStore</span><span class="o">.</span><span class="nf">binding</span><span class="p">(</span><span class="nv">get</span><span class="p">:</span> <span class="p">\</span><span class="o">.</span><span class="n">resultListState</span><span class="p">?</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="nv">send</span><span class="p">:</span> <span class="kt">GameAction</span><span class="o">.</span><span class="n">setNavigation</span><span class="p">),</span>
+    <span class="nv">destination</span><span class="p">:</span> <span class="p">{</span>
+<span class="gd">-     Text("Sample")
+</span><span class="gi">+     IfLetStore(
++       store.scope(state: \.resultListState?.value, action: GameAction.listResult),
++       then: { GameResultListView(store: $0) }
++     )
+</span>    <span class="p">}</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>至此，我们完成了最完整的使用 <code class="language-plaintext highlighter-rouge">Binding</code> 进行导航的方式。运行 app，你会发现看起来整个 app 的行为和简单导航时并没有什么区别。但是我们现在可以通过构建合适的 <code class="language-plaintext highlighter-rouge">GameState</code>，来直接显示结果详细页面。这在追踪和调试 app 中带来巨大便利，也正是 TCA 的强大之处。比如，在 <code class="language-plaintext highlighter-rouge">CounterDemoApp</code> 中，我们可以添加一些 sample：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">sample</span><span class="p">:</span> <span class="kt">GameResultListState</span> <span class="o">=</span> <span class="p">[</span>
+  <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">counter</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">count</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="nv">secret</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="nv">id</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">()),</span> <span class="nv">timeSpent</span><span class="p">:</span> <span class="mi">100</span><span class="p">),</span>
+  <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="nv">counter</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(),</span> <span class="nv">timeSpent</span><span class="p">:</span> <span class="mi">100</span><span class="p">),</span>
+<span class="p">]</span>
+
+<span class="k">let</span> <span class="nv">testState</span> <span class="o">=</span> <span class="kt">GameState</span><span class="p">(</span>
+  <span class="nv">counter</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(),</span> 
+  <span class="nv">timer</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(),</span>
+  <span class="nv">resultListState</span><span class="p">:</span> <span class="o">.</span><span class="nf">init</span><span class="p">(</span><span class="n">sample</span><span class="p">,</span> <span class="nv">id</span><span class="p">:</span> <span class="n">resultListStateTag</span><span class="p">),</span>
+  <span class="nv">results</span><span class="p">:</span> <span class="n">sample</span><span class="p">,</span>
+  <span class="nv">lastTimestamp</span><span class="p">:</span> <span class="mi">100</span>
+<span class="p">)</span>
+</pre></table></code></div></div><p>然后将它直接设置给 app：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">CounterDemoApp</span><span class="p">:</span> <span class="kt">App</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">Scene</span> <span class="p">{</span>
+    <span class="kt">WindowGroup</span> <span class="p">{</span>
+      <span class="kt">NavigationView</span> <span class="p">{</span>
+        <span class="kt">GameView</span><span class="p">(</span>
+          <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="p">(</span>
+<span class="gd">-           initialState: GameState(),
+</span><span class="gi">+           initialState: testState
+</span>            <span class="nv">reducer</span><span class="p">:</span> <span class="n">gameReducer</span><span class="p">,</span>
+            <span class="nv">environment</span><span class="p">:</span> <span class="o">.</span><span class="n">live</span><span class="p">)</span>
+        <span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>现在运行 app，我们会被直接导航到结果页面。确保唯一的 state 对应的唯一 UI，可以让开发快速定位问题：只需要提供 app 出现问题时的 state，理论上就可以稳定重现和立即开始调试。</p><h3 id="更多讨论">更多讨论</h3><h4 id="swiftui-导航最佳实践">SwiftUI 导航最佳实践</h4><p>虽然 Apple 在 SwiftUI 导航上做了不少努力，但是传统的几种导航方式有一定缺失：不论是 navigation 还是 sheet，对于基于 Binding 的导航，控制导航状态的 Binding 值并不会被传递到 <a href="https://developer.apple.com/documentation/swiftui/navigationlink"><code class="language-plaintext highlighter-rouge">NavigationLink</code></a> 的 <code class="language-plaintext highlighter-rouge">destination</code> 或者 <a href="https://developer.apple.com/documentation/swiftui/view/sheet(item:ondismiss:content:)"><code class="language-plaintext highlighter-rouge">View.sheet</code></a> 的 <code class="language-plaintext highlighter-rouge">content</code> 中，这导致后续页面无法有效修改前置页面的数据，从而造成事实上的数据源不统一。</p><p>在 TCA 中因为不能直接修改 state，我们选择通过在 Binding 变化时发送 action 的方式更新 state。这种方法在 TCA 里非常合适，但在普通的 SwiftUI app 里虽然也可行，却显得有点儿格格不入。TCA 的维护者对此专门<a href="https://github.com/pointfreeco/swiftui-navigation">开源了一套工具</a>，来补充原生 SwiftUI 架构在导航上的不足，其中也包含了对于这个话题的更深入的讨论。</p><h4 id="viewstore-的各种形式">ViewStore 的各种形式</h4><p>在上面的例子中，我们看到了在 <code class="language-plaintext highlighter-rouge">View</code> 中使用 <code class="language-plaintext highlighter-rouge">IfLetStore</code> 来切分 state 中的可选值的方法；对于可选值，在组合 reducer 时，我们在 pullback 之前相应地使用了 <code class="language-plaintext highlighter-rouge">optional()</code> 方法将非可选的本地状态转换为可选值的全局状态，从而完成状态回拉。</p><p>另一种特殊的 Store 形式是 <code class="language-plaintext highlighter-rouge">ForEachStore</code>，它针对 State 中的 <code class="language-plaintext highlighter-rouge">IdentifiedArray</code>，将其中每一个元素切为一个新的 Store。如果 <code class="language-plaintext highlighter-rouge">List</code> 中的每个 cell 自成一套 feature 的话 (比如示例的猜数字 app 中，允许结果列表页面的每个结果 cell 再点击进去，并显示一个 <code class="language-plaintext highlighter-rouge">CounterView</code> 来修改内容的话)，这种方式将让我们很容易把 <code class="language-plaintext highlighter-rouge">List</code> 和 TCA 进行结合。与 <code class="language-plaintext highlighter-rouge">IfLetStore</code> 和 <code class="language-plaintext highlighter-rouge">optional()</code> 的关系类似，在组合 reducer 时，TCA 也为 <code class="language-plaintext highlighter-rouge">IdentifiedArray</code> 的属性准备了 <a href="https://pointfreeco.github.io/swift-composable-architecture/main/documentation/composablearchitecture/reducer/foreach(state:action:environment:file:line:)-gvte"><code class="language-plaintext highlighter-rouge">forEach</code> 方法</a>来把数组中的各个元素变更拉回到全局状态的对应元素中。我们将把关于数组切分和拉回的课题作为练习留给读者。</p><p>另外，对于 enum 形式的 State，TCA 也准备了相应的 <code class="language-plaintext highlighter-rouge">SwitchStore</code> 和 <code class="language-plaintext highlighter-rouge">CaseLet</code>，可以让我们以相似的语法根据不同 State 属性创建 view。关于这些内容，在理解了 TCA 的工作原理后，就都是一些类似语法糖的存在，可以在实际用到时再加以确认。</p><h2 id="alert-和结果存储">Alert 和结果存储</h2><p>可能有细心的同学会问，在上面 <code class="language-plaintext highlighter-rouge">Binding</code> 导航的时候，为什么不直接选择在 <code class="language-plaintext highlighter-rouge">.setNavigation(.some(let id))</code> 的时候单独只设置一个 <code class="language-plaintext highlighter-rouge">UUID</code>，而保持将结果直接 pullback 到 <code class="language-plaintext highlighter-rouge">results</code> 呢？<code class="language-plaintext highlighter-rouge">resultListState</code> 存在的意义是什么？或者甚至，为什么不直接使用 <code class="language-plaintext highlighter-rouge">Binding&lt;Bool&gt;</code> 的 <code class="language-plaintext highlighter-rouge">NavigationLink</code> 版本呢？</p><p>对于很多情况，在 list view 里直接操作 <code class="language-plaintext highlighter-rouge">results</code> 是完全可行的，不过如果我们有需要暂时保留原来数据的场景的话，在 <code class="language-plaintext highlighter-rouge">.setNavigation(.some(let id))</code> 中复制一份 <code class="language-plaintext highlighter-rouge">results</code> (在例子中我们通过创建新的 <code class="language-plaintext highlighter-rouge">Identified</code> 值进行复制)，在编辑过程中保持原来 <code class="language-plaintext highlighter-rouge">results</code> 的稳定，并在完全结束后再把更改后的 <code class="language-plaintext highlighter-rouge">resultListState</code> 重新赋给 <code class="language-plaintext highlighter-rouge">results</code> 就是必要的了。</p><p>我们通过一个例子来说明，比如现在我们希望在从列表界面返回后多加一次 alert 弹窗确认，当用户确认更改后通过网络请求向服务端“汇报”这次更改，然后在成功后再刷新 UI。如果用户选择放弃修改的话，则维持原来的结果不变。</p><h3 id="alertstate">AlertState</h3><p>显示一个 alert 在 app 开发中是非常常见的，TCA 为此内置了一个专门用来管理 alert 的类型：<code class="language-plaintext highlighter-rouge">AlertState</code>。为了让 alert 能够工作，我们可以为它添加一组 action，描述 alert 的按钮点击行为。在 <code class="language-plaintext highlighter-rouge">GameView.swift</code> 中添加：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">GameAlertAction</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="n">alertSaveButtonTapped</span>
+  <span class="k">case</span> <span class="n">alertCancelButtonTapped</span>
+  <span class="k">case</span> <span class="n">alertDismiss</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>然后在 <code class="language-plaintext highlighter-rouge">GameState</code> 里新增 <code class="language-plaintext highlighter-rouge">alert</code> 属性：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">GameState</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+  
+<span class="gi">+ var alert: AlertState&lt;GameAlertAction&gt;?
+</span><span class="p">}</span>
+</pre></table></code></div></div><p>和处理导航关系时一样，通过在 reducer 里设置 <code class="language-plaintext highlighter-rouge">alert</code> 可选值，就可以控制 alert 的显示和隐藏。我们计划在从结果列表页面返回时展示这个 alert，修改 <code class="language-plaintext highlighter-rouge">gameReducer</code> 的 <code class="language-plaintext highlighter-rouge">setNavigation(.none)</code> 分支：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">gameReducer</span> <span class="o">=</span> <span class="kt">Reducer</span><span class="o">&lt;</span><span class="kt">GameState</span><span class="p">,</span> <span class="kt">GameAction</span><span class="p">,</span> <span class="kt">GameEnvironment</span><span class="o">&gt;.</span><span class="nf">combine</span><span class="p">(</span>
+  <span class="o">.</span><span class="kd">init</span> <span class="p">{</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">environment</span> <span class="k">in</span>
+    <span class="k">switch</span> <span class="n">action</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">setNavigation</span><span class="p">(</span><span class="o">.</span><span class="k">none</span><span class="p">):</span>
+<span class="gd">-     state.results = state.resultListState?.value ?? []
+-     state.resultListState = nil
+</span><span class="gi">+     if state.resultListState?.value != state.results {
++       state.alert = .init(
++         title: .init("Save Changes?"),
++         primaryButton: .default(.init("OK"), action: .send(.alertSaveButtonTapped)),
++         secondaryButton: .cancel(.init("Cancel"), action: .send(.alertCancelButtonTapped))
++       )
++     } else {
++       state.resultListState = nil
++     }
+</span>      <span class="k">return</span> <span class="o">.</span><span class="k">none</span>
+    <span class="p">}</span>
+    <span class="c1">// ...</span>
+<span class="p">)</span>
+</pre></table></code></div></div><p>最后，在 <code class="language-plaintext highlighter-rouge">GameView</code> 中合适的地方加上这个 <code class="language-plaintext highlighter-rouge">alert</code> 就行了：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">GameView</span><span class="p">:</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="kt">WithViewStore</span><span class="p">(</span><span class="n">store</span><span class="o">.</span><span class="nf">scope</span><span class="p">(</span><span class="nv">state</span><span class="p">:</span> <span class="p">\</span><span class="o">.</span><span class="n">results</span><span class="p">))</span> <span class="p">{</span> <span class="n">viewStore</span> <span class="k">in</span>
+      <span class="c1">// ...</span>
+    <span class="p">}</span><span class="o">.</span><span class="n">toolbar</span> <span class="p">{</span>
+      <span class="c1">// ...</span>
+<span class="gi">+   }.alert(
++     store.scope(state: \.alert, action: GameAction.alertAction),
++     dismiss: .alertDismiss
++   )
+</span>  <span class="p">}</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h3 id="处理-dismiss-和按钮事件">处理 dismiss 和按钮事件</h3><p>不过现在代码还无法编译，因为在 reducer 里我们还没有处理 alert 相关的 action。</p><p><code class="language-plaintext highlighter-rouge">.alertDismiss</code> action 将会在 alert 被 dismiss 的时候触发，之后 TCA 再根据具体是哪个按钮被点击，向 reducer 发送对应按钮绑定的 action。因此常规做法是在 <code class="language-plaintext highlighter-rouge">.alertDismiss</code> 中将 <code class="language-plaintext highlighter-rouge">state.alert</code> 置回 <code class="language-plaintext highlighter-rouge">nil</code>，然后在 <code class="language-plaintext highlighter-rouge">.alertSaveButtonTapped</code> 和 <code class="language-plaintext highlighter-rouge">.alertCancelButtonTapped</code> 进行相应的逻辑。在 <code class="language-plaintext highlighter-rouge">gameReducer</code> 的 <code class="language-plaintext highlighter-rouge">.setNavigation(.none)</code> 之后追加：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">gameReducer</span> <span class="o">=</span> <span class="kt">Reducer</span><span class="o">&lt;</span><span class="kt">GameState</span><span class="p">,</span> <span class="kt">GameAction</span><span class="p">,</span> <span class="kt">GameEnvironment</span><span class="o">&gt;.</span><span class="nf">combine</span><span class="p">(</span>
+  <span class="o">.</span><span class="kd">init</span> <span class="p">{</span> <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">environment</span> <span class="k">in</span>
+    <span class="k">switch</span> <span class="n">action</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nf">setNavigation</span><span class="p">(</span><span class="o">.</span><span class="k">none</span><span class="p">):</span>
+    <span class="c1">// ...</span>
+<span class="gi">+   case .alertAction(.alertDismiss):
++     state.alert = nil
++     return .none
++   case .alertAction(.alertSaveButtonTapped):
++     // Todo: 暂时直接设置 results，实际应该发送请求。
++     state.results = state.resultListState?.value ?? []
++     state.resultListState = nil
++     return .none
++   case .alertAction(.alertCancelButtonTapped):
++     state.resultListState = nil
++     return .none
+</span></pre></table></code></div></div><p>一切准备就绪，现在运行 app，尝试在结果列表中删除几个项目，并返回主页面。现在结果并不会直接更新了，而是先弹出确认框，并在用户点击保存时才进行更新。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2022/tca-alert.png" alt="" /></p><h3 id="effect-和-loading-ui">Effect 和 Loading UI</h3><p>最后我们来处理上面代码中 “Todo” 的部分：发送实际请求，并在完成时再进行 <code class="language-plaintext highlighter-rouge">results</code> 的更新。为了简单起见，这里就只用一个 <code class="language-plaintext highlighter-rouge">delay</code> 的 <code class="language-plaintext highlighter-rouge">Effect</code> 来模拟这个请求了。实际的网络请求的实现 (以及错误处理)，就留作练习了。</p><p>在 <code class="language-plaintext highlighter-rouge">GameAction</code> 中添加一个 case 代表请求结果：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">GameAction</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="gi">+ case saveResult(Result&lt;Void, URLError&gt;)
+</span><span class="p">}</span>
+</pre></table></code></div></div><p>为了显示网络请求正在进行，我们可以在 state 里添加一个属性，表示加载正在进行：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">GameState</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="gi">+ var savingResults: Bool = false
+</span><span class="p">}</span>
+</pre></table></code></div></div><p>然后将 <code class="language-plaintext highlighter-rouge">gameReducer</code> 里 <code class="language-plaintext highlighter-rouge">.alertSaveButtonTapped</code> case 中的处理替换，并添加对 <code class="language-plaintext highlighter-rouge">.saveResult</code> 的处理。</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre>    <span class="k">case</span> <span class="o">.</span><span class="nf">alertAction</span><span class="p">(</span><span class="o">.</span><span class="n">alertSaveButtonTapped</span><span class="p">):</span>
+<span class="gd">-     // Todo: 暂时直接设置 results，实际应该发送请求。
+-     state.results = state.resultListState?.value ?? []
+-     state.resultListState = nil
+-     return .none
+</span><span class="gi">+     state.savingResults = true
++     return Effect(value: .saveResult(.success(())))
++       .delay(for: 2, scheduler: environment.mainQueue)
++       .eraseToEffect()
+</span>    <span class="c1">// ...</span>
+<span class="gi">+   case .saveResult(let result):
++     state.savingResults = false
++     state.results = state.resultListState?.value ?? []
++     state.resultListState = nil
++     return .none
+</span></pre></table></code></div></div><p>最后，稍微修改 <code class="language-plaintext highlighter-rouge">GameView</code> 中 <code class="language-plaintext highlighter-rouge">NavigationLink</code> 的部分，在请求途中显示一个 <code class="language-plaintext highlighter-rouge">ProgressView</code>：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kt">NavigationLink</span><span class="p">(</span>
+  <span class="c1">// ...</span>
+  <span class="nv">label</span><span class="p">:</span> <span class="p">{</span>
+<span class="gi">+   if viewStore.savingResults {
++     ProgressView()
++   } else {
+</span>      <span class="kt">Text</span><span class="p">(</span><span class="s">"Detail"</span><span class="p">)</span>
+<span class="gi">+   }
+</span>  <span class="p">}</span>
+<span class="p">)</span>
+</pre></table></code></div></div><video width="272" height="480" controls=""> <source src="/assets/images/2022/tca-delay-effect-saving.mp4" type="video/mp4" /> </video><h2 id="总结">总结</h2><p>到这里，我想应该可以为这一个系列的 TCA 教程画上句号了。我们看到了 TCA 的各个组件以及它们的组织方式，常见的一些用法和模式，并且对背后的思想进行了探索。虽然我们没有涉及到 TCA 框架的所有部分 (毕竟这系列文章并不是使用手册，篇幅上也不允许)，但是一旦我们理解和弄清了架构的思想，那么使用顶层 API 就只是手到擒来了。</p><p>对于更大和更复杂的 app 架构，TCA 框架会面临其他一些问题，比如数据在多个 feature 间共享的方式，state 过于庞大后可能带来的性能问题，以及跨越多个层级传递数据的方式等。本文写作时，这些问题都没有特别完美和通用的解决方式。不过，TCA 并没有到达 1.0 版本，它本身也在快速发展和演进中，几乎每个月都会有全新的特性甚至破坏性的变化被引入。如果你遇到了棘手的问题，或者对最佳实践有所疑问，不妨到 TCA 的<a href="https://github.com/pointfreeco/swift-composable-architecture">项目和 issue 页面中</a>寻求答案或者帮助。将你的心得和体会总结，并通过某种方式回馈给社区，也将会对这个项目的建设带来好处。</p><p>想要进一步学习 TCA 的话，除了它本身带有的<a href="https://github.com/pointfreeco/swift-composable-architecture/tree/main/Examples">几个 demo</a> 以外，Point-Free 实际上还开源了一个相当完整的项目：<a href="https://github.com/pointfreeco/isowords">isowords</a>。另外，他们主持的<a href="https://www.pointfree.co">每周教学节目</a>，也对包括 TCA 在内的很多 Swift 话题进行了非常深刻的讨论，如果学有余力，我个人十分推荐。</p><h2 id="练习">练习</h2><p>如果你没有跟随本文更新代码，你可以在<a href="https://github.com/onevcat/CounterDemo/releases/tag/part-4-start">这里</a>找到下面练习的起始代码。</p><h3 id="使用-modal-进行展示">使用 modal 进行展示</h3><p>在本文中，我们使用了 <code class="language-plaintext highlighter-rouge">NavigationLink</code> 来展示结果页面。iOS app 里另一种常见的迁移方式是 modal present。尝试使用 <a href="https://developer.apple.com/documentation/swiftui/view/sheet(item:ondismiss:content:)"><code class="language-plaintext highlighter-rouge">sheet(item:onDismiss:content:)</code></a> 来呈现结果列表页面。</p><h3 id="实际的网络请求">实际的网络请求</h3><p>在用户点击保存按钮时，我们使用了下面的 <code class="language-plaintext highlighter-rouge">Effect</code> 来模拟网络请求：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="kt">Effect</span><span class="p">(</span><span class="nv">value</span><span class="p">:</span> <span class="o">.</span><span class="nf">saveResult</span><span class="p">(</span><span class="o">.</span><span class="nf">success</span><span class="p">(())))</span>
+  <span class="o">.</span><span class="nf">delay</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="nv">scheduler</span><span class="p">:</span> <span class="n">environment</span><span class="o">.</span><span class="n">mainQueue</span><span class="p">)</span>
+</pre></table></code></div></div><p>请你尝试把这个用来模拟的 <code class="language-plaintext highlighter-rouge">Effect</code> 替换成实际的网络请求吧！不需要真的进行数据传递，只需要随意构建一个 <code class="language-plaintext highlighter-rouge">dataTask</code> 就好，比如：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">sampleRequest</span> <span class="o">=</span> <span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span>
+  <span class="o">.</span><span class="nf">dataTaskPublisher</span><span class="p">(</span><span class="nv">for</span><span class="p">:</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://example.com"</span><span class="p">)</span><span class="o">!</span><span class="p">)</span>
+  <span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="n">element</span> <span class="o">-&gt;</span> <span class="kt">String</span> <span class="k">in</span>
+    <span class="k">return</span> <span class="kt">String</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">element</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="nv">encoding</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span> <span class="p">??</span> <span class="s">""</span>
+  <span class="p">}</span>
+</pre></table></code></div></div><p>然后把结果用 <code class="language-plaintext highlighter-rouge">catchToEffect</code> 转换为我们需要的类型。需要注意，在 reducer 中应该要合理处理错误的情况；另外，为了能够测试，这个请求应该放在环境值中，而不是直接写在 reducer 里。如果你已经忘了如何使用 TCA 处理网络请求和进行测试，可以参考前一篇文章中关于<a href="/2022/03/tca-3/#网络请求-effect">网络请求 Effect</a> 的部分。</p><h3 id="loading-ui-的问题">Loading UI 的问题</h3><p>在进行保存请求时，<code class="language-plaintext highlighter-rouge">savingResults</code> 为 <code class="language-plaintext highlighter-rouge">true</code>。这种情况下，我们在 <code class="language-plaintext highlighter-rouge">GameView</code> 里把 “Detail” 按钮替换为了 <code class="language-plaintext highlighter-rouge">ProgressView</code>。但是主界面中的 “Next” 按钮依然可以点击，请求期间我们仍可把新的结果添加到 <code class="language-plaintext highlighter-rouge">results</code> 里。在网络请求结束后，<code class="language-plaintext highlighter-rouge">results</code> 里虽然可能存在新的结果，但它还是会被 <code class="language-plaintext highlighter-rouge">resultListState</code> 覆盖，导致请求期间的结果丢失。参见下面的重现步骤：</p><video width="272" height="480" controls=""> <source src="/assets/images/2022/tca-saving-bug.mp4" type="video/mp4" /> </video><p>要解决这个问题，可以选择在请求期间禁用 “Next” 按钮 (比较简单的实现，但是很差很粗暴的用户体验)，或者引入一种机制来合并结果 (比较好的体验，但需要更多代码)。或者你可以自行考虑其他的解决方案。</p><h3 id="尝试-foreachstore">尝试 ForEachStore</h3><p>文中没有用到 <code class="language-plaintext highlighter-rouge">ForEachStore</code>。请参考 TCA 的相关文档，学习 <code class="language-plaintext highlighter-rouge">ForEachStore</code> 和 <code class="language-plaintext highlighter-rouge">Reducer.forEach</code> 的用法，在结果列表页面中添加一层导航，来增加对每个结果的“编辑”功能，让用户可以利用 <code class="language-plaintext highlighter-rouge">CounterView</code> 修改他们之前的猜测结果。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swiftui/'>SwiftUI</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" class="post-tag no-text-decoration" >编程语言</a> <a href="/tags/swiftui/" class="post-tag no-text-decoration" >swiftui</a> <a href="/tags/tca/" class="post-tag no-text-decoration" >tca</a> <a href="/tags/elm/" class="post-tag no-text-decoration" >elm</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=TCA - SwiftUI 的救星？(四) - OneV's Den&url=https://onevcat.com/2022/05/tca-4/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=TCA - SwiftUI 的救星？(四) - OneV's Den&u=https://onevcat.com/2022/05/tca-4/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=TCA - SwiftUI 的救星？(四) - OneV's Den&url=https://onevcat.com/2022/05/tca-4/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=TCA - SwiftUI 的救星？(四) - OneV's Den&url=https://onevcat.com/2022/05/tca-4/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2021/12/tca-1/"><div class="card-body"> <span class="timeago small" > 2021-12-09 <i class="unloaded">2021-12-09T16:50:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>TCA - SwiftUI 的救星？(一)</h3><div class="text-muted small"><p> 打算用几篇文章介绍一下 TCA (The Composable Architecture)，这是一种看起来非常契合 SwiftUI 的架构方式。 四年多前我写过一篇关于使用单向数据流来架构 View Controller 的文章，因为 UIKit 中并没有强制的 view 刷新流程，所以包括绑定数据在内的很多事情都需要自己动手，这为大规模使用造成了不小的障碍。而自那时过了两年后， Swif...</p></div></div></a></div><div class="card"> <a href="/2021/12/tca-2/"><div class="card-body"> <span class="timeago small" > 2021-12-16 <i class="unloaded">2021-12-16T09:50:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>TCA - SwiftUI 的救星？(二)</h3><div class="text-muted small"><p> 在上一篇关于 TCA 的文章中，我们通过总览的方式看到了 TCA 中一个 Feature 的运作方式，并尝试实现了一个最小的 Feature 和它的测试。在这篇文章中，我们会继续深入，看看 TCA 中对 Binding 的处理，以及使用 Environment 来把依赖从 reducer 中解耦的方法。 如果你想要跟做，可以直接使用上一篇文章完成练习后最后的状态，或者从这里获取到起始...</p></div></div></a></div><div class="card"> <a href="/2022/03/tca-3/"><div class="card-body"> <span class="timeago small" > 2022-03-17 <i class="unloaded">2022-03-17T13:50:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>TCA - SwiftUI 的救星？(三)</h3><div class="text-muted small"><p> 在上一篇关于 TCA 的文章中，我们看到了绑定的工作方式以及 Environment 在管理依赖和提供易测试性时发挥的作用。在这篇文章中，我们会继续深入，来看看 TCA 中的两个重要话题：Effect 角色到底是什么，以及如何通过组合的方式来把多个小 Feature 组合在一起，形成更加复杂的 UI 结构。 如果你想要跟做，可以直接使用上一篇文章完成练习后最后的状态，或者从这里获取到...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2022/03/tca-3/" class="btn btn-outline-primary"><p>TCA - SwiftUI 的救星？(三)</p></a> <a href="/2022/10/spm-in-xcode/" class="btn btn-outline-primary"><p>Xcode 中使用 SPM 和 Build Configuration 的一些坑</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

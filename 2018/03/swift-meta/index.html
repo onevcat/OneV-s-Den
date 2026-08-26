@@ -1,0 +1,511 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="不同角度看问题 - 从 Codable 到 Swift 元编程" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="最近开设了一个小专栏，用来记录日常开发时遇到的问题和解决方案，同时也会收藏一些学习时记录的笔记，随想等。其中一些长文 (包括本文) 会首发于专栏，之后再同步到博客这边。虽然现在的文章还不多，但是因为计划更新比较勤快，所以适当进行收费，也算是对自己写作的一种鼓励和鞭笞。欢迎感兴趣的同学进行订阅，谢谢~" /><meta property="og:description" content="最近开设了一个小专栏，用来记录日常开发时遇到的问题和解决方案，同时也会收藏一些学习时记录的笔记，随想等。其中一些长文 (包括本文) 会首发于专栏，之后再同步到博客这边。虽然现在的文章还不多，但是因为计划更新比较勤快，所以适当进行收费，也算是对自己写作的一种鼓励和鞭笞。欢迎感兴趣的同学进行订阅，谢谢~" /><link rel="canonical" href="https://onevcat.com/2018/03/swift-meta/" /><meta property="og:url" content="https://onevcat.com/2018/03/swift-meta/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2018-03-12T09:15:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="不同角度看问题 - 从 Codable 到 Swift 元编程" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"最近开设了一个小专栏，用来记录日常开发时遇到的问题和解决方案，同时也会收藏一些学习时记录的笔记，随想等。其中一些长文 (包括本文) 会首发于专栏，之后再同步到博客这边。虽然现在的文章还不多，但是因为计划更新比较勤快，所以适当进行收费，也算是对自己写作的一种鼓励和鞭笞。欢迎感兴趣的同学进行订阅，谢谢~","url":"https://onevcat.com/2018/03/swift-meta/","@type":"BlogPosting","headline":"不同角度看问题 - 从 Codable 到 Swift 元编程","dateModified":"2018-03-12T09:15:00+09:00","datePublished":"2018-03-12T09:15:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2018/03/swift-meta/"},"@context":"https://schema.org"}</script><title>不同角度看问题 - 从 Codable 到 Swift 元编程 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>不同角度看问题 - 从 Codable 到 Swift 元编程</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>不同角度看问题 - 从 Codable 到 Swift 元编程</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Mon, Mar 12, 2018, 9:15 AM +0900" > 2018-03-12 <i class="unloaded">2018-03-12T09:15:00+09:00</i> </span></div><div> 最后更新: <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Thu, Oct 22, 2020, 5:03 PM +0900" > 2020-10-22 <i class="unloaded">2020-10-22T17:03:49+09:00</i> </span></div></div><div class="post-content"><blockquote><p>最近开设了一个<a href="https://xiaozhuanlan.com/onevcat">小专栏</a>，用来记录日常开发时遇到的问题和解决方案，同时也会收藏一些学习时记录的笔记，随想等。其中一些长文 (包括本文) 会首发于专栏，之后再同步到博客这边。虽然现在的文章还不多，但是因为计划更新比较勤快，所以适当进行收费，也算是对自己写作的一种鼓励和鞭笞。欢迎感兴趣的同学进行订阅，谢谢~</p></blockquote><h2 id="起源">起源</h2><p>前几天看到同事的一个 P-R，里面有将一个类型转换为字典的方法。在我们所使用的 API 中，某些方法需要接受 JSON 兼容的字典 (也就是说，字典中键值对的 <code class="language-plaintext highlighter-rouge">value</code> 只能是数字，字符串，布尔值，以及包含它们的嵌套字典或者数组等)，因为项目开始是在好几年前了，所以一直都是在需要的时候使用下面这样手写生成字典的方法：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Cat</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">age</span><span class="p">:</span> <span class="kt">Int</span>
+    
+    <span class="kd">func</span> <span class="nf">toDictionary</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s">"age"</span><span class="p">:</span> <span class="n">age</span><span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">kitten</span> <span class="o">=</span> <span class="kt">Cat</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"kitten"</span><span class="p">,</span> <span class="nv">age</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span>
+<span class="n">kitten</span><span class="o">.</span><span class="nf">toDictionary</span><span class="p">()</span>
+<span class="c1">// ["name": "kitten", "age": 2]</span>
+</pre></table></code></div></div><p>显然这是很蠢的做法：</p><ol><li>对于每一个需要处理的类型，我们都需要 <code class="language-plaintext highlighter-rouge">toDictionary()</code> 这样的模板代码；<li>每次进行属性的更改或增删，都要维护该方法的内容；<li>字典的 key 只是普通字符串，很可能出现 typo 错误或者没有及时根据类型定义变化进行更新的情况。</ol><p>对于一个有所追求的项目来说，解决这部分遗留问题具有相当的高优先级。</p><h2 id="codable">Codable</h2><p>在 Swift 4 引入 <code class="language-plaintext highlighter-rouge">Codable</code> 之后，我们有更优秀的方式来做这件事：那就是将 <code class="language-plaintext highlighter-rouge">Cat</code> 声明为 <code class="language-plaintext highlighter-rouge">Codable</code> (或者至少声明为 <code class="language-plaintext highlighter-rouge">Encodable</code> - 记住 <code class="language-plaintext highlighter-rouge">Codable</code> 其实就是 <code class="language-plaintext highlighter-rouge">Decodable &amp; Encodable</code>)，然后使用相关的 encoder 来进行编码。不过 Swift 标准库中并没有直接将一个对象编码为字典的编码器，我们可以进行一些变通，先将需要处理的类型声明为 <code class="language-plaintext highlighter-rouge">Codable</code>，然后使用 <code class="language-plaintext highlighter-rouge">JSONEncoder</code> 将其转换为 JSON 数据，最后再从 JSON 数据中拿到对应的字典：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Cat</span><span class="p">:</span> <span class="kt">Codable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">age</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">kitten</span> <span class="o">=</span> <span class="kt">Cat</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"kitten"</span><span class="p">,</span> <span class="nv">age</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">encoder</span> <span class="o">=</span> <span class="kt">JSONEncoder</span><span class="p">()</span>
+
+<span class="k">do</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span> <span class="n">encoder</span><span class="o">.</span><span class="nf">encode</span><span class="p">(</span><span class="n">kitten</span><span class="p">)</span>
+    <span class="k">let</span> <span class="nv">dictionary</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">JSONSerialization</span><span class="o">.</span><span class="nf">jsonObject</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">options</span><span class="p">:</span> <span class="p">[])</span>
+    <span class="c1">// ["name": "kitten", "age": 2]</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这种方式也是同事提交的 P-R 中所使用的方式。我个人认为这种方法已经足够优秀了，它没有添加任何难以理解的部分，我们只需要将 <code class="language-plaintext highlighter-rouge">encoder</code> 在全局进行统一的配置，然后用它来对任意 <code class="language-plaintext highlighter-rouge">Codable</code> 进行编码即可。唯一美中不足的是，<code class="language-plaintext highlighter-rouge">JSONEncoder</code> 本身其实<a href="https://github.com/apple/swift/blob/1e110b8f63836734113cdb28970ebcea8fd383c2/stdlib/public/SDK/Foundation/JSONEncoder.swift#L214-L231">在内部</a>就是先编码为字典，然后再从字典转换为数据的。在这里我们又“多此一举”地将数据转换回字典，稍显浪费。但是在非瓶颈的代码路径上，这一点性能损失完全可以接受的。</p><p>如果想要追求完美，那么我们可能需要仿照 <a href="https://github.com/apple/swift/blob/1e110b8f63836734113cdb28970ebcea8fd383c2/stdlib/public/SDK/Foundation/JSONEncoder.swift#L237"><code class="language-plaintext highlighter-rouge">_JSONEncoder</code></a> 重新实现 <code class="language-plaintext highlighter-rouge">KeyedEncodingContainer</code> 的部分，来将 <code class="language-plaintext highlighter-rouge">Encodable</code> 对象编码到容器中 (因为我们只需要编码为字典，所以可以忽略掉 <code class="language-plaintext highlighter-rouge">unkeyedContainer</code> 和 <code class="language-plaintext highlighter-rouge">singleValueContainer</code> 的部分)。整个过程不会很复杂，但是代码显得有些“啰嗦”。如果你没有自己手动实现过一个 Codable encoder 的话，参照着 <code class="language-plaintext highlighter-rouge">_JSONEncoder</code> 的源码实现一个 <code class="language-plaintext highlighter-rouge">DictionaryEncoder</code> 对于你理解 Codable 系统的运作和细节，会是很好的练习。不过因为这篇文章的重点并不是 <code class="language-plaintext highlighter-rouge">Codable</code> 教学，所以这里就先跳过了。</p><blockquote><p>标准库中要求 Codable 的编码器要满足 <code class="language-plaintext highlighter-rouge">Encoder</code> 协议，不过要注意，公开的 <a href="https://github.com/apple/swift/blob/1e110b8f63836734113cdb28970ebcea8fd383c2/stdlib/public/SDK/Foundation/JSONEncoder.swift#L18"><code class="language-plaintext highlighter-rouge">JSONEncoder</code></a> 类型其实并不遵守 <code class="language-plaintext highlighter-rouge">Encoder</code>，它只提供了一套易用的 API 封装，并将具体的编码工作代理给一个内部类型 <code class="language-plaintext highlighter-rouge">_JSONEncoder</code>，后者实际实现了 <code class="language-plaintext highlighter-rouge">Encoder</code>，并负责具体的编码逻辑。</p></blockquote><h2 id="mirror">Mirror</h2><p>Codable 的解决方案已经够好了，不过“好用的方式千篇一律，有趣的解法万万千千”，就这样解决问题也实在有些无聊，我们有没有一些更 hacky 更 cool 更 for fun 一点的做法呢？</p><p>当然有，在 review P-R 的时候第一想到的就是 <code class="language-plaintext highlighter-rouge">Mirror</code>。使用 <code class="language-plaintext highlighter-rouge">Mirror</code> 类型，可以让我们在运行时一窥某个类型的实例的内容，它也是 Swift 中为数不多的与运行时特性相关的手段。<code class="language-plaintext highlighter-rouge">Mirror</code> 的最基本的用法如下，你也可以在<a href="https://developer.apple.com/documentation/swift/mirror">官方文档</a>中查看它的一些其他定义：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Cat</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">age</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">kitten</span> <span class="o">=</span> <span class="kt">Cat</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"kitten"</span><span class="p">,</span> <span class="nv">age</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">mirror</span> <span class="o">=</span> <span class="kt">Mirror</span><span class="p">(</span><span class="nv">reflecting</span><span class="p">:</span> <span class="n">kitten</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">child</span> <span class="k">in</span> <span class="n">mirror</span><span class="o">.</span><span class="n">children</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"</span><span class="se">\(</span><span class="n">child</span><span class="o">.</span><span class="n">label</span><span class="o">!</span><span class="se">)</span><span class="s"> - </span><span class="se">\(</span><span class="n">child</span><span class="o">.</span><span class="n">value</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="c1">// 输出：</span>
+<span class="c1">// name - kitten</span>
+<span class="c1">// age - 2</span>
+</pre></table></code></div></div><p>通过访问实例中 <code class="language-plaintext highlighter-rouge">mirror.children</code> 的每一个 <code class="language-plaintext highlighter-rouge">child</code>，我们就可以得到所有的存储属性的 <code class="language-plaintext highlighter-rouge">label</code> 和 <code class="language-plaintext highlighter-rouge">value</code>。以 <code class="language-plaintext highlighter-rouge">label</code> 为字典键，<code class="language-plaintext highlighter-rouge">value</code> 为字典值，我们就能从任意类型构建出对应的字典了。</p><h4 id="字典中值的类型">字典中值的类型</h4><p>不过注意，这个 <code class="language-plaintext highlighter-rouge">child</code> 中的值是以 <code class="language-plaintext highlighter-rouge">Any</code> 为类型的，也就是说，任意类型都可以在 <code class="language-plaintext highlighter-rouge">child.value</code> 中表达。而我们的需求是构建一个 JSON 兼容的字典，它不能包含我们自定义的 Swift 类型 (对于自定义类型，我们需要先转换为字典的形式)。所以还需要做一些额外的类型保证的工作，这里可以添加一个 <code class="language-plaintext highlighter-rouge">DictionaryValue</code> 协议，来表示目标字典能接受的类型：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>对于 JSON 兼容的字典来说，数字，字符串和布尔值都是可以接受的，它们不需要进行转换，在字典中就是它们自身：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Int</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span> <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span> <span class="p">{</span> <span class="k">return</span> <span class="k">self</span> <span class="p">}</span> <span class="p">}</span>
+<span class="kd">extension</span> <span class="kt">Float</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span> <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span> <span class="p">{</span> <span class="k">return</span> <span class="k">self</span> <span class="p">}</span> <span class="p">}</span>
+<span class="kd">extension</span> <span class="kt">String</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span> <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span> <span class="p">{</span> <span class="k">return</span> <span class="k">self</span> <span class="p">}</span> <span class="p">}</span>
+<span class="kd">extension</span> <span class="kt">Bool</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span> <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span> <span class="p">{</span> <span class="k">return</span> <span class="k">self</span> <span class="p">}</span> <span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>严格来说，我们还需要对像是 <code class="language-plaintext highlighter-rouge">Int16</code>，<code class="language-plaintext highlighter-rouge">Double</code> 之类的其他数字类型进行 <code class="language-plaintext highlighter-rouge">DictionaryValue</code> 适配。不过对于一个「概念验证」的 demo 来说，上面的定义就足够了。</p></blockquote><p>有了这些，我们就可以进一步对 <code class="language-plaintext highlighter-rouge">DictionaryValue</code> 进行协议扩展，让满足它的其他类型通过 <code class="language-plaintext highlighter-rouge">Mirror</code> 的方式来构建字典：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">mirror</span> <span class="o">=</span> <span class="kt">Mirror</span><span class="p">(</span><span class="nv">reflecting</span><span class="p">:</span> <span class="k">self</span><span class="p">)</span>
+        <span class="k">var</span> <span class="nv">result</span> <span class="o">=</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]()</span>
+        <span class="k">for</span> <span class="n">child</span> <span class="k">in</span> <span class="n">mirror</span><span class="o">.</span><span class="n">children</span> <span class="p">{</span>
+            <span class="c1">// 如果无法获得正确的 key，报错</span>
+            <span class="k">guard</span> <span class="k">let</span> <span class="nv">key</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">label</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nf">fatalError</span><span class="p">(</span><span class="s">"Invalid key in child: </span><span class="se">\(</span><span class="n">child</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+            <span class="p">}</span>
+            <span class="c1">// 如果 value 无法转换为 DictionaryValue，报错</span>
+            <span class="k">if</span> <span class="k">let</span> <span class="nv">value</span> <span class="o">=</span> <span class="n">child</span><span class="o">.</span><span class="n">value</span> <span class="k">as?</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+                <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+            <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+                <span class="nf">fatalError</span><span class="p">(</span><span class="s">"Invalid value in child: </span><span class="se">\(</span><span class="n">child</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>现在，我们就可以将想要转换的类型声明为 <code class="language-plaintext highlighter-rouge">DictionaryValue</code>，然后调用 <code class="language-plaintext highlighter-rouge">value</code> 属性来获取字典了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Cat</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">age</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">kitten</span> <span class="o">=</span> <span class="kt">Cat</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"kitten"</span><span class="p">,</span> <span class="nv">age</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">kitten</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+<span class="c1">// ["name": "kitten", "age": 2]</span>
+</pre></table></code></div></div><p>对于嵌套自定义 <code class="language-plaintext highlighter-rouge">DictionaryValue</code> 值的其他类型，字典转换也可以正常工作：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Wizard</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">cat</span><span class="p">:</span> <span class="kt">Cat</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">wizard</span> <span class="o">=</span> <span class="kt">Wizard</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"Hermione"</span><span class="p">,</span> <span class="nv">cat</span><span class="p">:</span> <span class="n">kitten</span><span class="p">)</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">wizard</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+<span class="c1">// ["name": "Hermione", "cat": ["name": "kitten", "age": 2]]</span>
+</pre></table></code></div></div><h4 id="字典中的嵌套数组和字典">字典中的嵌套数组和字典</h4><p>上面处理了类型中属性是一般值 (JSON 原始值以及嵌套其他 <code class="language-plaintext highlighter-rouge">DictionaryValue</code> 类型) 的情况，不过对于 JSON 中的数组和字典的情况还无法处理 (因为我们还没有让 <code class="language-plaintext highlighter-rouge">Array</code> 和 <code class="language-plaintext highlighter-rouge">Dictionary</code> 遵守 <code class="language-plaintext highlighter-rouge">DictionaryValue</code>)。对于数组或字典这样的容器中的值，如果这些值满足 <code class="language-plaintext highlighter-rouge">DictionaryValue</code> 的话，那么容器本身显然也是 <code class="language-plaintext highlighter-rouge">DictionaryValue</code> 的。用代码表示的话类似这样：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Array</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="k">where</span> <span class="kt">Element</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span> <span class="p">{</span> <span class="k">return</span> <span class="n">map</span> <span class="p">{</span> <span class="nv">$0</span><span class="o">.</span><span class="n">value</span> <span class="p">}</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">extension</span> <span class="kt">Dictionary</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="k">where</span> <span class="kt">Value</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span> <span class="p">{</span> <span class="k">return</span> <span class="n">mapValues</span> <span class="p">{</span> <span class="nv">$0</span><span class="o">.</span><span class="n">value</span> <span class="p">}</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在这里我们遇到一个非常“经典”的 Swift 的语言限制，那就是在 Swift 4.1 之前还不能写出上面这样的带有条件语句 (也就是 <code class="language-plaintext highlighter-rouge">where</code> 从句，<code class="language-plaintext highlighter-rouge">Element</code> 和 <code class="language-plaintext highlighter-rouge">Value</code> 满足 <code class="language-plaintext highlighter-rouge">DictionaryValue</code>) 的 extension。这个限制在 Swift 4.1 中<a href="https://swift.org/blog/conditional-conformance/">得到了解决</a>，不过再此之前，我们只能强制做一些变化：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Array</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span> <span class="p">{</span> <span class="k">return</span> <span class="n">map</span> <span class="p">{</span> <span class="p">(</span><span class="nv">$0</span> <span class="k">as!</span> <span class="kt">DictionaryValue</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="p">}</span> <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">extension</span> <span class="kt">Dictionary</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Any</span> <span class="p">{</span> <span class="k">return</span> <span class="n">mapValues</span> <span class="p">{</span> <span class="p">(</span><span class="nv">$0</span> <span class="k">as!</span> <span class="kt">DictionaryValue</span><span class="p">)</span><span class="o">.</span><span class="n">value</span> <span class="p">}</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这么做我们失去了编译器的保证：对于任意的 <code class="language-plaintext highlighter-rouge">Array</code> 和 <code class="language-plaintext highlighter-rouge">Dictionary</code>，我们都将可以调用 <code class="language-plaintext highlighter-rouge">value</code>，不过，如果它们中的值不满足 <code class="language-plaintext highlighter-rouge">DictionaryValue</code> 的话，程序将会崩溃。当然，实际如果使用的时候可以考虑返回 <code class="language-plaintext highlighter-rouge">NSNull()</code>，来表示无法完成字典转换 (因为 <code class="language-plaintext highlighter-rouge">null</code> 也是有效的 JSON 值)。</p><p>有了数组和字典的支持，我们现在就可以使用 <code class="language-plaintext highlighter-rouge">Mirror</code> 的方法来对任意满足条件的类型进行转换了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Cat</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">age</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">Wizard</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">cat</span><span class="p">:</span> <span class="kt">Cat</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">Gryffindor</span><span class="p">:</span> <span class="kt">DictionaryValue</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">wizards</span><span class="p">:</span> <span class="p">[</span><span class="kt">Wizard</span><span class="p">]</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">crooks</span> <span class="o">=</span> <span class="kt">Cat</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"Crookshanks"</span><span class="p">,</span> <span class="nv">age</span><span class="p">:</span> <span class="mi">2</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">hermione</span> <span class="o">=</span> <span class="kt">Wizard</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"Hermione"</span><span class="p">,</span> <span class="nv">cat</span><span class="p">:</span> <span class="n">crooks</span><span class="p">)</span>
+
+<span class="k">let</span> <span class="nv">hedwig</span> <span class="o">=</span> <span class="kt">Cat</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"hedwig"</span><span class="p">,</span> <span class="nv">age</span><span class="p">:</span> <span class="mi">3</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">harry</span> <span class="o">=</span> <span class="kt">Wizard</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"Harry"</span><span class="p">,</span> <span class="nv">cat</span><span class="p">:</span> <span class="n">hedwig</span><span class="p">)</span>
+
+<span class="k">let</span> <span class="nv">gryffindor</span> <span class="o">=</span> <span class="kt">Gryffindor</span><span class="p">(</span><span class="nv">wizards</span><span class="p">:</span> <span class="p">[</span><span class="n">harry</span><span class="p">,</span> <span class="n">hermione</span><span class="p">])</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="n">gryffindor</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+<span class="c1">// ["wizards": </span>
+<span class="c1">//   [</span>
+<span class="c1">//     ["name": "Harry", "cat": ["name": "hedwig", "age": 3]], </span>
+<span class="c1">//     ["name": "Hermione", "cat": ["name": "Crookshanks", "age": 2]]</span>
+<span class="c1">//   ]</span>
+<span class="c1">// ]</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">Mirror</code> 很 cool，它让我们可以在运行时探索和列举实例的特性。除了上面用到的存储属性之外，对于集合类型，多元组以及枚举类型，<code class="language-plaintext highlighter-rouge">Mirror</code> 都可以对其进行探索。强大的运行时特性，也意味着额外的开销。<code class="language-plaintext highlighter-rouge">Mirror</code> 的文档明确告诉我们，这个类型更多是用来在 Playground 和调试器中进行输出和观察用的。如果我们想要以高效的方式来处理字典转换问题，也许应该试试看其他思路。</p><h2 id="代码生成">代码生成</h2><p>最高效的方式应该还是像一开始我们提到的纯手写了。但是显然这种重复劳动并不符合程序员的美学，对于这种“机械化”和“模板化”的工作，定义模板自动生成代码会是不错的选择。</p><h3 id="sourcery">Sourcery</h3><p><a href="https://github.com/krzysztofzablocki/Sourcery">Sourcery</a> 是一个 Swift 代码生成的开源命令行工具，它 (通过 <a href="https://github.com/jpsim/SourceKitten">SourceKitten</a>) 使用 Apple 的 SourceKit 框架，来分析你的源码中的各种声明和标注，然后套用你预先定义的 <a href="https://github.com/kylef/Stencil">Stencil</a> 模板 (一种语法和 <a href="https://mustache.github.io/#demo">Mustache</a> 很相似的 Swift 模板语言) 进行代码生成。我们下面会先看一个使用 Sourcery 最简单的例子，来说明如何使用这个工具。然后再针对我们的字典转换问题进行实现。</p><p>安装 Sourcery 非常简单，<code class="language-plaintext highlighter-rouge">brew install sourcery</code> 即可。不过，如果你想要在实际项目中使用这个工具的话，我建议直接<a href="https://github.com/krzysztofzablocki/Sourcery/releases">从发布页面</a>下载二进制文件，放到 Xcode 项目目录中，然后添加 Run Script 的 Build Phase 来在每次编译的时候自动生成。</p><h4 id="enumset">EnumSet</h4><p>来看一个简单的例子，假设我们在文件夹中有以下源码：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="c1">// source.swift</span>
+<span class="kd">enum</span> <span class="kt">HogwartsHouse</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="n">gryffindor</span>
+    <span class="k">case</span> <span class="n">hufflepuff</span>
+    <span class="k">case</span> <span class="n">ravenclaw</span>
+    <span class="k">case</span> <span class="n">slytherin</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>很多时候我们会有想要得到 enum 中所有 case 的集合，以及确定一共有多少个 case 成员的需求。如果纯手写的话，大概是这样的：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">HogwartsHouse</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="kd">static</span> <span class="k">let</span> <span class="nv">all</span><span class="p">:</span> <span class="p">[</span><span class="kt">HogwartsHouse</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="o">.</span><span class="n">gryffindor</span><span class="p">,</span>
+        <span class="o">.</span><span class="n">hufflepuff</span><span class="p">,</span>
+        <span class="o">.</span><span class="n">ravenclaw</span><span class="p">,</span>
+        <span class="o">.</span><span class="n">slytherin</span>
+    <span class="p">]</span>
+    
+    <span class="kd">static</span> <span class="k">let</span> <span class="nv">count</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>显然这么做对于维护很不友好，没有人能确保时刻记住在添加新的 case 后一定会去更新 <code class="language-plaintext highlighter-rouge">all</code> 和 <code class="language-plaintext highlighter-rouge">count</code>。对其他有同样需求的 enum，我们也需要重复劳动。Sourcery 就是为了解决这样的需求而生的，相对于手写 <code class="language-plaintext highlighter-rouge">all</code> 和 <code class="language-plaintext highlighter-rouge">count</code>，我们可以定义一个空协议 <code class="language-plaintext highlighter-rouge">EnumSet</code>，然后让 <code class="language-plaintext highlighter-rouge">HogwartsHouse</code> 遵守它：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">EnumSet</span> <span class="p">{}</span>
+<span class="kd">extension</span> <span class="kt">HogwartsHouse</span><span class="p">:</span> <span class="kt">EnumSet</span> <span class="p">{}</span>
+</pre></table></code></div></div><p>这个定义为 Sourcery 提供了一些提示，Sourcery 需要一些方式来确定为哪部分代码进行代码生成，“实现了某个协议”这个条件就是一个很有用的提示。现在，我们可以创建模板文件了，在同一个文件夹中，新建 <code class="language-plaintext highlighter-rouge">enumset.stencil</code>，并书写下面的内容：</p><script src="https://gist.github.com/onevcat/f8321f3ebd7f8c189f09192f6f85db79.js"></script><p>乍一看上去可能有些可怕，不过其实仔细辨识的话基底依然是 Swift。模板中被 <code class="language-plaintext highlighter-rouge">{% %}</code> 包含的内容将被作为代码执行，<code class="language-plaintext highlighter-rouge">{{ }}</code> 中的内容将被求值并嵌入到生成的文本中，而其他部分被直接作为文本复制到目标文件里。</p><p>第一行：</p><script src="https://gist.github.com/onevcat/b47006a744e31539b73f370cc44ff2ac.js"></script><p>即“选取那些实现了 <code class="language-plaintext highlighter-rouge">EnumSet</code> 的类型，滤出其中所有的 enum 类型，然后对每个 enum 进行枚举”。接下来，我们对这个选出的 enum 类型，为它创建了一个 extension，并对其所有 case 进行迭代，生成 <code class="language-plaintext highlighter-rouge">all</code> 数组。最后，将 <code class="language-plaintext highlighter-rouge">count</code> 设置为成员个数。</p><p>一开始你可能会有不少疑问，<code class="language-plaintext highlighter-rouge">types.implementing</code> 是什么，我怎么能知道 <code class="language-plaintext highlighter-rouge">enum</code> 在有 <code class="language-plaintext highlighter-rouge">name</code>, <code class="language-plaintext highlighter-rouge">cases</code>，<code class="language-plaintext highlighter-rouge">hasAssociatedValues</code> 之类的属性？Sourcery 有非常<a href="https://cdn.rawgit.com/krzysztofzablocki/Sourcery/master/docs/index.html">详尽的文档</a>，对上述问题，你可以在 <a href="https://cdn.rawgit.com/krzysztofzablocki/Sourcery/master/docs/Classes/Types.html">Types</a> 和 <a href="https://cdn.rawgit.com/krzysztofzablocki/Sourcery/master/docs/Classes/Enum.html">Enum</a> 的相关页面找到答案。在初上手写模板逻辑时，参照文档是不可避免的。</p><p>一切就绪，现在我们可以将源文件喂给模板，来生成最后的代码了：</p><div class="language-bash highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>sourcery <span class="nt">--sources</span> ./source.swift <span class="nt">--templates</span> ./enumset.stencil
+</pre></table></code></div></div><blockquote><p><code class="language-plaintext highlighter-rouge">--sources</code> 和 <code class="language-plaintext highlighter-rouge">--templates</code> 都可以接受文件夹，Sourcery 会按照后缀自行寻找源文件和模板文件，所以也可以用 <code class="language-plaintext highlighter-rouge">sourcery --sources ./ --templates ./</code> 来替代上面的命令。不过实际操作中还是建议将源文件和模板文件放在不同的文件夹下，方便管理。</p></blockquote><p>在同一个文件夹下，可以看到生成的 <code class="language-plaintext highlighter-rouge">enumset.generated.swift</code> 文件：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">HogwartsHouse</span> <span class="p">{</span>
+    <span class="kd">static</span> <span class="k">let</span> <span class="nv">all</span><span class="p">:</span> <span class="p">[</span><span class="kt">HogwartsHouse</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="o">.</span><span class="n">gryffindor</span><span class="p">,</span>
+        <span class="o">.</span><span class="n">hufflepuff</span><span class="p">,</span>
+        <span class="o">.</span><span class="n">ravenclaw</span><span class="p">,</span>
+        <span class="o">.</span><span class="n">slytherin</span>
+    <span class="p">]</span>
+    <span class="kd">static</span> <span class="k">let</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>问题解决。:]</p><h4 id="字典转换">字典转换</h4><p>下面来进行字典转换。类似上面的做法，定义一个空协议，让想要转换的自定义类型满足协议：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">DictionaryConvertible</span> <span class="p">{}</span>
+
+<span class="kd">struct</span> <span class="kt">Cat</span><span class="p">:</span> <span class="kt">DictionaryConvertible</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">age</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">Wizard</span><span class="p">:</span> <span class="kt">DictionaryConvertible</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="k">let</span> <span class="nv">cat</span><span class="p">:</span> <span class="kt">Cat</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">Gryffindor</span><span class="p">:</span> <span class="kt">DictionaryConvertible</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">wizards</span><span class="p">:</span> <span class="p">[</span><span class="kt">Wizard</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>接下来就可以尝试以下书写模板代码了。屏上得来终觉浅，有了上面 <code class="language-plaintext highlighter-rouge">EnumSet</code> 的经验，我强烈建议你花一点时间自己完成 <code class="language-plaintext highlighter-rouge">DictionaryConvertible</code> 的模板。你可以参照 <a href="https://cdn.rawgit.com/krzysztofzablocki/Sourcery/master/docs/index.html">Sourcery 文档</a> 关于单个 <a href="https://cdn.rawgit.com/krzysztofzablocki/Sourcery/master/docs/Classes/Type.html">Type</a> 和 <a href="https://cdn.rawgit.com/krzysztofzablocki/Sourcery/master/docs/Classes/Variable.html">Variable</a> 的部分的内容来实现。另外，可以考虑使用 <code class="language-plaintext highlighter-rouge">--watch</code> 模式来在文件改变时自动生成代码，来实时观察结果。</p><div class="language-bash highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>sourcery <span class="nt">--sources</span> ./ <span class="nt">--templates</span> ./ <span class="nt">--watch</span>
+</pre></table></code></div></div><p>最后，我的带有完整注释的对应的模板代码如下 (为了方便阅读，调整了一些格式)：</p><script src="https://gist.github.com/onevcat/ace60350f1c9c8a189f2788bc5ae2750.js"></script><p>生成的代码如下：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+</pre><td class="rouge-code"><pre><span class="c1">// 生成的代码</span>
+<span class="kd">extension</span> <span class="kt">Cat</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s">"age"</span><span class="p">:</span> <span class="n">age</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">extension</span> <span class="kt">Gryffindor</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s">"wizards"</span><span class="p">:</span> <span class="n">wizards</span><span class="o">.</span><span class="n">map</span> <span class="p">{</span> <span class="nv">$0</span><span class="o">.</span><span class="n">value</span> <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="kd">extension</span> <span class="kt">Wizard</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="s">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s">"cat"</span><span class="p">:</span> <span class="n">cat</span><span class="o">.</span><span class="n">value</span>
+        <span class="p">]</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>最后，我们还需要在原来的 Swift 文件中加上一些原始类型的扩展，这样对于原始类型值的数组和字典，我们的生成代码也能正确处理：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Int</span> <span class="p">{</span> <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Int</span> <span class="p">{</span> <span class="k">return</span> <span class="k">self</span> <span class="p">}</span> <span class="p">}</span>
+<span class="kd">extension</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">return</span> <span class="k">self</span> <span class="p">}</span> <span class="p">}</span>
+<span class="kd">extension</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">return</span> <span class="k">self</span> <span class="p">}</span> <span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>当然，你也可以考虑使用代码生成的方式来搞定，不过因为兼容的类型不会改变，直接写死亦无伤大雅。</p></blockquote><p>相比于 JSON <code class="language-plaintext highlighter-rouge">Codable</code> 和 <code class="language-plaintext highlighter-rouge">Mirror</code> 的做法，这显然是运行时最高效的方式。除了使用 Sourcery 内建的类型匹配系统和 API 外，你还可以在源码中添加 Sourcery 的标注：<code class="language-plaintext highlighter-rouge">/// sourcery:</code>。被标注的内容将可以<a href="https://cdn.rawgit.com/krzysztofzablocki/Sourcery/master/docs/Protocols/Annotated.html#/s:15SourceryRuntime9AnnotatedP11annotationss10DictionaryVySSSo8NSObjectCGv">通过 <code class="language-plaintext highlighter-rouge">annotations</code></a>进行访问，这使得 Sourcery 几乎“无所不能”。</p><h3 id="gyb">gyb</h3><p>代码生成方式的另一个“流行”选择时 gyb (Generate Your Boilerplate)。<a href="https://github.com/apple/swift/blob/master/utils/gyb.py">gyb</a> 严格来说就是一个 Python 脚本，它将预定义的值填充到模板中。这个工具被大量用于 Swift 项目本身的开发，标准库中有不少以 <code class="language-plaintext highlighter-rouge">.gyb</code> 作为后缀的文件，比如 <a href="https://github.com/apple/swift/blob/32146274e73fe07bf3f9633f49624cc6728f1ae3/stdlib/public/core/Arrays.swift.gyb">Array</a> 就是通过 gyb 生成的。</p><p>gyb 设计的最初目的主要是为了解决像是 <code class="language-plaintext highlighter-rouge">Int8</code>，<code class="language-plaintext highlighter-rouge">Int16</code>，<code class="language-plaintext highlighter-rouge">Int32</code> 等这一系列十分类似但又必须加以区分的类型中模板代码问题的。(鉴于 Apple 自己都有可能用其他工具来替换掉它，) 我们这里就不展开介绍了。如果你对 gyb 感兴趣，可以看看这篇<a href="http://swift.gg/2016/03/04/a-short-swift-gyb-tutorial/">简明教程</a>。</p><p>这里引出 gyb，主要是想说明，挖掘 Swift 源码 (特别是标准库源码，因为标准库本身大部分也是由 Swift 写的)，是非常有意思的一件事情。今后如果有机会我可能也会写一些阅读 Swift 标准库源码的文章，和大家一起探讨 Swift 源码中一些有趣的事情 :P</p><h2 id="ast--libsyntax">AST &amp; libSyntax</h2><p>我们说到，Sourcery 是依赖于 SourceKitten 获取源码信息的，而一路向下的话，SourceKitten 本身是对 SourceKit (<code class="language-plaintext highlighter-rouge">sourcekitd.framework</code>) 的高层级封装，最后它们都是对抽象语法树 (Abstract Syntax Tree, AST) 进行解析操作。编译器将源码 token 化，并构建 AST。</p><p>在上面的 Sourcery 的例子中，我们实际上做的首先是通过 AST 获取全部的源码信息，然后将语法单元进行组合，生成 Sourcery API 中的各个对象。接着，将这些对象传递给 Stencil 模板进行“渲染”，得到生成的源码。除了使用模板以外，还有一种直接操作 AST，通过代码“生成”代码的方式，那就是 libSyntax。</p><p><a href="https://github.com/apple/swift/tree/master/lib/Syntax">libSyntax</a> 相对鲜为人知，它作为 Swift 项目的一个工具库，现在被用于 Swift 代码的重构 (在 Xcode 9 中 Cmd + 点击，你应该可以看到重命名，提取方法等一系列重构操作的菜单)。通过 libSyntax 提供的 API，你可以生成结构化的代码，比如下面的代码片段，可以生成一个名成为 <code class="language-plaintext highlighter-rouge">name</code>，类型为 <code class="language-plaintext highlighter-rouge">type</code> 的 <code class="language-plaintext highlighter-rouge">let</code> 变量声明：</p><blockquote><p>注意，为了使用 SwiftSyntax，你需要安装并切换为 Swift 4.1 的工具链 (至少在本文写作时如此，libSyntax 还没有确定会不会最终集成在 Swift 4.1 中)，并为 libSyntax 指定正确的 Runpath 和 Library 搜索路径。关于如何在 Xcode 中使用 libSyntax，可以参考<a href="https://github.com/apple/swift/tree/master/lib/Syntax#try-libsyntax-in-xcode">项目主页</a>。</p></blockquote><p>SwiftSyntax 这一封装为我们提供了 Swift 类型安全的方式，来操作和生成代码。结合使用工厂类 <code class="language-plaintext highlighter-rouge">SyntaxFactory</code> 和各种类型的 builder (希望你还记得设计模式那一整套东西 :P )，可以“方便”地生成我们需要的代码。比如下面的 <code class="language-plaintext highlighter-rouge">createLetDecl</code> 为我们生成一个 <code class="language-plaintext highlighter-rouge">let</code> 的变量声明，我们之后会用它作为更进一步的例子的构建模块：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre><td class="rouge-code"><pre><span class="kd">import</span> <span class="kt">Foundation</span>
+<span class="kd">import</span> <span class="kt">SwiftSyntax</span>
+
+<span class="c1">// Trivia 指的是像空格，回车，tab，分号等元素</span>
+<span class="kd">func</span> <span class="nf">createLetDecl</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">type</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span>
+                   <span class="nv">leadingTrivia</span><span class="p">:</span> <span class="kt">Trivia</span> <span class="o">=</span> <span class="o">.</span><span class="n">zero</span><span class="p">,</span> <span class="nv">trailingTrivia</span><span class="p">:</span> <span class="kt">Trivia</span> <span class="o">=</span> <span class="o">.</span><span class="nf">newlines</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">-&gt;</span> <span class="kt">VariableDeclSyntax</span>
+<span class="p">{</span>
+    <span class="c1">// 创建 let 关键字 (`let`)</span>
+    <span class="k">let</span> <span class="nv">letKeyword</span> <span class="o">=</span> <span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makeLetKeyword</span><span class="p">(</span><span class="nv">leadingTrivia</span><span class="p">:</span> <span class="n">leadingTrivia</span><span class="p">,</span> <span class="nv">trailingTrivia</span><span class="p">:</span> <span class="o">.</span><span class="nf">spaces</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    
+    <span class="c1">// 根据 name 创建属性名 (`name`)</span>
+    <span class="k">let</span> <span class="nv">nameId</span> <span class="o">=</span> <span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makeIdentifier</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c1">// 组合类型标记 (比如 `: Int` 部分)</span>
+    <span class="k">let</span> <span class="nv">typeId</span> <span class="o">=</span> <span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makeTypeIdentifier</span><span class="p">(</span><span class="n">type</span><span class="p">,</span> <span class="nv">trailingTrivia</span><span class="p">:</span> <span class="n">trailingTrivia</span><span class="p">)</span>
+    <span class="k">let</span> <span class="nv">colon</span> <span class="o">=</span> <span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makeColonToken</span><span class="p">(</span><span class="nv">trailingTrivia</span><span class="p">:</span> <span class="o">.</span><span class="nf">spaces</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">let</span> <span class="nv">typeAnnotation</span> <span class="o">=</span> <span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makeTypeAnnotation</span><span class="p">(</span><span class="nv">colon</span><span class="p">:</span> <span class="n">colon</span><span class="p">,</span> <span class="nv">type</span><span class="p">:</span> <span class="n">typeId</span><span class="p">)</span>
+
+    <span class="k">let</span> <span class="nv">member</span> <span class="o">=</span> <span class="kt">IdentifierPatternSyntax</span> <span class="p">{</span> <span class="n">builder</span> <span class="k">in</span>
+        <span class="n">builder</span><span class="o">.</span><span class="nf">useIdentifier</span><span class="p">(</span><span class="n">nameId</span><span class="p">)</span>
+    <span class="p">}</span>
+    
+    <span class="k">let</span> <span class="nv">patterBinding</span> <span class="o">=</span> <span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makePatternBinding</span><span class="p">(</span><span class="nv">pattern</span><span class="p">:</span> <span class="n">member</span><span class="p">,</span>
+                                                         <span class="nv">typeAnnotation</span><span class="p">:</span> <span class="n">typeAnnotation</span><span class="p">,</span>
+                                                         <span class="nv">initializer</span><span class="p">:</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">accessor</span><span class="p">:</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">trailingComma</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+    <span class="k">let</span> <span class="nv">list</span> <span class="o">=</span> <span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makePatternBindingList</span><span class="p">([</span><span class="n">patterBinding</span><span class="p">])</span>
+    
+    <span class="c1">// 生成属性声明</span>
+    <span class="k">return</span> <span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makeVariableDecl</span><span class="p">(</span><span class="nv">attributes</span><span class="p">:</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">modifiers</span><span class="p">:</span> <span class="kc">nil</span><span class="p">,</span> <span class="nv">letOrVarKeyword</span><span class="p">:</span> <span class="n">letKeyword</span><span class="p">,</span> <span class="nv">bindings</span><span class="p">:</span> <span class="n">list</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">nameDecl</span> <span class="o">=</span> <span class="nf">createLetDecl</span><span class="p">(</span><span class="s">"name"</span><span class="p">,</span> <span class="s">"String"</span><span class="p">)</span>
+<span class="c1">// let name: String</span>
+
+<span class="k">let</span> <span class="nv">ageDecl</span> <span class="o">=</span> <span class="nf">createLetDecl</span><span class="p">(</span><span class="s">"age"</span><span class="p">,</span> <span class="s">"Int"</span><span class="p">)</span>
+<span class="c1">// let age: Int</span>
+</pre></table></code></div></div><p>现在，可以尝试用类似的方式生成之前例子中的 <code class="language-plaintext highlighter-rouge">Cat</code> 结构体：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">keyword</span> <span class="o">=</span> <span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makeStructKeyword</span><span class="p">(</span><span class="nv">trailingTrivia</span><span class="p">:</span> <span class="o">.</span><span class="nf">spaces</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="k">let</span> <span class="nv">catId</span> <span class="o">=</span> <span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makeIdentifier</span><span class="p">(</span><span class="s">"Cat"</span><span class="p">,</span> <span class="nv">trailingTrivia</span><span class="p">:</span> <span class="o">.</span><span class="nf">spaces</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+<span class="k">let</span> <span class="nv">members</span> <span class="o">=</span> <span class="kt">MemberDeclBlockSyntax</span> <span class="p">{</span>
+    <span class="nv">$0</span><span class="o">.</span><span class="nf">useLeftBrace</span><span class="p">(</span><span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makeLeftBraceToken</span><span class="p">(</span><span class="nv">trailingTrivia</span><span class="p">:</span> <span class="o">.</span><span class="nf">newlines</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+    <span class="nv">$0</span><span class="o">.</span><span class="nf">addDecl</span><span class="p">(</span><span class="nf">createLetDecl</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"name"</span><span class="p">,</span> <span class="nv">type</span><span class="p">:</span> <span class="s">"String"</span><span class="p">,</span> <span class="nv">leadingTrivia</span><span class="p">:</span> <span class="o">.</span><span class="nf">spaces</span><span class="p">(</span><span class="mi">4</span><span class="p">)))</span>
+    <span class="nv">$0</span><span class="o">.</span><span class="nf">addDecl</span><span class="p">(</span><span class="nf">createLetDecl</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"age"</span><span class="p">,</span> <span class="nv">type</span><span class="p">:</span> <span class="s">"Int"</span><span class="p">,</span> <span class="nv">leadingTrivia</span><span class="p">:</span> <span class="o">.</span><span class="nf">spaces</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="nv">trailingTrivia</span><span class="p">:</span> <span class="o">.</span><span class="n">zero</span><span class="p">))</span>
+    <span class="nv">$0</span><span class="o">.</span><span class="nf">useRightBrace</span><span class="p">(</span><span class="kt">SyntaxFactory</span><span class="o">.</span><span class="nf">makeRightBraceToken</span><span class="p">(</span><span class="nv">leadingTrivia</span><span class="p">:</span> <span class="o">.</span><span class="nf">newlines</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">catStruct</span> <span class="o">=</span> <span class="kt">StructDeclSyntax</span> <span class="p">{</span>
+    <span class="nv">$0</span><span class="o">.</span><span class="nf">useStructKeyword</span><span class="p">(</span><span class="n">keyword</span><span class="p">)</span>
+    <span class="nv">$0</span><span class="o">.</span><span class="nf">useIdentifier</span><span class="p">(</span><span class="n">catId</span><span class="p">)</span>
+    <span class="nv">$0</span><span class="o">.</span><span class="nf">useMembers</span><span class="p">(</span><span class="n">members</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="n">catStruct</span><span class="p">)</span>
+<span class="cm">/*
+struct Cat {
+    let name: String
+    let age: Int
+}
+*/</span>
+</pre></table></code></div></div><p>SwiftSyntax 是一套功能完备的 Swift 源码生成工具，也就是说，除了变量声明和结构体，其他上至类、枚举、方法，下到访问控制关键字、冒号、逗号，都有对应的类型安全的方式进行操作。除了通过代码生成代码以外，SwiftSyntax 也支持遍历访问所有的 token。回到我们的字典转换的工作，我们需要做的就是，使用 libSyntax 遍历访问 token (或者想简单一些的话可以直接用 SourceKitten)，找到我们感兴趣的需要转换的类，然后遍历它的属性声明。接下来将这些属性声明再通过 libSyntax 的各种 maker 和 builder 组织为字典的形式，以 extension 的形式写回对应文件中去。</p><p>由于这样来进行字典转换实在没有什么实用价值，所以不再浪费篇幅贴代码了。不过使用 libSyntax 来完成一些像是缩进/对齐/括号换行之类的 formatter 工具会是很不错的选择。你也可以仔细思考看看如果你是 Xcode 的开发者，会如何实现像是重命名或者方法提取这样的重构功能。(也许下一份工作就可以投 Apple 的 Xcode 团队或者 JetBrains 的 AppCode 团队了呢~)</p><p>顺带一提，作为元编程库的 libSyntax 本身也大量使用了 gyb 的方式来生成代码，也许你可以把它叫做“元元编程”。😂</p><blockquote><p>SwiftSyntax 非常强大，不过它还在持续的开发中，并没有达到稳定。因此最好也不要现在将它用在实际的项目中，它的文档几乎没有，部分语法支持还<a href="https://github.com/apple/swift/blob/master/lib/Syntax/Status.md">没有完整实现</a>，很多细节也还没有最终确定。(不过也正是这样，才满足一个好玩的“玩具”的特质。)</p></blockquote><h2 id="总结">总结</h2><p>不管是运行时的反射 (类似 <code class="language-plaintext highlighter-rouge">Mirror</code>)，还是编译前生成代码，都可以归类到“元编程”的范畴里。绕了一大圈，其实对于本文中的例子来说，可能简单地使用 Codable 就已经足够好。不过，从多个角度看这个问题的话，我们能发现不少有趣的其他解决方案，这有益无害。</p><p>实际上，有很多工作更适合使用元编程来处理：比如在处理事件统计时，我们可以自动通过定义生成所需要的统计类型；在写网络 API Client 时，可以生成请求的定义；对于重复的单元测试，可以用模板批量生成 mock 或者 stub 帮助简化流程和保持测试代码与产品代码的同步；在策划人员难以直接修改源码时，可以为他们提供配置文件，最后再按照将配置文件生成需要的代码等。每个方面都有值得进一步思考和研究的深度内容，而这种元编程的能力可以让我们避免直接对代码进行重复维护，依靠更加可靠的自动机制避免引入人为错误，这在已有代码需要大范围重复变更的时候尤为有效。</p><p>在今后有类似的重复体力劳动需求时，不妨考虑使用元编程的方法稍微放飞自我。:)</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="post-tag no-text-decoration" >设计模式</a> <a href="/tags/%E5%85%83%E7%BC%96%E7%A8%8B/" class="post-tag no-text-decoration" >元编程</a> <a href="/tags/codable/" class="post-tag no-text-decoration" >codable</a> <a href="/tags/mirror/" class="post-tag no-text-decoration" >mirror</a> <a href="/tags/%E4%BB%A3%E7%A0%81%E7%94%9F%E6%88%90/" class="post-tag no-text-decoration" >代码生成</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=不同角度看问题 - 从 Codable 到 Swift 元编程 - OneV's Den&url=https://onevcat.com/2018/03/swift-meta/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=不同角度看问题 - 从 Codable 到 Swift 元编程 - OneV's Den&u=https://onevcat.com/2018/03/swift-meta/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=不同角度看问题 - 从 Codable 到 Swift 元编程 - OneV's Den&url=https://onevcat.com/2018/03/swift-meta/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=不同角度看问题 - 从 Codable 到 Swift 元编程 - OneV's Den&url=https://onevcat.com/2018/03/swift-meta/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2016/11/pop-cocoa-1/"><div class="card-body"> <span class="timeago small" > 2016-11-29 <i class="unloaded">2016-11-29T10:22:11+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>面向协议编程与 Cocoa 的邂逅 (上)</h3><div class="text-muted small"><p> 本文是笔者在 MDCC 16 (移动开发者大会) 上 iOS 专场中的主题演讲的文字整理。您可以在这里找到演讲使用的 Keynote，部分示例代码可以在 MDCC 2016 的官方 repo 中找到。因为全部内容比较长，所以分成了上下两个部分，本文 (上) 主要介绍了一些理论方面的内容，包括面向对象编程存在的问题，面向协议的基本概念和决策模型等，下半部分主要展示了一些笔者日常使用面向协议思想...</p></div></div></a></div><div class="card"> <a href="/2016/12/pop-cocoa-2/"><div class="card-body"> <span class="timeago small" > 2016-12-01 <i class="unloaded">2016-12-01T11:22:11+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>面向协议编程与 Cocoa 的邂逅 (下)</h3><div class="text-muted small"><p> 本文是笔者在 MDCC 16 (移动开发者大会) 上 iOS 专场中的主题演讲的文字整理。您可以在这里找到演讲使用的 Keynote，部分示例代码可以在 MDCC 2016 的官方 repo 中找到。 在上半部分主要介绍了一些理论方面的内容，包括面向对象编程存在的问题，面向协议的基本概念和决策模型等。本文 (下) 主要展示了一些笔者日常使用面向协议思想和 Cocoa 开发结合的示例代码，并...</p></div></div></a></div><div class="card"> <a href="/2018/10/swift-result-error/"><div class="card-body"> <span class="timeago small" > 2018-10-31 <i class="unloaded">2018-10-31T11:38:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt;</h3><div class="text-muted small"><p> 我之前在专栏文章里曾经发布这篇文章，由于这个话题其实还是挺重要的，可以说代表了 Swift 今后发展的方向流派，所以即使和专栏文章内容有些重复，我还是想把它再贴到博客来。经过半年以后，自己对于这个问题也有了更多的实践和想法，所以同时也更新了一下。我没有直接改动原文，而是把新的想法和需要补充的说明，用类似这段话的引用的方式写在合适的上下文里。 开始先打个广告 我个人经常会在数码荔枝...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2017/10/swift-error-category/" class="btn btn-outline-primary"><p>关于 Swift Error 的分类</p></a> <a href="/2018/05/mvc-wrong-use/" class="btn btn-outline-primary"><p>关于 MVC 的一个常见的误用</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

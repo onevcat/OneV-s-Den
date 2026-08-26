@@ -1,0 +1,271 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="Swift 中使用 Option Pattern 改善可选项的 API 设计" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="SwiftUI 中提供了很多“新颖”的 API 设计思路和 Swift 的使用方式，我们可以进行借鉴，并反过来使用到普通的 Swift 代码中。PreferenceKey 的处理方式就是其中之一：它通过 protocol 的方式，为子 view 们提供了一套模式，让它们能将自定义值以类型安全的方式，向上传到父 view 去。如果有机会，我会再专门介绍 PreferenceKey，但这种设计的模式其实和 UI 无关，在一般的 Swift 里，我们也能使用这种方法来改善 API 设计。" /><meta property="og:description" content="SwiftUI 中提供了很多“新颖”的 API 设计思路和 Swift 的使用方式，我们可以进行借鉴，并反过来使用到普通的 Swift 代码中。PreferenceKey 的处理方式就是其中之一：它通过 protocol 的方式，为子 view 们提供了一套模式，让它们能将自定义值以类型安全的方式，向上传到父 view 去。如果有机会，我会再专门介绍 PreferenceKey，但这种设计的模式其实和 UI 无关，在一般的 Swift 里，我们也能使用这种方法来改善 API 设计。" /><link rel="canonical" href="https://onevcat.com/2020/10/use-options-pattern/" /><meta property="og:url" content="https://onevcat.com/2020/10/use-options-pattern/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2020-10-21T14:00:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Swift 中使用 Option Pattern 改善可选项的 API 设计" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"SwiftUI 中提供了很多“新颖”的 API 设计思路和 Swift 的使用方式，我们可以进行借鉴，并反过来使用到普通的 Swift 代码中。PreferenceKey 的处理方式就是其中之一：它通过 protocol 的方式，为子 view 们提供了一套模式，让它们能将自定义值以类型安全的方式，向上传到父 view 去。如果有机会，我会再专门介绍 PreferenceKey，但这种设计的模式其实和 UI 无关，在一般的 Swift 里，我们也能使用这种方法来改善 API 设计。","url":"https://onevcat.com/2020/10/use-options-pattern/","@type":"BlogPosting","headline":"Swift 中使用 Option Pattern 改善可选项的 API 设计","dateModified":"2020-10-21T14:00:00+09:00","datePublished":"2020-10-21T14:00:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2020/10/use-options-pattern/"},"@context":"https://schema.org"}</script><title>Swift 中使用 Option Pattern 改善可选项的 API 设计 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>Swift 中使用 Option Pattern 改善可选项的 API 设计</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>Swift 中使用 Option Pattern 改善可选项的 API 设计</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Wed, Oct 21, 2020, 2:00 PM +0900" > 2020-10-21 <i class="unloaded">2020-10-21T14:00:00+09:00</i> </span></div><div> 最后更新: <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Thu, Oct 22, 2020, 5:49 PM +0900" > 2020-10-22 <i class="unloaded">2020-10-22T17:49:08+09:00</i> </span></div></div><div class="post-content"><p>SwiftUI 中提供了很多“新颖”的 API 设计思路和 Swift 的使用方式，我们可以进行借鉴，并反过来使用到普通的 Swift 代码中。<a href="https://developer.apple.com/documentation/swiftui/preferencekey"><code class="language-plaintext highlighter-rouge">PreferenceKey</code></a> 的处理方式就是其中之一：它通过 protocol 的方式，为子 view 们提供了一套模式，让它们能将自定义值以类型安全的方式，向上传到父 view 去。如果有机会，我会再专门介绍 <code class="language-plaintext highlighter-rouge">PreferenceKey</code>，但这种设计的模式其实和 UI 无关，在一般的 Swift 里，我们也能使用这种方法来改善 API 设计。</p><p>在这篇文章里，我们就来看看要如何做。文中相关的代码可以<a href="https://gist.github.com/onevcat/40f21b41a6b1ffa06ceb9f3ee0470bf3">在这里找到</a>。你可以将这些代码复制到 Playground 中执行并查看结果。</p><h2 id="红绿灯">红绿灯</h2><p>用一个交通信号灯作为例子。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2020/light-1.png" alt="" /></p><p>作为 Model 类型的 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 类型定义了 <code class="language-plaintext highlighter-rouge">.stop</code>、<code class="language-plaintext highlighter-rouge">.proceed</code> 和 <code class="language-plaintext highlighter-rouge">.caution</code> 三种 <code class="language-plaintext highlighter-rouge">State</code>，它们分别代表停止、通行和注意三种状态 (当然，通俗来说就是“红绿黄”，但是 Model 不应该和颜色，也就是 View 层级相关)。它还持有一个 <code class="language-plaintext highlighter-rouge">state</code> 来表示当前的状态，并在设置时将这个状态通过 <code class="language-plaintext highlighter-rouge">onStateChanged</code> 发送出去：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="kt">TrafficLight</span> <span class="p">{</span>
+
+    <span class="kd">public</span> <span class="kd">enum</span> <span class="kt">State</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">stop</span>
+        <span class="k">case</span> <span class="n">proceed</span>
+        <span class="k">case</span> <span class="n">caution</span>
+    <span class="p">}</span>
+
+    <span class="kd">public</span> <span class="kd">private(set)</span> <span class="k">var</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">State</span> <span class="o">=</span> <span class="o">.</span><span class="n">stop</span> <span class="p">{</span>
+        <span class="k">didSet</span> <span class="p">{</span> <span class="nf">onStateChanged</span><span class="p">?(</span><span class="n">state</span><span class="p">)</span> <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">onStateChanged</span><span class="p">:</span> <span class="p">((</span><span class="kt">State</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)?</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>其余部分的逻辑和本次主题无关，不过它们也比较简单。如果你有兴趣的话，可以点开下面的详情查看。但这不影响本文的理解。</p><details> <summary>TrafficLight 的其他部分</summary><p>为了能让信号灯进行状态转换，我们可以在 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 里定义各个阶段的时间：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="k">var</span> <span class="nv">stopDuration</span> <span class="o">=</span> <span class="mf">4.0</span>
+<span class="kd">public</span> <span class="k">var</span> <span class="nv">proceedDuration</span> <span class="o">=</span> <span class="mf">6.0</span>
+<span class="kd">public</span> <span class="k">var</span> <span class="nv">cautionDuration</span> <span class="o">=</span> <span class="mf">1.5</span>
+</pre></table></code></div></div><p>然后用一个 <code class="language-plaintext highlighter-rouge">Timer</code> 计时，并进行控制状态的转换：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="kd">private</span> <span class="k">var</span> <span class="nv">timer</span><span class="p">:</span> <span class="kt">Timer</span><span class="p">?</span>
+
+<span class="kd">private</span> <span class="kd">func</span> <span class="nf">turnState</span><span class="p">(</span><span class="n">_</span> <span class="nv">state</span><span class="p">:</span> <span class="kt">State</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">switch</span> <span class="n">state</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nv">proceed</span><span class="p">:</span>
+        <span class="n">timer</span> <span class="o">=</span> <span class="kt">Timer</span><span class="o">.</span><span class="nf">scheduledTimer</span><span class="p">(</span><span class="nv">withTimeInterval</span><span class="p">:</span> <span class="n">proceedDuration</span><span class="p">,</span> <span class="nv">repeats</span><span class="p">:</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span> <span class="n">_</span> <span class="k">in</span>
+            <span class="k">self</span><span class="o">.</span><span class="nf">turnState</span><span class="p">(</span><span class="o">.</span><span class="n">caution</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nv">caution</span><span class="p">:</span>
+        <span class="n">timer</span> <span class="o">=</span> <span class="kt">Timer</span><span class="o">.</span><span class="nf">scheduledTimer</span><span class="p">(</span><span class="nv">withTimeInterval</span><span class="p">:</span> <span class="n">cautionDuration</span><span class="p">,</span> <span class="nv">repeats</span><span class="p">:</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span> <span class="n">_</span> <span class="k">in</span>
+            <span class="k">self</span><span class="o">.</span><span class="nf">turnState</span><span class="p">(</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nv">stop</span><span class="p">:</span>
+        <span class="n">timer</span> <span class="o">=</span> <span class="kt">Timer</span><span class="o">.</span><span class="nf">scheduledTimer</span><span class="p">(</span><span class="nv">withTimeInterval</span><span class="p">:</span> <span class="n">stopDuration</span><span class="p">,</span> <span class="nv">repeats</span><span class="p">:</span> <span class="kc">false</span><span class="p">)</span> <span class="p">{</span> <span class="n">_</span> <span class="k">in</span>
+            <span class="k">self</span><span class="o">.</span><span class="nf">turnState</span><span class="p">(</span><span class="o">.</span><span class="n">proceed</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">self</span><span class="o">.</span><span class="n">state</span> <span class="o">=</span> <span class="n">state</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>最后，向外提供开启和结束的方法就可以了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">guard</span> <span class="n">timer</span> <span class="o">==</span> <span class="kc">nil</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">}</span>
+    <span class="nf">turnState</span><span class="p">(</span><span class="o">.</span><span class="n">stop</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">stop</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">timer</span><span class="p">?</span><span class="o">.</span><span class="nf">invalidate</span><span class="p">()</span>
+    <span class="n">timer</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></table></code></div></div></details><p>在 (ViewController 中) 使用这个红绿灯也很简单。我们按照红绿黄的颜色，在 <code class="language-plaintext highlighter-rouge">onStateChanged</code> 中设定 <code class="language-plaintext highlighter-rouge">view</code> 的颜色：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="n">light</span> <span class="o">=</span> <span class="kt">TrafficLight</span><span class="p">()</span>
+<span class="n">light</span><span class="o">.</span><span class="n">onStateChanged</span> <span class="o">=</span> <span class="p">{</span> <span class="p">[</span><span class="k">weak</span> <span class="k">self</span><span class="p">]</span> <span class="n">state</span> <span class="k">in</span>
+    <span class="k">guard</span> <span class="k">let</span> <span class="nv">self</span> <span class="o">=</span> <span class="k">self</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">}</span>
+    <span class="k">let</span> <span class="nv">color</span><span class="p">:</span> <span class="kt">UIColor</span>
+    <span class="k">switch</span> <span class="n">state</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nv">proceed</span><span class="p">:</span> <span class="n">color</span> <span class="o">=</span> <span class="o">.</span><span class="n">green</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nv">caution</span><span class="p">:</span> <span class="n">color</span> <span class="o">=</span> <span class="o">.</span><span class="n">yellow</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nv">stop</span><span class="p">:</span> <span class="n">color</span> <span class="o">=</span> <span class="o">.</span><span class="n">red</span>
+    <span class="p">}</span>
+    <span class="kt">UIView</span><span class="o">.</span><span class="nf">animate</span><span class="p">(</span><span class="nv">withDuration</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">view</span><span class="o">.</span><span class="n">backgroundColor</span> <span class="o">=</span> <span class="n">color</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">light</span><span class="o">.</span><span class="nf">start</span><span class="p">()</span>
+</pre></table></code></div></div><p>这样，View 的颜色就可以随着 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 的变化而变更了：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2020/light-running.gif" alt="" /></p><h2 id="青色信号">青色信号</h2><p>世界很大，有些地方 (比如日本) 会使用倾向于青色，或者实际上应该是<a href="https://www.color-hex.com/color/40e0d0">绿松色 (turquoise)</a>，来表示“可以通行”。有时候这也是技术的<a href="http://www.reuk.co.uk/wordpress/news/uk-traffic-lights-57000-tonnes-of-co2/">限制或者进步</a>所带来的结果。</p><blockquote><p>The green light was traditionally green in colour (hence its name) though modern LED green lights are turquoise.</p><p>– Wikipedia 中关于 Traffic light 的记述</p></blockquote><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2020/light-2.png" alt="" /></p><p>假设我们想要让 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 支持青色的绿灯，一个能想到的最简单的方式，就是在 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 里为“绿灯颜色”提供一个选项：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="kt">TrafficLight</span> <span class="p">{</span>
+    <span class="kd">public</span> <span class="kd">enum</span> <span class="kt">GreenLightColor</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">green</span>
+        <span class="k">case</span> <span class="n">turquoise</span>
+    <span class="p">}</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">preferredGreenLightColor</span><span class="p">:</span> <span class="kt">GreenLightColor</span> <span class="o">=</span> <span class="o">.</span><span class="n">green</span>
+    
+    <span class="c1">//...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>然后在 <code class="language-plaintext highlighter-rouge">ViewController</code> 中使用对应的颜色：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">TrafficLight</span><span class="o">.</span><span class="kt">GreenLightColor</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">color</span><span class="p">:</span> <span class="kt">UIColor</span> <span class="p">{</span>
+        <span class="k">switch</span> <span class="k">self</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">green</span><span class="p">:</span> 
+            <span class="k">return</span> <span class="o">.</span><span class="n">green</span>
+        <span class="k">case</span> <span class="o">.</span><span class="nv">turquoise</span><span class="p">:</span> 
+            <span class="k">return</span> <span class="kt">UIColor</span><span class="p">(</span><span class="nv">red</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span> <span class="nv">green</span><span class="p">:</span> <span class="mf">0.88</span><span class="p">,</span> <span class="nv">blue</span><span class="p">:</span> <span class="mf">0.82</span><span class="p">,</span> <span class="nv">alpha</span><span class="p">:</span> <span class="mf">1.00</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">light</span><span class="o">.</span><span class="n">preferredGreenLightColor</span> <span class="o">=</span> <span class="o">.</span><span class="n">turquoise</span>
+<span class="n">light</span><span class="o">.</span><span class="n">onStateChanged</span> <span class="o">=</span> <span class="p">{</span> <span class="p">[</span><span class="k">weak</span> <span class="k">self</span><span class="p">,</span> <span class="k">weak</span> <span class="n">light</span><span class="p">]</span> <span class="n">state</span> <span class="k">in</span>
+    <span class="k">guard</span> <span class="k">let</span> <span class="nv">self</span> <span class="o">=</span> <span class="k">self</span><span class="p">,</span> <span class="k">let</span> <span class="nv">light</span> <span class="o">=</span> <span class="n">light</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">}</span>
+    <span class="c1">// ...</span>
+    
+    <span class="c1">// case .proceed: color = .green</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nv">proceed</span><span class="p">:</span> <span class="n">color</span> <span class="o">=</span> <span class="n">light</span><span class="o">.</span><span class="n">preferredGreenLightColor</span><span class="o">.</span><span class="n">color</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这样做当然能够解决问题，但是也会带来一些隐患。首先，需要在 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 中添加一个额外的存储属性 <code class="language-plaintext highlighter-rouge">preferredGreenLightColor</code>，这使得 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 示例所使用的内存开销增加了。在上例中，额外的 <code class="language-plaintext highlighter-rouge">GreenLightColor</code> 属性将会为每个实例带来 8 byte 的开销。 如果我们需要同时处理很多 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 实例，而其中只有很少数需要 <code class="language-plaintext highlighter-rouge">.turquoise</code> 的话，这个开销就非常可惜了。</p><blockquote><p>严格来说，上例的 TrafficLight.GreenLightColor 枚举其实只需要占用 1 byte。但是 64-bit 系统中在内存分配中的最小单位是 8 bytes。</p><p>如果想要添加的属性不是像例子中这样简单的 enum，而是更加复杂的带有多个属性的类型的话，这一开销会更大。</p></blockquote><p>另外，如果我们还要添加其他属性，很容易想到的方法是继续在 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 上加入更多的存储属性。这其实是很没有扩展性的方法，我们并不能在 extension 中添加存储属性：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="c1">// 无法编译</span>
+<span class="kd">extension</span> <span class="kt">TrafficLight</span> <span class="p">{</span>
+    <span class="kd">enum</span> <span class="kt">A</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">a</span>
+    <span class="p">}</span>
+    <span class="k">var</span> <span class="nv">myOption</span><span class="p">:</span> <span class="kt">A</span> <span class="o">=</span> <span class="o">.</span><span class="n">a</span> <span class="c1">// Extensions must not contain stored properties</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>需要修改 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 的源码，才能添加这个选项，而且还需要为添加的属性设置合适的初始值，或者提供额外的 init 方法。如果我们不能直接修改 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 的源码 (比如这个类型是别人的代码，或者是被封装到 framework 里的)，那么像这样的添加选项的方式其实是无法实现的。</p><h2 id="option-pattern">Option Pattern</h2><p>可以用 Option Pattern 来解决这个问题。在 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 中，我们不去提供专用的 <code class="language-plaintext highlighter-rouge">preferredGreenLightColor</code>，而是定义一个泛用的 <code class="language-plaintext highlighter-rouge">options</code> 字典，来将需要的选项值放到里面。为了限定能放进字典中的值，新建一个 <code class="language-plaintext highlighter-rouge">TrafficLightOption</code> 协议：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">TrafficLightOption</span> <span class="p">{</span>
+    <span class="kd">associatedtype</span> <span class="kt">Value</span>
+
+    <span class="c1">/// 默认的选项值</span>
+    <span class="kd">static</span> <span class="k">var</span> <span class="nv">defaultValue</span><span class="p">:</span> <span class="kt">Value</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 中，加入下面的 <code class="language-plaintext highlighter-rouge">options</code> 属性和下标方法：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">class</span> <span class="kt">TrafficLight</span> <span class="p">{</span>
+
+    <span class="c1">// ...</span>
+
+    <span class="c1">// 1</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">options</span> <span class="o">=</span> <span class="p">[</span><span class="kt">ObjectIdentifier</span><span class="p">:</span> <span class="kt">Any</span><span class="p">]()</span>
+
+    <span class="kd">public</span> <span class="kd">subscript</span><span class="o">&lt;</span><span class="kt">T</span><span class="p">:</span> <span class="kt">TrafficLightOption</span><span class="o">&gt;</span><span class="p">(</span><span class="n">option</span> <span class="nv">type</span><span class="p">:</span> <span class="kt">T</span><span class="o">.</span><span class="k">Type</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Value</span> <span class="p">{</span>
+        <span class="k">get</span> <span class="p">{</span>
+            <span class="c1">// 2</span>
+            <span class="n">options</span><span class="p">[</span><span class="kt">ObjectIdentifier</span><span class="p">(</span><span class="n">type</span><span class="p">)]</span> <span class="k">as?</span> <span class="kt">T</span><span class="o">.</span><span class="kt">Value</span>
+                <span class="p">??</span> <span class="n">type</span><span class="o">.</span><span class="n">defaultValue</span>
+        <span class="p">}</span>
+        <span class="k">set</span> <span class="p">{</span>
+            <span class="n">options</span><span class="p">[</span><span class="kt">ObjectIdentifier</span><span class="p">(</span><span class="n">type</span><span class="p">)]</span> <span class="o">=</span> <span class="n">newValue</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="c1">// ...    </span>
+<span class="p">}</span>
+</pre></table></code></div></div><ol><li>只有满足 <code class="language-plaintext highlighter-rouge">Hashable</code> 的类型，才能作为 <code class="language-plaintext highlighter-rouge">options</code> 字典的 key。<a href="https://developer.apple.com/documentation/swift/objectidentifier"><code class="language-plaintext highlighter-rouge">ObjectIdentifier</code></a> 通过给定的类型或者是 class 实例，可以生成一个唯一代表该类型和实例的值。它非常适合用来当作 <code class="language-plaintext highlighter-rouge">options</code> 的 key。<li>通过 key 在 <code class="language-plaintext highlighter-rouge">options</code> 中寻找设置的值。如果没有找到的话，返回默认值 <code class="language-plaintext highlighter-rouge">type.defaultValue</code>。</ol><p>现在，对 <code class="language-plaintext highlighter-rouge">TrafficLight.GreenLightColor</code> 进行扩展，让它满足 <code class="language-plaintext highlighter-rouge">TrafficLightOption</code>。如果 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 已经被打包成 framework，我们甚至可以把这部分代码从 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 所在的 target 中拿出来：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">TrafficLight</span> <span class="p">{</span>
+    <span class="kd">public</span> <span class="kd">enum</span> <span class="kt">GreenLightColor</span><span class="p">:</span> <span class="kt">TrafficLightOption</span> <span class="p">{</span>
+        <span class="k">case</span> <span class="n">green</span>
+        <span class="k">case</span> <span class="n">turquoise</span>
+
+        <span class="kd">public</span> <span class="kd">static</span> <span class="k">let</span> <span class="nv">defaultValue</span><span class="p">:</span> <span class="kt">GreenLightColor</span> <span class="o">=</span> <span class="o">.</span><span class="n">green</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>我们将 <code class="language-plaintext highlighter-rouge">defaultValue</code> 声明为了 <code class="language-plaintext highlighter-rouge">GreenLightColor</code> 类型，这样<code class="language-plaintext highlighter-rouge">TrafficLightOption.Value</code> 的类型也将被编译器推断为 <code class="language-plaintext highlighter-rouge">GreenLightColor</code>。</p><p>最后，为这个选项提供 setter 和 getter：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">TrafficLight</span> <span class="p">{</span>
+    <span class="kd">public</span> <span class="k">var</span> <span class="nv">preferredGreenLightColor</span><span class="p">:</span> <span class="kt">TrafficLight</span><span class="o">.</span><span class="kt">GreenLightColor</span> <span class="p">{</span>
+        <span class="k">get</span> <span class="p">{</span> <span class="k">self</span><span class="p">[</span><span class="nv">option</span><span class="p">:</span> <span class="kt">GreenLightColor</span><span class="o">.</span><span class="k">self</span><span class="p">]</span> <span class="p">}</span>
+        <span class="k">set</span> <span class="p">{</span> <span class="k">self</span><span class="p">[</span><span class="nv">option</span><span class="p">:</span> <span class="kt">GreenLightColor</span><span class="o">.</span><span class="k">self</span><span class="p">]</span> <span class="o">=</span> <span class="n">newValue</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>现在，你可以像之前那样，通过直接在 <code class="language-plaintext highlighter-rouge">light</code> 上设置 <code class="language-plaintext highlighter-rouge">preferredGreenLightColor</code> 来使用这个选项，而且它已经不是 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 的存储属性了。只要不进行设置，它便不会带来额外的开销。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="n">light</span><span class="o">.</span><span class="n">preferredGreenLightColor</span> <span class="o">=</span> <span class="o">.</span><span class="n">turquoise</span>
+</pre></table></code></div></div><p>有了 <code class="language-plaintext highlighter-rouge">TrafficLightOption</code>，现在想要为 <code class="language-plaintext highlighter-rouge">TrafficLight</code> 添加选项时，就不需要对类型本身的代码进行改动了，我们只需要声明一个满足 <code class="language-plaintext highlighter-rouge">TrafficLightOption</code> 的新类型，然后为它实现合适的计算属性就可以了。这大幅增加了原来类型的可扩展性。</p><h2 id="总结">总结</h2><p>Option Pattern 是一种受到 SwiftUI 的启发的模式，它帮助我们在不添加存储属性的前提下，提供了一种向已有类型中以类型安全的方式添加“存储”的手段。</p><p>这种模式非常适合从外界对已有的类型进行功能上的添加，或者是自下而上地对类型的使用方式进行改造。这项技术可以对 Swift 开发和 API 设计的更新产生一定有益的影响。反过来，了解这种模式，相信对于理解 SwiftUI 中的很多概念，比如 <code class="language-plaintext highlighter-rouge">PreferenceKey</code> 和 <code class="language-plaintext highlighter-rouge">alignmentGuide</code> 等，也会有所助益。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/api/" class="post-tag no-text-decoration" >api</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="post-tag no-text-decoration" >设计模式</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Swift 中使用 Option Pattern 改善可选项的 API 设计 - OneV's Den&url=https://onevcat.com/2020/10/use-options-pattern/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Swift 中使用 Option Pattern 改善可选项的 API 设计 - OneV's Den&u=https://onevcat.com/2020/10/use-options-pattern/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=Swift 中使用 Option Pattern 改善可选项的 API 设计 - OneV's Den&url=https://onevcat.com/2020/10/use-options-pattern/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=Swift 中使用 Option Pattern 改善可选项的 API 设计 - OneV's Den&url=https://onevcat.com/2020/10/use-options-pattern/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2016/01/create-framework/"><div class="card-body"> <span class="timeago small" > 2016-01-19 <i class="unloaded">2016-01-19T15:32:24+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>如何打造一个让人愉快的框架</h3><div class="text-muted small"><p> 这是我在今年 1 月 10 日 @Swift 开发者大会 上演讲的文字稿。相关的视频还在制作中，没有到现场的朋友可以通过这个文字稿了解到这个 session 的内容。 &lt;br&gt; 虽然我的工作是程序员，但是最近半年其实我的主要干的事儿是养了一个小孩。 所以这半年来可以说没有积累到什么技术，反而是积累了不少养小孩的心得。 当知道了有这么次会议可以分享这半年来的心得的时...</p></div></div></a></div><div class="card"> <a href="/2016/11/pop-cocoa-1/"><div class="card-body"> <span class="timeago small" > 2016-11-29 <i class="unloaded">2016-11-29T10:22:11+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>面向协议编程与 Cocoa 的邂逅 (上)</h3><div class="text-muted small"><p> 本文是笔者在 MDCC 16 (移动开发者大会) 上 iOS 专场中的主题演讲的文字整理。您可以在这里找到演讲使用的 Keynote，部分示例代码可以在 MDCC 2016 的官方 repo 中找到。因为全部内容比较长，所以分成了上下两个部分，本文 (上) 主要介绍了一些理论方面的内容，包括面向对象编程存在的问题，面向协议的基本概念和决策模型等，下半部分主要展示了一些笔者日常使用面向协议思想...</p></div></div></a></div><div class="card"> <a href="/2016/12/pop-cocoa-2/"><div class="card-body"> <span class="timeago small" > 2016-12-01 <i class="unloaded">2016-12-01T11:22:11+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>面向协议编程与 Cocoa 的邂逅 (下)</h3><div class="text-muted small"><p> 本文是笔者在 MDCC 16 (移动开发者大会) 上 iOS 专场中的主题演讲的文字整理。您可以在这里找到演讲使用的 Keynote，部分示例代码可以在 MDCC 2016 的官方 repo 中找到。 在上半部分主要介绍了一些理论方面的内容，包括面向对象编程存在的问题，面向协议的基本概念和决策模型等。本文 (下) 主要展示了一些笔者日常使用面向协议思想和 Cocoa 开发结合的示例代码，并...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2020/09/swift-package-version/" class="btn btn-outline-primary"><p>Package.swift toolchain 版本的选择</p></a> <a href="/2020/11/codable-default/" class="btn btn-outline-primary"><p>使用 Property Wrapper 为 Codable 解码设定默认值</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

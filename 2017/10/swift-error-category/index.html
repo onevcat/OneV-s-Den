@@ -1,0 +1,315 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="关于 Swift Error 的分类" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="在去年我应 IBM 编辑的邀请写过一篇关于 Swift 2 中 throws 的文章。现在回头看，Swift 2 其实是 Swift 语言发展的一个挺重要的节点：如果说 Swift 1 是一个更偏向于验证阶段的产品的话，Swift 2 中加入的特性为这门语言的基石进行了补足。在那篇文章里我们主要深入探索了新的 throw 关键字背后的事情，而同一时期其实 Swift 官方有过一次关于错误处理的讨论。随着 Swift 3 的开源，这些原始文档也被一同公开，展示了 Swift 设计的过程和轨迹。如果你对这篇 Swift 2 中的错误处理的宣言感兴趣的话，可以在 GitHub 上 Swift 项目文档中找到原文。" /><meta property="og:description" content="在去年我应 IBM 编辑的邀请写过一篇关于 Swift 2 中 throws 的文章。现在回头看，Swift 2 其实是 Swift 语言发展的一个挺重要的节点：如果说 Swift 1 是一个更偏向于验证阶段的产品的话，Swift 2 中加入的特性为这门语言的基石进行了补足。在那篇文章里我们主要深入探索了新的 throw 关键字背后的事情，而同一时期其实 Swift 官方有过一次关于错误处理的讨论。随着 Swift 3 的开源，这些原始文档也被一同公开，展示了 Swift 设计的过程和轨迹。如果你对这篇 Swift 2 中的错误处理的宣言感兴趣的话，可以在 GitHub 上 Swift 项目文档中找到原文。" /><link rel="canonical" href="https://onevcat.com/2017/10/swift-error-category/" /><meta property="og:url" content="https://onevcat.com/2017/10/swift-error-category/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2017-10-17T12:15:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="关于 Swift Error 的分类" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"在去年我应 IBM 编辑的邀请写过一篇关于 Swift 2 中 throws 的文章。现在回头看，Swift 2 其实是 Swift 语言发展的一个挺重要的节点：如果说 Swift 1 是一个更偏向于验证阶段的产品的话，Swift 2 中加入的特性为这门语言的基石进行了补足。在那篇文章里我们主要深入探索了新的 throw 关键字背后的事情，而同一时期其实 Swift 官方有过一次关于错误处理的讨论。随着 Swift 3 的开源，这些原始文档也被一同公开，展示了 Swift 设计的过程和轨迹。如果你对这篇 Swift 2 中的错误处理的宣言感兴趣的话，可以在 GitHub 上 Swift 项目文档中找到原文。","url":"https://onevcat.com/2017/10/swift-error-category/","@type":"BlogPosting","headline":"关于 Swift Error 的分类","dateModified":"2017-10-17T12:15:00+09:00","datePublished":"2017-10-17T12:15:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2017/10/swift-error-category/"},"@context":"https://schema.org"}</script><title>关于 Swift Error 的分类 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>关于 Swift Error 的分类</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>关于 Swift Error 的分类</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Tue, Oct 17, 2017, 12:15 PM +0900" > 2017-10-17 <i class="unloaded">2017-10-17T12:15:00+09:00</i> </span></div><div> 最后更新: <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Thu, Oct 22, 2020, 5:03 PM +0900" > 2020-10-22 <i class="unloaded">2020-10-22T17:03:49+09:00</i> </span></div></div><div class="post-content"><p>在去年我应 IBM 编辑的邀请写过一篇关于 <a href="https://onevcat.com/2016/03/swift-throws/">Swift 2 中 throws 的文章</a>。现在回头看，Swift 2 其实是 Swift 语言发展的一个挺重要的节点：如果说 Swift 1 是一个更偏向于验证阶段的产品的话，Swift 2 中加入的特性为这门语言的基石进行了补足。在那篇文章里我们主要深入探索了新的 throw 关键字背后的事情，而同一时期其实 Swift 官方有过一次关于错误处理的讨论。随着 Swift 3 的开源，这些原始文档也被一同公开，展示了 Swift 设计的过程和轨迹。如果你对这篇 Swift 2 中的错误处理的宣言感兴趣的话，可以在 GitHub 上 Swift 项目文档中<a href="https://github.com/apple/swift/blob/master/docs/ErrorHandling.rst">找到原文</a>。</p><p>最近参加了日本这边的一个社区办的 iOS 会议，其中 <a href="https://twitter.com/koher">koher</a> 给出了一个关于<a href="https://iosdc.jp/2017/node/1305">错误处理的 session</a>，里面也提到了这篇文档，正确理解和思考 Swift 错误机制的类型非常有意思，它也可以指导我们在不同场景下对应使用正确的处理机制。</p><h2 id="swift-错误类型的种类">Swift 错误类型的种类</h2><h3 id="simple-domain-error">Simple domain error</h3><p>简单的，显而易见的错误。这类错误的最大特点是我们不需要知道原因，只需要知道错误发生，并且想要进行处理。用来表示这种错误发生的方法一般就是返回一个 <code class="language-plaintext highlighter-rouge">nil</code> 值。在 Swift 中，这类错误最常见的情况就是将某个字符串转换为整数，或者在字典尝试用某个不存在的 key 获取元素：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="c1">// Simple Domain Error 的例子</span>
+
+<span class="k">let</span> <span class="nv">num</span> <span class="o">=</span> <span class="kt">Int</span><span class="p">(</span><span class="s">"hello world"</span><span class="p">)</span> <span class="c1">// nil</span>
+
+<span class="k">let</span> <span class="nv">element</span> <span class="o">=</span> <span class="n">dic</span><span class="p">[</span><span class="s">"key_not_exist"</span><span class="p">]</span> <span class="c1">// nil</span>
+</pre></table></code></div></div><p>在使用层面 (或者说应用逻辑) 上，这类错误一般用 <code class="language-plaintext highlighter-rouge">if let</code> 的可选值绑定或者是 <code class="language-plaintext highlighter-rouge">guard let</code> 提前进行返回处理即可，不需要再在语言层面上进行额外处理。</p><h3 id="recoverable-error">Recoverable error</h3><p>正如其名，这类错误应该是被容许，并且是可以恢复的。可恢复错误的发生是正常的程序路径之一，而作为开发者，我们应当去检出这类错误发生的情况，并进一步对它们进行处理，让它们恢复到我们期望的程序路径上。</p><p>这类错误在 Objective-C 的时代通常用 <code class="language-plaintext highlighter-rouge">NSError</code> 类型来表示，而在 Swift 里则是 <code class="language-plaintext highlighter-rouge">throw</code> 和 <code class="language-plaintext highlighter-rouge">Error</code> 的组合。一般我们需要检查错误的类型，并作出合理的响应。而选择忽视这类错误往往是不明智的，因为它们是用户正常使用过程中可能会出现的情况，我们应该尝试对其恢复，或者至少向用户给出合理的提示，让他们知道发生了什么。像是网络请求超时，或者写入文件时磁盘空间不足：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre><td class="rouge-code"><pre><span class="c1">// 网络请求</span>
+<span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">string</span><span class="p">:</span> <span class="s">"https://www.example.com/"</span><span class="p">)</span><span class="o">!</span>
+<span class="k">let</span> <span class="nv">task</span> <span class="o">=</span> <span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">dataTask</span><span class="p">(</span><span class="nv">with</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span> <span class="p">{</span> <span class="n">data</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+    <span class="k">if</span> <span class="k">let</span> <span class="nv">error</span> <span class="o">=</span> <span class="n">error</span> <span class="p">{</span>
+        <span class="c1">// 提示用户</span>
+        <span class="k">self</span><span class="o">.</span><span class="nf">showErrorAlert</span><span class="p">(</span><span class="s">"Error: </span><span class="se">\(</span><span class="n">error</span><span class="o">.</span><span class="n">localizedDescription</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">!</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="c1">// 写入文件</span>
+<span class="kd">func</span> <span class="nf">write</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="kt">Data</span><span class="p">,</span> <span class="n">to</span> <span class="nv">url</span><span class="p">:</span> <span class="kt">URL</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">do</span> <span class="p">{</span>
+        <span class="k">try</span> <span class="n">data</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="nv">to</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="k">let</span> <span class="nv">error</span> <span class="k">as</span> <span class="kt">NSError</span> <span class="p">{</span>
+        <span class="k">if</span> <span class="n">error</span><span class="o">.</span><span class="n">code</span> <span class="o">==</span> <span class="kt">NSFileWriteOutOfSpaceError</span> <span class="p">{</span>
+            <span class="c1">// 尝试通过释放空间自动恢复</span>
+            <span class="nf">removeUnusedFiles</span><span class="p">()</span>
+            <span class="nf">write</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span>
+        <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+            <span class="c1">// 其他错误，提示用户</span>
+            <span class="nf">showErrorAlert</span><span class="p">(</span><span class="s">"Error: </span><span class="se">\(</span><span class="n">error</span><span class="o">.</span><span class="n">localizedDescription</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+        <span class="nf">showErrorAlert</span><span class="p">(</span><span class="s">"Error: </span><span class="se">\(</span><span class="n">error</span><span class="o">.</span><span class="n">localizedDescription</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h3 id="universal-error">Universal error</h3><p>这类错误理论上可以恢复，但是由于语言本身的特性所决定，我们难以得知这类错误的来源，所以一般来说也不会去处理这种错误。这类错误包括类似下面这些情形：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="c1">// 内存不足</span>
+<span class="p">[</span><span class="kt">Int</span><span class="p">](</span><span class="nv">repeating</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="nv">count</span><span class="p">:</span> <span class="o">.</span><span class="n">max</span><span class="p">)</span>
+
+<span class="c1">// 调用栈溢出</span>
+<span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">}</span>
+<span class="nf">foo</span><span class="p">()</span>
+</pre></table></code></div></div><p>我们可以通过设计一些手段来对这些错误进行处理，比如：检测当前的内存占用并在超过一定值后警告，或者监视栈 frame 数进行限制等。但是一般来说这是不必要的，也不可能涵盖全部的错误情况。更多情况下，这是由于代码触碰到了设备的物理限制和边界情况所造成的，一般我们也不去进行处理（除非是人为操成的 bug）。</p><p>在 Swift 中，各种被使用 <code class="language-plaintext highlighter-rouge">fatalError</code> 进行强制终止的错误一般都可以归类到 Universal error。</p><h3 id="logic-failure">Logic failure</h3><p>逻辑错误是程序员的失误所造成的错误，它们应该在开发时通过代码进行修正并完全避免，而不是等到运行时再进行恢复和处理。</p><p>常见的 Logic failure 包括有：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="c1">// 强制解包一个 `nil` 可选值</span>
+<span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="n">name</span><span class="o">!</span>
+
+<span class="c1">// 数组越界访问</span>
+<span class="k">let</span> <span class="nv">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">]</span>
+<span class="k">let</span> <span class="nv">num</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+<span class="c1">// 计算溢出</span>
+<span class="k">var</span> <span class="nv">a</span> <span class="o">=</span> <span class="kt">Int</span><span class="o">.</span><span class="n">max</span>
+<span class="n">a</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="c1">// 强制 try 但是出现错误</span>
+<span class="k">try!</span> <span class="kt">JSONDecoder</span><span class="p">()</span><span class="o">.</span><span class="nf">decode</span><span class="p">(</span><span class="kt">Foo</span><span class="o">.</span><span class="k">self</span><span class="p">,</span> <span class="nv">from</span><span class="p">:</span> <span class="kt">Data</span><span class="p">())</span>
+</pre></table></code></div></div><p>这类错误在实现中触发的一般是 <a href="https://github.com/apple/swift/blob/a05cd35a7f8e3cc70e0666bc34b5056a543eafd4/stdlib/public/core/Collection.swift#L1009-L1046"><code class="language-plaintext highlighter-rouge">assert</code> 或者 <code class="language-plaintext highlighter-rouge">precondition</code></a>。</p><h4 id="断言的作用范围和错误转换">断言的作用范围和错误转换</h4><p>和 <code class="language-plaintext highlighter-rouge">fatalError</code> 不同，<code class="language-plaintext highlighter-rouge">assert</code> 只在进行编译优化的 <code class="language-plaintext highlighter-rouge">-O</code> 配置下是不触发的，而如果更进一步，将编译优化选项配置为 <code class="language-plaintext highlighter-rouge">-Ounchecked</code> 的话，<code class="language-plaintext highlighter-rouge">precondition</code> 也将不触发。此时，各方法中的 <code class="language-plaintext highlighter-rouge">precondition</code> 将被跳过，因此我们可以得到最快的运行速度。但是相对地代码的安全性也将降低，因为对于越界访问或者计算溢出等错误，我们得到的将是不确定的行为。</p><div class="table-wrapper"><table><thead><tr><th>函数<th>faltaError<th>precondition<th>assert<tbody><tr><td>-Onone<td>触发<td>触发<td>触发<tr><td>-O<td>触发<td>触发<td> <tr><td>-Ounchecked<td>触发<td> <td> </table></div><p>对于 Universal error 一般使用 <code class="language-plaintext highlighter-rouge">fatalError</code>，而对于 Logic failure 一般使用 <code class="language-plaintext highlighter-rouge">assert</code> 或者 <code class="language-plaintext highlighter-rouge">precondition</code>。遵守这个规则会有助于我们在编码时对错误进行界定。而有时候我们也希望能尽可能多地在开发的时候捕获 Logic failure，而在产品发布后尽量减少 crash 比例。这种情况下，相比于直接将 Logic failure 转换为可恢复的错误，我们最好是使用 <code class="language-plaintext highlighter-rouge">assert</code> 在内部进行检查，来让程序在开发时崩溃。</p><h2 id="quiz">Quiz</h2><p>光说不练假把式。让我们来实际判断一下下面这些情况下我们都应该选择用哪种错误处理方式吧~</p><h3 id="1-app-内资源加载">#1 app 内资源加载</h3><p>请听题。</p><p>假设我们在处理一个机器学习的模型，需要从磁盘读取一份预先训练好的模型。该模型以文件的方式存储在 app bundle 中，如果读取时没有找到该模型，我们应该如何处理这个错误？</p><h4 id="方案-1-simple-domain-error">方案 1 Simple domain error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadModel</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Model</span><span class="p">?</span> <span class="p">{</span>
+    <span class="k">guard</span> <span class="k">let</span> <span class="nv">path</span> <span class="o">=</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">path</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"my_pre_trained_model"</span><span class="p">,</span> <span class="nv">ofType</span><span class="p">:</span> <span class="s">"mdl"</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span>
+    <span class="p">}</span>
+    <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">fileURLWithPath</span><span class="p">:</span> <span class="n">path</span><span class="p">)</span>
+    <span class="k">guard</span> <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span><span class="p">?</span> <span class="kt">Data</span><span class="p">(</span><span class="nv">contentOf</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span>
+    <span class="p">}</span>
+    
+    <span class="k">return</span> <span class="k">try</span><span class="p">?</span> <span class="kt">ModelLoader</span><span class="o">.</span><span class="nf">load</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-2-recoverable-error">方案 2 Recoverable error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadModel</span><span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Model</span> <span class="p">{</span>
+    <span class="k">guard</span> <span class="k">let</span> <span class="nv">path</span> <span class="o">=</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">path</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"my_pre_trained_model"</span><span class="p">,</span> <span class="nv">ofType</span><span class="p">:</span> <span class="s">"mdl"</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">throw</span> <span class="kt">AppError</span><span class="o">.</span><span class="kt">FileNotExisting</span>
+    <span class="p">}</span>
+    <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">fileURLWithPath</span><span class="p">:</span> <span class="n">path</span><span class="p">)</span>
+    <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">Data</span><span class="p">(</span><span class="nv">contentOf</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">try</span> <span class="kt">ModelLoader</span><span class="o">.</span><span class="nf">load</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-3-universal-error">方案 3 Universal error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadModel</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Model</span> <span class="p">{</span>
+    <span class="k">guard</span> <span class="k">let</span> <span class="nv">path</span> <span class="o">=</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">path</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"my_pre_trained_model"</span><span class="p">,</span> <span class="nv">ofType</span><span class="p">:</span> <span class="s">"mdl"</span><span class="p">)</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nf">fatalError</span><span class="p">(</span><span class="s">"Model file not existing"</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">fileURLWithPath</span><span class="p">:</span> <span class="n">path</span><span class="p">)</span>
+    <span class="k">do</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">Data</span><span class="p">(</span><span class="nv">contentOf</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="k">try</span> <span class="kt">ModelLoader</span><span class="o">.</span><span class="nf">load</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+        <span class="nf">fatalError</span><span class="p">(</span><span class="s">"Model corrupted."</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-4-logic-failure">方案 4 Logic failure</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadModel</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Model</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">path</span> <span class="o">=</span> <span class="kt">Bundle</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="nf">path</span><span class="p">(</span><span class="nv">forResource</span><span class="p">:</span> <span class="s">"my_pre_trained_model"</span><span class="p">,</span> <span class="nv">ofType</span><span class="p">:</span> <span class="s">"mdl"</span><span class="p">)</span><span class="o">!</span>
+    <span class="k">let</span> <span class="nv">url</span> <span class="o">=</span> <span class="kt">URL</span><span class="p">(</span><span class="nv">fileURLWithPath</span><span class="p">:</span> <span class="n">path</span><span class="p">)</span>
+    <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try!</span> <span class="kt">Data</span><span class="p">(</span><span class="nv">contentOf</span><span class="p">:</span> <span class="n">url</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">try!</span> <span class="kt">ModelLoader</span><span class="o">.</span><span class="nf">load</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">data</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><details> <summary>点击展开答案</summary><p>正确答案应该是<b>方案 4，使用 Logic failure 让代码直接崩溃</b>。</p><p>作为内建的存在于 app bundle 中模型或者配置文件，如果不存在或者无法初始化，在不考虑极端因素的前提下，一定是开发方面出现了问题，这不应该是一个可恢复的错误，无论重试多少次结果肯定是一样的。也许是开发者忘了将文件放到合适的位置，也许是文件本身出现了问题。不论是哪种情况，我们都会希望尽早发现并强制我们修正错误，而让代码崩溃可以很好地做到这一点。</p><p>使用 Universal error 同样可以让代码崩溃，但是 Universal error 更多是用在语言的边界情况下。而这里并非这种情况。</p></details><h3 id="2-加载当前用户信息时发生错误">#2 加载当前用户信息时发生错误</h3><p>我们在用户登录后会将用户信息存储在本地，每次重新打开 app 时我们检测并使用用户信息。当用户信息不存在时，应该进行的处理：</p><h4 id="方案-1-simple-domain-error-1">方案 1 Simple domain error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadUser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">User</span><span class="p">?</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">username</span> <span class="o">=</span> <span class="kt">UserDefaults</span><span class="o">.</span><span class="n">standard</span><span class="o">.</span><span class="nf">string</span><span class="p">(</span><span class="nv">forKey</span><span class="p">:</span> <span class="s">"com.onevcat.app.defaults.username"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="k">let</span> <span class="nv">username</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kt">User</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="n">username</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-2-recoverable-error-1">方案 2 Recoverable error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadUser</span><span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">User</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">username</span> <span class="o">=</span> <span class="kt">UserDefaults</span><span class="o">.</span><span class="n">standard</span><span class="o">.</span><span class="nf">string</span><span class="p">(</span><span class="nv">forKey</span><span class="p">:</span> <span class="s">"com.onevcat.app.defaults.username"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="k">let</span> <span class="nv">username</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kt">User</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="n">username</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">throws</span> <span class="kt">AppError</span><span class="o">.</span><span class="kt">UsernameNotExisting</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-3-universal-error-1">方案 3 Universal error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadUser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">User</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">username</span> <span class="o">=</span> <span class="kt">UserDefaults</span><span class="o">.</span><span class="n">standard</span><span class="o">.</span><span class="nf">string</span><span class="p">(</span><span class="nv">forKey</span><span class="p">:</span> <span class="s">"com.onevcat.app.defaults.username"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="k">let</span> <span class="nv">username</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kt">User</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="n">username</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nf">fatalError</span><span class="p">(</span><span class="s">"User name not existing"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-4-logic-failure-1">方案 4 Logic failure</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadUser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">User</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">username</span> <span class="o">=</span> <span class="kt">UserDefaults</span><span class="o">.</span><span class="n">standard</span><span class="o">.</span><span class="nf">string</span><span class="p">(</span><span class="nv">forKey</span><span class="p">:</span> <span class="s">"com.onevcat.app.defaults.username"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kt">User</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="n">username</span><span class="o">!</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><details> <summary>点击展开答案</summary><p>首先肯定排除方案 3 和 4。“用户名不存在”是一个正常的现象，肯定不能直接 crash。所以我们应该在方案 1 和方案 2 中选择。</p><p>对于这种情况，选择<b>方案 1 Simple domain error 会更好</b>。因为用户信息不存在是很简单的一个状况，如果用户不存在，那么我们直接让用户登录即可，这并不需要知道额外的错误信息，返回 <code>nil</code> 就能够很好地表达意图了。</p><p>当然，我们不排除今后随着情况越来越复杂，会需要区分用户信息缺失的原因 (比如是否是新用户还没有注册，还是由于原用户注销等)。但是在当前的情况下来看，这属于过度设计，暂时并不需要考虑。如果之后业务复杂到这个程度，在编译器的帮助下将 Simple domain error 修改为 Recoverable error 也不是什么难事儿。</p></details><h3 id="3-还没有实现的代码">#3 还没有实现的代码</h3><p>假设你在为你的服务开发一个 iOS 框架，但是由于工期有限，有一些功能只定义了接口，没有进行具体实现。这些接口会在正式版中完成，但是我们需要预先发布给友商内测。所以除了在文档中明确标明这些内容，这些方法内部应该如何处理呢？</p><h4 id="方案-1-simple-domain-error-2">方案 1 Simple domain error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Bar</span><span class="p">?</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-2-recoverable-error-2">方案 2 Recoverable error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Bar</span><span class="p">?</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="kt">FrameworkError</span><span class="o">.</span><span class="kt">NotImplemented</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-3-universal-error-2">方案 3 Universal error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Bar</span><span class="p">?</span> <span class="p">{</span>
+    <span class="nf">fatalError</span><span class="p">(</span><span class="s">"Not implemented yet."</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-4-logic-failure-2">方案 4 Logic failure</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Bar</span><span class="p">?</span> <span class="p">{</span>
+    <span class="nf">assertionFailure</span><span class="p">(</span><span class="s">"Not implemented yet."</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></table></code></div></div><details> <summary>点击展开答案</summary><p>正确答案是<b>方案 3 Universal error</b>。对于没有实现的方法，返回 <code>nil</code> 或者抛出错误期待用户恢复都是没有道理的，这会进一步增加框架用户的迷惑。这里的问题是语言层面的边界情况，由于没有实现，我们需要给出强力的提醒。在任意 build 设定下，都不应该期待用户可以成功调用这个函数，所以 <code>fatalError</code> 是最佳选择。</p></details><h3 id="4-调用设备上的传感器收集数据">#4 调用设备上的传感器收集数据</h3><p>调用传感器的 app 最有意思了！不管是相机还是陀螺仪，传感器相关的 app 总是能带给我们很多乐趣。那么，如果想要调用传感器获取数据时，发生了错误，应该怎么办呢？</p><h4 id="方案-1-simple-domain-error-3">方案 1 Simple domain error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">getDataFromSensor</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Data</span><span class="p">?</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">sensorState</span> <span class="o">=</span> <span class="n">sensor</span><span class="o">.</span><span class="nf">getState</span><span class="p">()</span>
+    <span class="k">guard</span> <span class="n">sensorState</span> <span class="o">==</span> <span class="o">.</span><span class="n">normal</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="kc">nil</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="k">try</span><span class="p">?</span> <span class="n">sensor</span><span class="o">.</span><span class="nf">getData</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-2-recoverable-error-3">方案 2 Recoverable error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">getDataFromSensor</span><span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Data</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">sensorState</span> <span class="o">=</span> <span class="n">sensor</span><span class="o">.</span><span class="nf">getState</span><span class="p">()</span>
+    <span class="k">guard</span> <span class="n">sensorState</span> <span class="o">==</span> <span class="o">.</span><span class="n">normal</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="k">throws</span> <span class="kt">SensorError</span><span class="o">.</span><span class="n">stateError</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="k">try</span> <span class="n">sensor</span><span class="o">.</span><span class="nf">getData</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-3-universal-error-3">方案 3 Universal error</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadUser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Data</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">sensorState</span> <span class="o">=</span> <span class="n">sensor</span><span class="o">.</span><span class="nf">getState</span><span class="p">()</span>
+    <span class="k">guard</span> <span class="n">sensorState</span> <span class="o">==</span> <span class="o">.</span><span class="n">normal</span><span class="p">,</span> <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span><span class="p">?</span> <span class="n">sensor</span><span class="o">.</span><span class="nf">getData</span><span class="p">()</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nf">fatalError</span><span class="p">(</span><span class="s">"Sensor get data failed!"</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">data</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="方案-4-logic-failure-3">方案 4 Logic failure</h4><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadUser</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Data</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">sensorState</span> <span class="o">=</span> <span class="n">sensor</span><span class="o">.</span><span class="nf">getState</span><span class="p">()</span>
+    <span class="nf">assert</span><span class="p">(</span><span class="n">sensorState</span> <span class="o">==</span> <span class="o">.</span><span class="n">normal</span><span class="p">,</span> <span class="s">"The sensor state is not normal"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">try!</span> <span class="n">sensor</span><span class="o">.</span><span class="nf">getData</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><details> <summary>点击展开答案</summary><p>传感器由于种种原因暂时不能使用 (比如正在被其他进程占用，或者甚至设备上不存在对应的传感器)，是很有可能发生的情况。即使这个传感器的数据对应用是至关重要，不可或缺的，我们可能也会希望至少能给用户一些提示。基于这种考虑，使用<b>方案 2 Recoverable error</b> 是比较合理的选择。</p><p>方案 1 在传感器数据无关紧要的时候可能也会是一个更简单的选项。但是方案 3 和 4 会直接让程序崩溃，而且这实际上也并不是代码边界或者开发者的错误，所以不应该被考虑。</p></details><h3 id="quiz-的一些总结">Quiz 的一些总结</h3><p>可以看到，其实在错误处理的时候，选用哪种错误是根据情景和处理需求而定的，我在参考答案也使用了很多诸如“可能”，“相较而言”等语句。虽然对于特定的场景，我们可以进行直观的考虑和决策，但这并不是教条主义般的一成不变。错误类型之间可以很容易地通过代码互相转换，这让我们在处理错误的时候可以自由选择使用的策略：比如 API 即使提供给我们的是 Recoverable 的 throws 形式，我们也还是可以按照需要，通过 <code class="language-plaintext highlighter-rouge">try ?</code> 将其转为 Simple domain error，或者用 <code class="language-plaintext highlighter-rouge">try !</code> 将其转为 Logic failure。</p><p>能切实理解使用情景，利用这些错误类型转换的方式，灵活选取使用场景下最合适的错误类型，才能说是真正理解了这四种错误的分类依据。</p><h2 id="参考链接">参考链接</h2><ul><li><a href="https://github.com/apple/swift/blob/master/docs/ErrorHandling.rst">Error Handling in Swift 2.0</a><li><a href="https://qiita.com/koher/items/a7a12e7e18d2bb7d8c77">Swiftのエラー4分類が素晴らしすぎるのでみんなに知ってほしい</a></ul></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/" class="post-tag no-text-decoration" >错误处理</a> <a href="/tags/%E5%BC%82%E5%B8%B8/" class="post-tag no-text-decoration" >异常</a> <a href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/" class="post-tag no-text-decoration" >开发者体验</a> <a href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" class="post-tag no-text-decoration" >最佳实践</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=关于 Swift Error 的分类 - OneV's Den&url=https://onevcat.com/2017/10/swift-error-category/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=关于 Swift Error 的分类 - OneV's Den&u=https://onevcat.com/2017/10/swift-error-category/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=关于 Swift Error 的分类 - OneV's Den&url=https://onevcat.com/2017/10/swift-error-category/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=关于 Swift Error 的分类 - OneV's Den&url=https://onevcat.com/2017/10/swift-error-category/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2016/03/swift-throws/"><div class="card-body"> <span class="timeago small" > 2016-03-29 <i class="unloaded">2016-03-29T15:37:24+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Swift 2 throws 全解析 - 从原理到实践</h3><div class="text-muted small"><p> 本文最初于 2015 年 12 月发布在 IBM developerWorks 中国网站发表，其网址是 http://www.ibm.com/developerworks/cn/mobile/mo-cn-swift/index.html。如需转载请保留此行声明。 Swift 2 错误处理简介 throws 关键字和异常处理机制是 Swift 2 中新加入的重要特性。Apple 希望通过在...</p></div></div></a></div><div class="card"> <a href="/2018/10/swift-result-error/"><div class="card-body"> <span class="timeago small" > 2018-10-31 <i class="unloaded">2018-10-31T11:38:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt;</h3><div class="text-muted small"><p> 我之前在专栏文章里曾经发布这篇文章，由于这个话题其实还是挺重要的，可以说代表了 Swift 今后发展的方向流派，所以即使和专栏文章内容有些重复，我还是想把它再贴到博客来。经过半年以后，自己对于这个问题也有了更多的实践和想法，所以同时也更新了一下。我没有直接改动原文，而是把新的想法和需要补充的说明，用类似这段话的引用的方式写在合适的上下文里。 开始先打个广告 我个人经常会在数码荔枝...</p></div></div></a></div><div class="card"> <a href="/2014/06/my-opinion-about-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-03 <i class="unloaded">2014-06-03T12:05:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>关于 Swift 的一点初步看法</h3><div class="text-muted small"><p> 虽然四点半就起床去排队等入场，结果还是只能坐在了蛮后面的位置看着大屏幕参加了今年的 Keynote。其实今年 OS X 和 iOS 的更新亮点都不少，但是显然风头和光芒都让横空出世的 Swift 给抢走了。这部分内容因为不是 NDA，所以可以提前说一说。 Swift 是 Apple 自创的一门专门为 Cocoa 和 CocoaTouch 设计的语言，意在用来替代 objc。早上发布的时候有...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2017/07/state-based-viewcontroller/" class="btn btn-outline-primary"><p>单向数据流动的函数式 View Controller</p></a> <a href="/2018/03/swift-meta/" class="btn btn-outline-primary"><p>不同角度看问题 - 从 Codable 到 Swift 元编程</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

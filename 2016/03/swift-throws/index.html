@@ -1,0 +1,251 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="Swift 2 throws 全解析 - 从原理到实践" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="本文最初于 2015 年 12 月发布在 IBM developerWorks 中国网站发表，其网址是 http://www.ibm.com/developerworks/cn/mobile/mo-cn-swift/index.html。如需转载请保留此行声明。" /><meta property="og:description" content="本文最初于 2015 年 12 月发布在 IBM developerWorks 中国网站发表，其网址是 http://www.ibm.com/developerworks/cn/mobile/mo-cn-swift/index.html。如需转载请保留此行声明。" /><link rel="canonical" href="https://onevcat.com/2016/03/swift-throws/" /><meta property="og:url" content="https://onevcat.com/2016/03/swift-throws/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2016-03-29T15:37:24+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Swift 2 throws 全解析 - 从原理到实践" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"本文最初于 2015 年 12 月发布在 IBM developerWorks 中国网站发表，其网址是 http://www.ibm.com/developerworks/cn/mobile/mo-cn-swift/index.html。如需转载请保留此行声明。","url":"https://onevcat.com/2016/03/swift-throws/","@type":"BlogPosting","headline":"Swift 2 throws 全解析 - 从原理到实践","dateModified":"2016-03-29T15:37:24+09:00","datePublished":"2016-03-29T15:37:24+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2016/03/swift-throws/"},"@context":"https://schema.org"}</script><title>Swift 2 throws 全解析 - 从原理到实践 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>Swift 2 throws 全解析 - 从原理到实践</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>Swift 2 throws 全解析 - 从原理到实践</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Tue, Mar 29, 2016, 3:37 PM +0900" > 2016-03-29 <i class="unloaded">2016-03-29T15:37:24+09:00</i> </span></div></div><div class="post-content"><p>本文最初于 2015 年 12 月发布在 IBM developerWorks 中国网站发表，其网址是 <a href="http://www.ibm.com/developerworks/cn/mobile/mo-cn-swift/index.html">http://www.ibm.com/developerworks/cn/mobile/mo-cn-swift/index.html</a>。如需转载请保留此行声明。</p><h2 id="swift-2-错误处理简介">Swift 2 错误处理简介</h2><p>throws 关键字和异常处理机制是 Swift 2 中新加入的重要特性。Apple 希望通过在语言层面对异常处理的流程进行规范和统一，来让代码更加安全，同时让开发者可以更加及时可靠地处理这些错误。Swift 2 中所有的同步 Cocoa API 的 <code class="language-plaintext highlighter-rouge">NSError</code> 都已经被 throw 关键字取代，举个例子，在文件操作中复制文件的 API 在 Swift 1 中使用的是和 Objective-C 类似的 <code class="language-plaintext highlighter-rouge">NSError</code> 指针方式：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">copyItemAtPath</span><span class="p">(</span><span class="n">_</span> <span class="nv">srcPath</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="n">toPath</span> <span class="nv">dstPath</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="nv">error</span><span class="p">:</span> <span class="kt">NSErrorPointer</span><span class="p">)</span>
+</pre></table></code></div></div><p>而在 Swift 2 中，变为了 throws：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">copyItemAtPath</span><span class="p">(</span><span class="n">_</span> <span class="nv">srcPath</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="n">toPath</span> <span class="nv">dstPath</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="k">throws</span>
+</pre></table></code></div></div><p>使用时，Swift 1.x 中我们需要创建并传入 <code class="language-plaintext highlighter-rouge">NSError</code> 的指针，在方法调用后检查指针的内容，来判断是否成功：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">fileManager</span> <span class="o">=</span> <span class="kt">NSFileManager</span><span class="o">.</span><span class="nf">defaultManager</span><span class="p">()</span>
+<span class="k">var</span> <span class="nv">error</span><span class="p">:</span> <span class="kt">NSError</span><span class="p">?</span>
+<span class="n">fileManager</span><span class="o">.</span><span class="nf">copyItemAtPath</span><span class="p">(</span><span class="n">srcPath</span><span class="p">,</span> <span class="nv">toPath</span><span class="p">:</span> <span class="n">dstPath</span><span class="p">,</span> <span class="nv">error</span><span class="p">:</span> <span class="o">&amp;</span><span class="n">error</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">error</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+    <span class="c1">// 发生了错误</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="c1">// 复制成功</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在实践中，因为这个 API 仅会在极其特定的条件下 (比如磁盘空间不足) 会出错，所以开发者为了方便，有时会直接传入 nil 来忽视掉这个错误：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">fileManager</span> <span class="o">=</span> <span class="kt">NSFileManager</span><span class="o">.</span><span class="nf">defaultManager</span><span class="p">()</span>
+<span class="c1">// 不关心是否发生错误</span>
+<span class="n">fileManager</span><span class="o">.</span><span class="nf">copyItemAtPath</span><span class="p">(</span><span class="n">srcPath</span><span class="p">,</span> <span class="nv">toPath</span><span class="p">:</span> <span class="n">dstPath</span><span class="p">,</span> <span class="nv">error</span><span class="p">:</span> <span class="kc">nil</span><span class="p">)</span>
+</pre></table></code></div></div><p>这种做法无形中降低了应用的可靠性以及从错误中恢复的能力。为了解决这个问题，Swift 2 中在编译器层级就对 throws 进行了限定。被标记为 throws 的 API，我们需要完整的 <code class="language-plaintext highlighter-rouge">try catch</code> 来捕获可能的异常，否则无法编译通过：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">fileManager</span> <span class="o">=</span> <span class="kt">NSFileManager</span><span class="o">.</span><span class="nf">defaultManager</span><span class="p">()</span>
+<span class="k">do</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="n">fileManager</span><span class="o">.</span><span class="nf">copyItemAtPath</span><span class="p">(</span><span class="n">srcPath</span><span class="p">,</span> <span class="nv">toPath</span><span class="p">:</span> <span class="n">dstPath</span><span class="p">)</span>
+<span class="p">}</span> <span class="k">catch</span> <span class="k">let</span> <span class="nv">error</span> <span class="k">as</span> <span class="kt">NSError</span> <span class="p">{</span>
+    <span class="c1">// 发生了错误</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">error</span><span class="o">.</span><span class="n">localizedDescription</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>对于非 Cocoa 框架的 API，我们也可以通过声明 <code class="language-plaintext highlighter-rouge">ErrorType</code> 并在出错时进行 throw 操作。这为错误处理提供了统一的处理出口，有益于提高应用质量。</p><h2 id="throws-技术内幕">throws 技术内幕</h2><p>throws 关键字究竟做了些什么，我们可以用稍微底层一点的手法来进行一些探索。</p><h3 id="swift-编译器sil-及汇编">Swift 编译器，SIL 及汇编</h3><p>所有的 Swift 源文件都要经过 Swift 编译器编译后才能执行。Swift 编译过程遵循非常经典的 LLVM 编译架构：编译器前端首先对 Swift 源码进行词法分析和语法分析，生成 Swift 抽象语法树 (AST)，然后从 AST 生成 Swift 中间语言 (Swift Intermediate Language，SIL)，接下来 SIL 被翻译成通用的 LLVM 中间表述 (LLVM Intermediate Representation, LLVM IR)，最后通过编译器后端的优化，得到汇编语言。整个过程可以用下面的框图来表示：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2016/compiler-flow.png" alt="" /></p><p>Swift 编译器提供了非常灵活的命令行工具：swiftc，这个命令行工具可以运行在不同模式下，我们通过控制命令行参数能获取到 Swift 源码编译到各个阶段的结果。使用 <code class="language-plaintext highlighter-rouge">swiftc --help</code> 我们能得知各个模式的使用方法，这篇文章会用到下面几个模式，它们分别将 Swift 源代码编译为 SIL，LLVM IR 和汇编语言。</p><div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="o">&gt;</span> swiftc <span class="nt">--help</span>
+...
+MODES:
+  <span class="nt">-emit-sil</span>        Emit canonical SIL file<span class="o">(</span>s<span class="o">)</span>
+  <span class="nt">-emit-ir</span>         Emit LLVM IR file<span class="o">(</span>s<span class="o">)</span>
+  <span class="nt">-emit-assembly</span>   Emit assembly file<span class="o">(</span>s<span class="o">)</span> <span class="o">(</span><span class="nt">-S</span><span class="o">)</span>
+ ...
+</pre></table></code></div></div><p>在 Swift 开源之前，将源码编译到各个阶段是探索 Swift 原理和实现方式的重要方式。即使是在 Swift 开源后的今天，在面对一段代码时，想要知道编译结果和底层的行为，最快的方式还是查看编译后的语句。我们接下来将会分析一段简单的 throw 代码，来看看 Swift 的异常机制到底是如何运作的。</p><h3 id="throwtrycatch-深层解析">throw，try，catch 深层解析</h3><p>为了保持问题的简单，我们定义一个最简单的 <code class="language-plaintext highlighter-rouge">ErrorType</code> 并用一个方法来将其抛出，源代码如下：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="c1">// throw.swift</span>
+
+<span class="kd">enum</span> <span class="kt">MyError</span><span class="p">:</span> <span class="kt">ErrorType</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="kt">SampleError</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">throwMe</span><span class="p">(</span><span class="nv">shouldThrow</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Bool</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="n">shouldThrow</span> <span class="p">{</span>
+        <span class="k">throw</span> <span class="kt">MyError</span><span class="o">.</span><span class="kt">SampleError</span>    
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">true</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>使用 swiftc 将其编译为 SIL：</p><div class="language-sh highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>swiftc <span class="nt">-emit-sil</span> <span class="nt">-O</span> <span class="nt">-o</span> ./throw.sil ./throw.swift
+</pre></table></code></div></div><p>在输出文件中，可以找到 <code class="language-plaintext highlighter-rouge">throwMe</code> 的对应 Swift 中间语言表述：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre>// throw.throwMe (Swift.Bool) throws -&gt; Swift.Bool
+sil hidden @_TF5throw7throwMeFzSbSb :
+					$@convention(thin) (Bool) -&gt; (Bool, @error ErrorType) {
+bb0(%0 : $Bool):
+  debug_value %0 : $Bool  // let shouldThrow      // id: %1
+  %2 = struct_extract %0 : $Bool, #Bool.value     // user: %3
+  cond_br %2, bb1, bb2                            // id: %3
+
+bb1:                                              // Preds: bb0
+  ...
+  throw %4#0 : $ErrorType                         // id: %7
+
+bb2:                                              // Preds: bb0
+  ...
+  return %9 : $Bool                               // id: %10
+}
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">_TF5throw7throwMeFzSbSb</code> 是 <code class="language-plaintext highlighter-rouge">throwMe</code> 方法 <a href="https://mikeash.com/pyblog/friday-qa-2014-08-15-swift-name-mangling.html">Mangling</a> 以后的名字。在去掉一些噪音后，我们可以将这个方法的签名等效看做：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="nf">throwMe</span><span class="p">(</span><span class="nv">shouldThrow</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">Bool</span><span class="p">,</span> <span class="kt">ErrorType</span><span class="p">)</span>
+</pre></table></code></div></div><p>它其实是返回的是一个 <code class="language-plaintext highlighter-rouge">(Bool, ErrorType)</code> 的多元组。和一般的多元组不同的是，第二个元素 <code class="language-plaintext highlighter-rouge">ErrorType</code> 被一个 <code class="language-plaintext highlighter-rouge">@error</code> 修饰了。这个修饰让多元组具有了“排他性”，也就是只要多元组的第一个元素被返回即可：在条件分支 <code class="language-plaintext highlighter-rouge">bb2</code> (也即没有抛出异常的正常分支) 中，仅只有 Bool 值被返回了。而对于发生错误需要抛出的处理，SIL 层面还并没有具体实现，只是生成了对应的错误枚举对象，然后对其调用了 throw 命令。</p><p>这就是说，我们想要探索 throw 的话，还需要更深入一层。用 swiftc 将源代码编译为 LLVM IR：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>swiftc -emit-ir -O -o ./throw.ir ./throw.swift
+</pre></table></code></div></div><p>结果中 <code class="language-plaintext highlighter-rouge">throwMe</code> 的关键部分为：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre>define hidden i1 @_TF5throw7throwMeFzSbSb(i1,
+	%swift.refcounted* nocapture readnone, %swift.error** nocapture) #0 {
+
+}
+</pre></table></code></div></div><p>这是我们非常熟悉的形式，参数中的 <code class="language-plaintext highlighter-rouge">swift.error**</code> 和 Swift 1 以及 Objective-C 中使用 <code class="language-plaintext highlighter-rouge">NSError</code> 指针来获取和存储错误的做法是一致的。在示例的这种情况下，LLVM 后端针对 swift.error 进行了额外处理，最终得到的汇编码的伪码是这样的 (在未启用 -O 优化的条件下)：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre>int __TF5throw7throwMeFzSbSb(int arg0) {
+    rax = arg0;
+    var_8 = rdx;
+    if ((rax &amp; 0x1) == 0x0) {
+            rax = 0x1;
+    }
+    else {
+            rax = swift_allocError(0x1000011c8, __TWPO5throw7MyErrorSs9ErrorTypeS_);
+            var_18 = rax;
+            swift_willThrow(rax);
+            rax = var_8;
+            *rax = var_18;
+    }
+    return rax;
+}
+</pre></table></code></div></div><p>函数最终的返回是一个 int，它有可能是一个实际的整数值，也有可能是一个指向错误地址的指针。这和 Swift 1 中传入 <code class="language-plaintext highlighter-rouge">NSErrorPointer</code> 来存储错误指针地址有明显不同：首先直接使用返回值我们就可以判断调用是否出现错误，而不必使用额外的空间进行存储；其次整个过程中没有使用到 <code class="language-plaintext highlighter-rouge">NSError</code> 或者 Objective-C Runtime 的任何内容，在性能上要优于传统的错误处理方式。</p><p>我们在了解了 throw 的底层机理后，对于 <code class="language-plaintext highlighter-rouge">try catch</code> 代码块的理解自然也就水到渠成了。加入一个 <code class="language-plaintext highlighter-rouge">try catch</code> 后的 SIL 相关部分是：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre>try_apply %15(%16) : $@convention(thin) (Bool) -&gt; (Bool, @error ErrorType), normal bb1, error bb9 // id: %17
+
+bb1(%18 : $Bool):
+...
+bb9(%80 : $ErrorType):
+...
+</pre></table></code></div></div><p>其他层级的实现也与此类似，都是对返回值进行类型判断，然后进入不同的条件分支进行处理。</p><h2 id="errortype-和-nserror">ErrorType 和 NSError</h2><p>throw 语句的作用对象是一个实现了 <code class="language-plaintext highlighter-rouge">ErrorType</code> 接口的值，本节将探讨 <code class="language-plaintext highlighter-rouge">ErrorType</code> 背后的内容，以及 <code class="language-plaintext highlighter-rouge">NSError</code> 与它的关系。在 Swift 公开的标准库中，<code class="language-plaintext highlighter-rouge">ErrorType</code> 接口并没有公开的方法：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">ErrorType</span> <span class="p">{</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这个接口有一个 extension，但是也没有公开的内容：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">ErrorType</span> <span class="p">{</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>我们可以通过使用 LLDB 的类型检索来获取关于这个接口的更多信息。在调试器中运行 <code class="language-plaintext highlighter-rouge">type lookup ErrorType</code>：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre>(lldb) type lookup ErrorType
+protocol ErrorType {
+  var _domain: Swift.String { get }
+  var _code: Swift.Int { get }
+}
+extension ErrorType {
+  var _domain: Swift.String {
+    get {}
+  }
+}
+</pre></table></code></div></div><p>可以看到这个接口实际上需要实现两个属性：domain 描述错误的所属域，code 标记具体的错误号，这和传统的 <code class="language-plaintext highlighter-rouge">NSError</code> 中定义一个错误所需要的内容是一致的。事实上 <code class="language-plaintext highlighter-rouge">NSError</code> 在 Swift 2 中也实现了 <code class="language-plaintext highlighter-rouge">ErrorType</code> 接口，它简单地返回错误的域和错误代码信息，这是 Swift 1 到 2 的错误处理相关 API 转换的兼容性的保证。</p><p>虽然 Cocoa/CocoaTouch 框架中的 throw API 抛出的都是 <code class="language-plaintext highlighter-rouge">NSError</code>，但是应用开发者更为常用的表述错误的类型应该是 enum，这也是 Apple 对于 throw 的推荐用法。对于实现了 <code class="language-plaintext highlighter-rouge">ErrorType</code> 的 enum 类型，其错误代码将根据 enum 中 case 声明的顺序从 0 开始编号，而错误域的名字就是它的类型全名 (Module 名 + 类型名)：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kt">MyError</span><span class="o">.</span><span class="kt">InvalidUser</span><span class="o">.</span><span class="nv">_code</span><span class="p">:</span> <span class="mi">0</span>
+<span class="kt">MyError</span><span class="o">.</span><span class="kt">InvalidUser</span><span class="o">.</span><span class="nv">_domain</span><span class="p">:</span> <span class="kt">ModuleName</span><span class="o">.</span><span class="kt">MyError</span>
+
+<span class="kt">MyError</span><span class="o">.</span><span class="kt">InvalidPassword</span><span class="o">.</span><span class="nv">_code</span><span class="p">:</span> <span class="mi">1</span>
+<span class="kt">MyError</span><span class="o">.</span><span class="kt">InvalidPassword</span><span class="o">.</span><span class="nv">_domain</span><span class="p">:</span> <span class="kt">ModuleName</span><span class="o">.</span><span class="kt">MyError</span>
+</pre></table></code></div></div><p>这虽然为按照错误号来处理错误提供了可能性，但是我们在实践中应当尽量依赖 enum case 而非错误号来对错误进行辨别，这可以提高稳定性，同时降低维护的压力。除了 enum 以外，struct 和 class 也是可以实现 <code class="language-plaintext highlighter-rouge">ErrorType</code> 接口，并作为被 throw 的对象的。在使用非 enum 值来表示错误的时候，我们可能需要显式地指定 <code class="language-plaintext highlighter-rouge">_code</code> 和 <code class="language-plaintext highlighter-rouge">_domain</code>，以区分不同的错误。</p><h2 id="throws-的一些实践">throws 的一些实践</h2><h3 id="异步操作中的异常处理">异步操作中的异常处理</h3><p>带有 throw 的方法现在只能工作在同步 API 中，这受限于异常抛出方法的基本思想。一个可以抛出的方法实际上做的事情是执行一个闭包，接着选择返回一个值或者是抛出一个异常。直接使用一个 throw 方法，我们无法在返回或抛出之前异步地执行操作并根据操作的结果来决定方法行为。要改变这一点，理论上我们可以通过将闭包的执行和对结果的操作进行分离，来达到“异步抛出”的效果。假设有一个同步方法可以抛出异常：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="n">syncFunc</span><span class="o">&lt;</span><span class="kt">A</span><span class="p">,</span> <span class="kt">R</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">arg</span><span class="p">:</span> <span class="kt">A</span><span class="p">)</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">R</span>
+
+</pre></table></code></div></div><p>通过为其添加一次调用，可以将闭包执行部分和结果判断及返回部分分离：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="n">syncFunc</span><span class="o">&lt;</span><span class="kt">A</span><span class="p">,</span> <span class="kt">R</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">arg</span><span class="p">:</span> <span class="kt">A</span><span class="p">)()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">R</span>
+
+</pre></table></code></div></div><p>这相当于将原来的方法改写为了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="n">syncFunc</span><span class="o">&lt;</span><span class="kt">A</span><span class="p">,</span> <span class="kt">R</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">arg</span><span class="p">:</span> <span class="kt">A</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="kt">Void</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">R</span><span class="p">)</span>
+
+</pre></table></code></div></div><p>这样，单次对 <code class="language-plaintext highlighter-rouge">syncFunc</code> 的调用将返回一个 <code class="language-plaintext highlighter-rouge">Void throws -&gt; R</code> 类型的方法，这使我们有机会执行代码而不是直接返回或抛出。在执行 <code class="language-plaintext highlighter-rouge">syncFunc</code> 返回后，我们还需要对其结果用 <code class="language-plaintext highlighter-rouge">try</code> 来进行判断是否抛出异常。利用这个特点，我们就可以将这个同步的抛出方法改写为异步形式：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="n">asyncFunc</span><span class="o">&lt;</span><span class="kt">A</span><span class="p">,</span> <span class="kt">R</span><span class="o">&gt;</span><span class="p">(</span><span class="nv">arg</span><span class="p">:</span> <span class="kt">A</span><span class="p">,</span> <span class="nv">callback</span><span class="p">:</span> <span class="p">(</span><span class="kt">Void</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">R</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="p">{</span>
+	<span class="c1">// 处理操作</span>
+	<span class="k">let</span> <span class="nv">result</span><span class="p">:</span> <span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">R</span> <span class="o">=</span> <span class="p">{</span>
+		<span class="c1">// 根据结果抛出异常或者正常返回</span>
+	<span class="p">}</span>
+	<span class="k">return</span> <span class="nf">callback</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 调用</span>
+<span class="nf">asyncFunc</span><span class="p">(</span><span class="nv">arg</span><span class="p">:</span> <span class="n">someArg</span><span class="p">)</span> <span class="p">{</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span> <span class="k">in</span>
+    <span class="k">do</span> <span class="p">{</span>
+        <span class="k">let</span> <span class="nv">r</span> <span class="o">=</span> <span class="k">try</span> <span class="nf">result</span><span class="p">()</span>
+        <span class="c1">// 正常返回</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="n">_</span> <span class="p">{</span>
+        <span class="c1">// 出现异常</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>绕了一大个圈子，我们最后发现这么做本质上其实和简单地使用 <code class="language-plaintext highlighter-rouge">Result&lt;T, E&gt;</code> 来表示异步方法的结果并没有本质区别，反而增加了代码阅读和理解的难度，也破坏了 Swift 异常机制原本的设计意图，其实并不是可取的选项。除开某些非常特殊的用例外，对于异步 API 现在并不适合使用 throw 来进行错误判断。</p><h3 id="异常处理的测试">异常处理的测试</h3><p>在 XCTest 中暂时还没有直接对 Swift 2 异常处理进行测试的方法，如果想要测试某个调用应当/不应当抛出某个异常的话，我们可以对 XCTest 框架的方法进行一些额外但很简单包装，传入 block 并运行，然后在 try 块或是 catch 块内进行 XCTAssert 的断言检测。在 Apple 开发者论坛有关于这个问题的更<a href="https://forums.developer.apple.com/thread/5824">详细的讨论</a>，完整的示例代码和使用例子可以在<a href="https://gist.github.com/onevcat/128ab20a4a9177ca3c82">这里</a>找到。</p><h3 id="类型安全的异常抛出">类型安全的异常抛出</h3><p>Swift 2 中异常另一个严重的不足是类型不安全。throw 语句可以作用于任意满足 <code class="language-plaintext highlighter-rouge">ErrorType</code> 的类型，你可以 throw 任意域的错误。而在 catch 块中我们也同样可以匹配任意的错误类型，这一切都没有编译器保证。由于这个原因，现在的异常处理机制并不好用，需要处理异常的开发者往往需要通读文档才能知道可能会有哪些异常，而文档的维护又是额外的工作。缺少强制机制来保证异常抛出和捕获的类型的正确性，这为程序中 bug 的出现埋下了隐患。</p><p>事实上从我们之前对 throw 底层实现的分析来看，在语言层面上实现只抛出某一特定类型的错误并不是很困难的事情。但是考虑到与 <code class="language-plaintext highlighter-rouge">NSError</code> 和传统错误处理 API 兼容问题，Swift 2 中并没有这样实现，也许我们在之后的 Swift 版本中能看到限定类型的异常机制。</p><h3 id="异常的调试和断点">异常的调试和断点</h3><p>Swift 的异常抛出并不是传统意义的 exception，在调试时抛出异常并不会触发 Exception 断点。另外，throw 本身是语言的关键字，而不是一个 symbol，它也不能触发 Symbolic 类型的断点。如果我们希望在所有 throw 语句执行的时候让程序停住的话，需要一些额外的技巧。在之前 throw 的汇编实现中，可以看到所有 throw 语句在返回前都会进行一次 <code class="language-plaintext highlighter-rouge">swift_willThrow</code> 的调用，这就是一个有效的 Symbolic 语句，我们设置一个 <code class="language-plaintext highlighter-rouge">swift_willThrow</code> 的 Symbolic 断点，就可以让程序在 throw 的时候停住，并使用调用栈信息来获知程序在哪里抛出了异常。</p><blockquote><p>补充，在最新版本的 Xcode 中，Apple 直接为我们在断点类型中加上了 “Swift Error Breakpoint” 的选项，它背后做的就是在 <code class="language-plaintext highlighter-rouge">swift_willThrow</code> 上添加一个断点。不过因为有了更直接的方法，我们现在不再需要手动去添加这个符号断点了。</p></blockquote><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2016/swift-error-breakpoint.png" alt="" /></p><h2 id="参考资料">参考资料</h2><ul><li>MikeAsh Friday Q&amp;A，Swift 中 Name Mangling 的定义和使用：<a href="https://mikeash.com/pyblog/friday-qa-2014-08-15-swift-name-mangling.html">Friday Q&amp;A: Swift Name Mangling</a><li>Apple 开发者论坛，关于 Swift 中 throw 的测试方法：<a href="https://forums.developer.apple.com/thread/5824">How to write a unit test which passes if a function throws?</a></ul></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86/" class="post-tag no-text-decoration" >错误处理</a> <a href="/tags/%E5%BC%82%E5%B8%B8/" class="post-tag no-text-decoration" >异常</a> <a href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/" class="post-tag no-text-decoration" >开发者体验</a> <a href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" class="post-tag no-text-decoration" >最佳实践</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Swift 2 throws 全解析 - 从原理到实践 - OneV's Den&url=https://onevcat.com/2016/03/swift-throws/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Swift 2 throws 全解析 - 从原理到实践 - OneV's Den&u=https://onevcat.com/2016/03/swift-throws/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=Swift 2 throws 全解析 - 从原理到实践 - OneV's Den&url=https://onevcat.com/2016/03/swift-throws/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=Swift 2 throws 全解析 - 从原理到实践 - OneV's Den&url=https://onevcat.com/2016/03/swift-throws/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2017/10/swift-error-category/"><div class="card-body"> <span class="timeago small" > 2017-10-17 <i class="unloaded">2017-10-17T12:15:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>关于 Swift Error 的分类</h3><div class="text-muted small"><p> 在去年我应 IBM 编辑的邀请写过一篇关于 Swift 2 中 throws 的文章。现在回头看，Swift 2 其实是 Swift 语言发展的一个挺重要的节点：如果说 Swift 1 是一个更偏向于验证阶段的产品的话，Swift 2 中加入的特性为这门语言的基石进行了补足。在那篇文章里我们主要深入探索了新的 throw 关键字背后的事情，而同一时期其实 Swift 官方有过一次关于错误处理...</p></div></div></a></div><div class="card"> <a href="/2018/10/swift-result-error/"><div class="card-body"> <span class="timeago small" > 2018-10-31 <i class="unloaded">2018-10-31T11:38:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt;</h3><div class="text-muted small"><p> 我之前在专栏文章里曾经发布这篇文章，由于这个话题其实还是挺重要的，可以说代表了 Swift 今后发展的方向流派，所以即使和专栏文章内容有些重复，我还是想把它再贴到博客来。经过半年以后，自己对于这个问题也有了更多的实践和想法，所以同时也更新了一下。我没有直接改动原文，而是把新的想法和需要补充的说明，用类似这段话的引用的方式写在合适的上下文里。 开始先打个广告 我个人经常会在数码荔枝...</p></div></div></a></div><div class="card"> <a href="/2014/06/my-opinion-about-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-03 <i class="unloaded">2014-06-03T12:05:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>关于 Swift 的一点初步看法</h3><div class="text-muted small"><p> 虽然四点半就起床去排队等入场，结果还是只能坐在了蛮后面的位置看着大屏幕参加了今年的 Keynote。其实今年 OS X 和 iOS 的更新亮点都不少，但是显然风头和光芒都让横空出世的 Swift 给抢走了。这部分内容因为不是 NDA，所以可以提前说一说。 Swift 是 Apple 自创的一门专门为 Cocoa 和 CocoaTouch 设计的语言，意在用来替代 objc。早上发布的时候有...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2016/02/swift-performance/" class="btn btn-outline-primary"><p>Swift 性能探索和优化分析</p></a> <a href="/2016/04/objccn-plan/" class="btn btn-outline-primary"><p>ObjC 中国的工作回顾和之后的计划</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

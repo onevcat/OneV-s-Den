@@ -1,0 +1,299 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="如何打造一个让人愉快的框架" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="这是我在今年 1 月 10 日 @Swift 开发者大会 上演讲的文字稿。相关的视频还在制作中，没有到现场的朋友可以通过这个文字稿了解到这个 session 的内容。" /><meta property="og:description" content="这是我在今年 1 月 10 日 @Swift 开发者大会 上演讲的文字稿。相关的视频还在制作中，没有到现场的朋友可以通过这个文字稿了解到这个 session 的内容。" /><link rel="canonical" href="https://onevcat.com/2016/01/create-framework/" /><meta property="og:url" content="https://onevcat.com/2016/01/create-framework/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2016-01-19T15:32:24+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="如何打造一个让人愉快的框架" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"这是我在今年 1 月 10 日 @Swift 开发者大会 上演讲的文字稿。相关的视频还在制作中，没有到现场的朋友可以通过这个文字稿了解到这个 session 的内容。","url":"https://onevcat.com/2016/01/create-framework/","@type":"BlogPosting","headline":"如何打造一个让人愉快的框架","dateModified":"2016-01-19T15:32:24+09:00","datePublished":"2016-01-19T15:32:24+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2016/01/create-framework/"},"@context":"https://schema.org"}</script><title>如何打造一个让人愉快的框架 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>如何打造一个让人愉快的框架</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>如何打造一个让人愉快的框架</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Tue, Jan 19, 2016, 3:32 PM +0900" > 2016-01-19 <i class="unloaded">2016-01-19T15:32:24+09:00</i> </span></div></div><div class="post-content"><blockquote><p>这是我在今年 1 月 10 日 <a href="http://atswift.io">@Swift 开发者大会</a> 上演讲的文字稿。相关的视频还在制作中，没有到现场的朋友可以通过这个文字稿了解到这个 session 的内容。</p></blockquote><script async="" class="speakerdeck-embed" data-id="809c2dfa8e5f46cf98e92898079c943a" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script><p>&lt;br&gt;</p><p>虽然我的工作是程序员，但是最近半年其实我的主要干的事儿是养了一个小孩。 所以这半年来可以说没有积累到什么技术，反而是积累了不少养小孩的心得。 当知道了有这么次会议可以分享这半年来的心得的时候，我毫不犹豫地选定了主题。那就是</p><blockquote><p>如何打造一个让人愉快的<strong>小孩</strong></p></blockquote><p>但考虑到这是一次开发者会议…当我把这个想法和题目提交给大会的时候，被残酷地拒绝了。考虑到我们是一次开发者大会，所以我需要找一些更合适的主题。其实如果你对自己的代码有感情的话，我们开发和维护的项目或者框架就如同自己的孩子一般这也是我所能找到的两者的共同点。所以，我将原来拟定的主题换了两个字：</p><blockquote><p>如何打造一个让人愉快的<strong>框架</strong></p></blockquote><p>在正式开始前，我想先给大家分享一个故事。我们那儿的 iOS 开发小组里有一个叫做武田君的人，他的代码写得不错，做事也非常严谨，可以说是楷模般的员工。但是他有一个致命的弱点 – 喜欢自己发明轮子。他出于本能地抗拒在代码中使用第三方框架，所以接到开发任务以后他一般都要花比其他小伙伴更多的时间才能完成。</p><p>武田君其实在各个方面都有建树…比如</p><ul><li>网络请求<li>模型解析<li>导航效果<li>视图动画 …</ul><p>不过虽然造了很多轮子，但是代码的重用比较糟糕，耦合严重。在新项目中使用的话，只能复制粘贴，然后针对项目修修补补。因为承担的任务总是没有办法完成，他一直是项目deadline的决定者，在日本这种社会，压力可想而知。就在我这次回国之前，武田君来向我借了一本我本科时候最喜欢的书。就是这本：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2016/book-cover.jpg" alt="" /></p><p>我有时候就想，到底是什么让一个开发者面临如此大的精神压力，我们有什么办法来缓解这种压力。在我们有限的开发生涯中，应该如何有效利用时间来做一些更有价值的事情。</p><p>显然，我们不可能一天建成罗马，也不可能一个人建成罗马。我们需要一些方法把自己和别人写的代码组织起来，高效地利用，并以此为基础构建软件。这就涉及到使用和维护框架。如何利用框架迅速构建应用，以及在开发和发布一个框架的时候应该注意一些什么，这是我今天想讲的主题。当然，为了让大家安心和专注于今天的内容，而不是挂念武田君的命运，特此声明：</p><blockquote><p>以上故事纯属虚构，如有雷同实属巧合</p></blockquote><h2 id="使用框架">使用框架</h2><p>在了解如何制作框架之前，先让我们看看如何使用框架。可以说，如果你想成为一个框架的提供者，首先你必须是一个优秀的使用者。</p><p>在 iOS 开发的早期，使用框架其实并不是一件让人愉悦的事情。可能有几年经验的开发者都有这样的体会，那就是：</p><blockquote><p>忘不了 那些年，被手动引用和 <code class="language-plaintext highlighter-rouge">.a</code> 文件所支配的恐惧</p></blockquote><p>其实恐惧源于未知，回想一下，当我们刚接触软件开发的时候，懵懵懂懂地引用了一个静态库，然后面对一排排编译器报错时候手足无措的绝望。但是当我们了解了静态库的话，我们就能克服这种恐惧了。</p><h3 id="什么是静态库-static-library">什么是静态库 (Static Library)</h3><p>所谓静态库，或者说 .a 文件，就是一系列从源码编译的目标文件的集合。它是你的源码的实现所对应的二进制。配合上公共的 .h 文件，我们可以获取到 .a 中暴露的方法或者成员等。在最后编译 app 的时候.a 将被链接到最终的可执行文件中，之后每次都随着app的可执行二进制文件一同加载，你不能控制加载的方式和时机，所以称为静态库。</p><p>在 iOS 8 之前，iOS 只支持以静态库的方式来使用第三方的代码。</p><h3 id="什么是动态框架-dynamic-framework">什么是动态框架 (Dynamic Framework)</h3><p>与静态相对应的当然是动态。我们每天使用的 iOS 系统的框架是以 .framework 结尾的，它们就是动态框架。</p><p>Framework 其实是一个 bundle，或者说是一个特殊的文件夹。系统的 framework 是存在于系统内部，而不会打包进 app 中。app 的启动的时候会检查所需要的动态框架是否已经加载。像 UIKit 之类的常用系统框架一般已经在内存中，就不需要再次加载，这可以保证 app 启动速度。相比静态库，framework 是自包含的，你不需要关心头文件位置等，使用起来很方便。</p><h3 id="universal-framework">Universal Framework</h3><p>iOS 8 之前也有一些第三方库提供 .framework 文件，但是它们实质上都是静态库，只不过通过一些方法进行了包装，相比传统的 .a 要好用一些。像是原来的 Dropbox 和 Facebook 等都使用这种方法来提供 SDK。不过因为已经脱离时代，所以在此略过不说。有兴趣和需要的朋友可以参看一下<a href="https://github.com/kstenerud/iOS-Universal-Framework">这里</a>和<a href="https://github.com/jverkoey/iOS-Framework">这里</a>。</p><h3 id="library-vs-framework">Library v.s. Framework</h3><p>对比静态库和动态框架，后者是有不少优势的。</p><p>首先，静态库不能包含像 xib 文件，图片这样的资源文件，其他开发者必须将它们复制到 app 的 main bundle 中才能使用，维护和更新非常困难；而 framework 则可以将资源文件包含在自己的 bundle 中。 其次，静态库必须打包到二进制文件中，这在以前的 iOS 开发中不是很大的问题。但是随着 iOS 扩展（比如通知中心扩展或者 Action 扩展）开发的出现，你现在可能需要将同一个 .a 包含在 app 本体以及扩展的二进制文件中，这是不必要的重复。</p><p>最后，静态库只能随应用 binary 一起加载，而动态框架加载到内存后就不需要再次加载，二次启动速度加快。另外，使用时也可以控制加载时机。</p><p>动态框架有非常多的优点，但是遗憾的是以前 Apple 不允许第三方框架使用动态方式，而只有系统框架可以通过动态方式加载。</p><p>很多时候我们都想问，Apple，凭什么？</p><p>好吧，这种事也不是一次两次了…不过好消息是：。</p><h3 id="cocoa-touch-framework">Cocoa Touch Framework</h3><p>Apple 从 iOS 8 开始允许开发者有条件地创建和使用动态框架，这种框架叫做 Cocoa Touch Framework。</p><p>虽然同样是动态框架，但是和系统 framework 不同，app 中的使用的 Cocoa Touch Framework 在打包和提交 app 时会被放到 app bundle 中，运行在沙盒里，而不是系统中。也就是说，不同的 app 就算使用了同样的 framework，但还是会有多份的框架被分别签名，打包和加载。</p><p>Cocoa Touch Framework 的推出主要是为了解决两个问题：首先是应对刚才提到的从 iOS 8 开始的扩展开发。其次是因为 Swift，在 Swift 开源之前，它是不支持编译为静态库的。虽然在开源后有编译为静态库的可能性，但是因为 Binary Interface 未确定，现在也还无法实用。这些问题会在 Swift 3 中将被解决，但这至少要等到今年下半年了。</p><p>现在，Swift runtime 不在系统中，而是打包在各个 app 里的。所以如果要使用 Swift 静态框架，由于 ABI 不兼容，所以我们将不得不在静态包中再包含一次 runtime，可能导致同一个 app 包中包括多个版本的运行时，暂时是不可取的。</p><h3 id="包和依赖管理">包和依赖管理</h3><p>在使用框架的时候，用一些包管理和依赖管理工具可以简化使用流程。其中现在使用最广泛的应该是 [CocoaPods](http://cocoapods.org](http://cocoapods.org)。</p><p>CocoaPods 是一个已经有五年历史的 ruby 程序，可以帮助获取和管理依赖框架。</p><p>CocoaPods 的主要原理是框架的提供者通过编写合适的 PodSpec 文件来提供框架的基本信息，包括仓库地址，需要编译的文件，依赖等 用户使用 Podfile 文件指定想要使用的框架，CocoaPods 会创建一个新的工程来管理这些框架和它们的依赖，并把所有这些框架编译到成一个静态的 libPod.a。然后新建一个 workspace 包含你原来的项目和这个新的框架项目，最后在原来的项目中使用这个 libPods.a</p><p>这是一种“侵入式”的集成方式，它会修改你的项目配置和结构。</p><p>本来 CocoaPods 已经准备在前年发布 1.0 版本，但是 Swift 和动态框架的横空出世打乱了这个计划。因为必须提供对这两者的支持。不过最近 1.0.0 的 beta 已经公布，相信这个历时五年的项目将在最近很快迎来正式发布。</p><p>从 0.36.0 开始，可以通过在 Podfile 中添加 <code class="language-plaintext highlighter-rouge">use_frameworks!</code> 来编译 CocoaTouch Framework，也就是动态框架。</p><p>因为现在 Swift 的代码只能被编译为动态框架，所以如果你使用的依赖中包含 Swift 代码，又想使用 CocoaPods 来管理的话，必须选择开启这个选项。</p><p><code class="language-plaintext highlighter-rouge">use_frameworks!</code> 会把项目的依赖全部改为 framework。也就是说这是一个 none or all 的更改。你无法指定某几个框架编译为动态，某几个编译为静态。我们可以这么理解：假设 Pod A 是动态框架，Pod B 是静态，Pod A 依赖 Pod B。要是 app 也依赖 Pod B：那么要么 Pod A 在 link 的时候找不到 Pod B 的符号，要么 A 和 app 都包含 B，都是无解的情况。</p><p>使用 CocoaPods 很简单，用 Podfile 来描述你需要使用和依赖哪些框架，然后执行 pod install 就可以了。下面是一个典型的 Podfile 的结构。</p><div class="language-ruby highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="c1"># Podfile</span>
+<span class="n">platform</span> <span class="ss">:ios</span><span class="p">,</span> <span class="s1">'8.0'</span>
+<span class="n">use_frameworks!</span>
+
+<span class="n">target</span> <span class="s1">'MyApp'</span> <span class="k">do</span>
+  <span class="n">pod</span> <span class="s1">'AFNetworking'</span><span class="p">,</span> <span class="s1">'~&gt; 2.6'</span>
+  <span class="n">pod</span> <span class="s1">'ORStackView'</span><span class="p">,</span> <span class="s1">'~&gt; 3.0'</span>
+  <span class="n">pod</span> <span class="s1">'SwiftyJSON'</span><span class="p">,</span> <span class="s1">'~&gt; 2.3'</span>
+<span class="k">end</span>
+</pre></table></code></div></div><div class="language-bash highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="nv">$ </span>pod <span class="nb">install</span>
+</pre></table></code></div></div><p><a href="https://github.com/Carthage/Carthage">Carthage</a> 是另外的一个选择，它是在 Cocoa Touch Framework 和 Swift 发布后出现的专门针对 Framework 进行的包管理工具。</p><p>Carthage 相比 CocoaPods，采用的是完全不同的一条道路。Carthage 只支持动态框架，它仅负责将项目 clone 到本地并将对应的 Cocoa Framework target 进行构建。之后你需要自行将构建好的 framework 添加到项目中。和 CocoaPods 需要提交和维护框架信息不同，Carthage 是去中心化的 它直接从 git 仓库获取项目，而不需要依靠 podspec 类似的文件来管理。</p><p>使用上来说，Carthage 和 CocoaPods 类似之处在于也通过一个文件 <code class="language-plaintext highlighter-rouge">Cartfile</code> 来指定依赖关系。</p><div class="language-ruby highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="c1"># Cartfile</span>
+<span class="n">github</span> <span class="s2">"ReactiveCocoa/ReactiveCocoa"</span>
+<span class="n">github</span> <span class="s2">"onevcat/Kingfisher"</span> <span class="o">~&gt;</span> <span class="mf">1.8</span>
+<span class="n">github</span> <span class="s2">"https://enterprise.local/hello/repo.git"</span>
+</pre></table></code></div></div><div class="language-bash highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="nv">$ </span>carthage update
+</pre></table></code></div></div><p>在使用 Framework 的时候，我们需要将用到的框架 Embedded Binary 的方式链接到希望的 App target 中。</p><p>随着上个月 Swift 开源，有了新的可能的选项，那就是 <a href="https://swift.org/package-manager/">Swift Package Manager</a>。这可能是未来的包管理方式，但是现在暂时不支持 iOS 和 tvOS （也就是说 UIKit 并不支持）。</p><p>Package Manager 实际上做的事情和 Carthage 相似，不过是通过 <code class="language-plaintext highlighter-rouge">llbuild</code> （low level build system）的跨平台编译工具将 Swift 编译为 .a 静态库。</p><p>这个项目很新，从去年 11 月才开始。不过因为是 Apple 官方支持，所以今后很可能会集成到 Xcode 工具链中，成为项目的标配，非常值得期待。但是现在暂时还无法用于应用开发。</p><h2 id="创建框架">创建框架</h2><p>作为框架的用户你可能知道这些就能够很好地使用各个框架了。但是如果你想要创建一个框架的话，还远远不够。接下来我们说一说如何创建一个框架。</p><p>Xcode 为我们准备了 framework target 的模板，直接创建这个 target，就可以开始编写框架了。</p><p>添加源文件，编写代码，编译，完成，就是这么简单。</p><p>app 开发所得到产品直接面向最终用户；而框架开发得到的是一个中间产品，它面向的是其他开发者。对于一款 app，我们更注重使用各种手段来保证用户体验，最终目的是解决用户使用的问题。而框架的侧重点与 app 稍有不同，像是集成上的便利程度，使用上是否方便，升级的兼容等都需要考虑。虽然框架的开发和 app 的开发有不少不同，但是也有不少共通的规则和需要遵循的思维方式。</p><h3 id="api-设计">API 设计</h3><h4 id="最小化原则">最小化原则</h4><p>基于框架开发的特点，相较于 app 开发，需要更着重地考虑 API 的设计。你标记为 public 的内容将是框架使用者能看到的内容。提供什么样的 API 在很大程度上决定了其他的开发者会如何使用你的框架。</p><p>在 API 设计的时候，从原则上来说，我们一开始可以提供尽可能少的接口来完成必要的任务，这有助于在框架初期控制框架的复杂程度。 之后随着逐步的开发和框架使用场景的扩展，我们可以添加公共接口或者将原来的 internal 或者 private 接口标记为 public 供外界使用。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="c1">// Do this</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">mustMethod</span><span class="p">()</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
+<span class="kd">func</span> <span class="nf">onlyUsedInFramework</span><span class="p">()</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
+<span class="kd">private</span> <span class="kd">func</span> <span class="nf">onlyUsedInFile</span><span class="p">()</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
+</pre></table></code></div></div><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="c1">// Don't do this</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">mustMethod</span><span class="p">()</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">onlyUsedInFramework</span><span class="p">()</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">onlyUsedInFile</span><span class="p">()</span> <span class="p">{</span> <span class="o">...</span> <span class="p">}</span>
+</pre></table></code></div></div><h4 id="命名考虑">命名考虑</h4><p>在决定了 public 接口以后，我们很快就会迎来编程界的最难的问题之一，命名。</p><p>在 Objective-C 时代 Cocoa 开发的类型或者方法名称就以一个长字著称，Swift 时代保留了这个光荣传统。Swift 程序的命名应该尽量表意清晰，不用奇怪的缩写。在 Cocoa 的世界里，精确比简短更有吸引力。</p><p>几个例子，相比于简单的 <code class="language-plaintext highlighter-rouge">remove</code>，<code class="language-plaintext highlighter-rouge">removeAt</code> 更能表达出从一个集合类型中移除元素的方式。而 <code class="language-plaintext highlighter-rouge">remove</code> 可能导致误解，是移除特定的 int 还是从某个 index 移除？</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="c1">// Do this</span>
+<span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">removeAt</span><span class="p">(</span><span class="nv">position</span><span class="p">:</span> <span class="kt">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Element</span>
+</pre></table></code></div></div><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="c1">// Don't do this</span>
+<span class="kd">public</span> <span class="k">mutating</span> <span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="nv">i</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Element</span>            
+<span class="c1">// &lt;- index or element?</span>
+</pre></table></code></div></div><p>同样，<code class="language-plaintext highlighter-rouge">recursivelyFetch</code> 表达了递归地获取，而 <code class="language-plaintext highlighter-rouge">fetch</code> 很可能被理解为仅获取当前输入。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="c1">// Do this</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">recursivelyFetch</span><span class="p">(</span><span class="nv">urls</span><span class="p">:</span> <span class="p">[(</span><span class="kt">String</span><span class="p">,</span> <span class="kt">Range</span><span class="o">&lt;</span><span class="kt">Version</span><span class="o">&gt;</span><span class="p">)])</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">T</span><span class="p">]</span>
+</pre></table></code></div></div><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="c1">// Don't do this</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">fetch</span><span class="p">(</span><span class="nv">urls</span><span class="p">:</span> <span class="p">[(</span><span class="kt">String</span><span class="p">,</span> <span class="kt">Range</span><span class="o">&lt;</span><span class="kt">Version</span><span class="o">&gt;</span><span class="p">)])</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">T</span><span class="p">]</span> <span class="c1">// &lt;- how?</span>
+</pre></table></code></div></div><p>另外需要注意方法名应该是动词或者动词短语开头，而属性名应该是名词。当遇到冲突时，（比如这里的 displayName，既可以是名字也可以是动词）应该特别注意属性和方法的上下文造成的理解不同。更好的方式是避免名动皆可的词语，比如把 displayName 换为 screenName，就不会产生歧义了。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="k">var</span> <span class="nv">displayName</span><span class="p">:</span> <span class="kt">String</span>
+<span class="kd">public</span> <span class="k">var</span> <span class="nv">screenName</span><span class="p">:</span> <span class="kt">String</span> <span class="c1">// &lt;- Better</span>
+</pre></table></code></div></div><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="c1">// Don't do this</span>
+<span class="kd">public</span> <span class="kd">func</span> <span class="nf">displayName</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">String</span> 
+<span class="c1">// &lt;- noun or verb? Why returning `String`?</span>
+</pre></table></code></div></div><p>在命名 API 时一个有用的诀窍是为你的 API 写文档。如果你用一句话无法将一个方法的内容表述清楚的话，这往往就意味着 API 的名字有改进的余地。好的 API 设计可以让有经验的开发者猜得八九不离十，看文档更多地只是为了确认细节。一个 API 如果能做到不需要看文档就能被使用，那么它肯定是成功的。</p><p>关于 API 的命名，Apple 官方给出了一个很详细的<a href="https://swift.org/documentation/api-design-guidelines/">指南</a> (Swift API Design Guidelines)，相信每个开发者的必读内容。遵守这个准则，和其他开发者一道，用约定俗称的方式来进行编程和交流，这对提高框架质量非常，非常，非常重要（重要的事情要说三遍，如果你在我的演讲中只能记住一页的话，我希望是这一页。如果你还没有看过这个指南，建议去看一看，只需要花十分钟时间。）</p><h4 id="优先测试测试驱动开发">优先测试，测试驱动开发</h4><p>你应该是你自己写的框架的第一个用户，最简单的使用你自己的框架的方式就是编写测试。据我所知，在 app 开发中，很多时候单元测试被忽视了。但是在框架开发中，这是很重要的一个环节。可能没有人会敢使用没有测试的框架。除了保证功能正确以外，通过测试，你可以发现框架中设计不合理的地方，并在第一时间进行改善。</p><p>为框架编写测试的方式和为 app 测试类似， Swift 2 开始可以使用 @testable 来把框架引入到测试 module。这样的话可以调用 internal 方法。</p><p>不过对于框架来说，理论上只测试 public 就够了。但是我个人推荐使用 testable，来对一些重要的 internal 的方法也进行测试。这可以提高开发和交付时的信心。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="c1">// In Test Target</span>
+<span class="kd">import</span> <span class="kt">XCTest</span>
+<span class="kd">@testable</span> <span class="kd">import</span> <span class="kt">YourFramework</span>
+<span class="kd">class</span> <span class="kt">FrameworkTypeTests</span><span class="p">:</span> <span class="kt">XCTestCase</span> <span class="p">{</span>
+   <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><hr /><h3 id="开发时的选择">开发时的选择</h3><h4 id="命名冲突">命名冲突</h4><p>在 Objective-C 中的 static library 里一个常见问题是同样的符号在链接时会导致冲突。</p><p>Swift 中我们可以通过 module 来提供类似命名空间隔离，从而避免符号冲突。但是在对系统已有的类添加 extension 的时候还是需要特别注意命名的问题。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre>   <span class="c1">// F1.framework</span>
+   <span class="kd">extension</span> <span class="kt">UIImage</span> <span class="p">{</span>
+       <span class="kd">public</span> <span class="nf">method</span><span class="p">()</span> <span class="p">{</span> <span class="nf">print</span><span class="p">(</span><span class="s">"F1"</span><span class="p">)</span> <span class="p">}</span>
+   <span class="p">}</span>
+
+   <span class="c1">// F2.framework</span>
+   <span class="kd">extension</span> <span class="kt">UIImage</span> <span class="p">{</span>
+       <span class="kd">public</span> <span class="nf">method</span><span class="p">()</span> <span class="p">{</span> <span class="nf">print</span><span class="p">(</span><span class="s">"F2"</span><span class="p">)</span> <span class="p">}</span>
+   <span class="p">}</span>
+</pre></table></code></div></div><p>比如在框架 F1 和 F2 中我们都对 UIImage 定义了 method 方法，分别就输出自己来自哪个框架。</p><p>如果我们需要在同一个文件里的话引入的话：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="c1">// app</span>
+<span class="kd">import</span> <span class="kt">F1</span>
+<span class="kd">import</span> <span class="kt">F2</span>
+<span class="kt">UIImage</span><span class="p">()</span><span class="o">.</span><span class="nf">method</span><span class="p">()</span>
+<span class="c1">// Ambiguous use of 'method()'</span>
+</pre></table></code></div></div><p>在 app 中的一个文件里同时 import F1 和 F2，就会产生编译错误，因为 F1 和 F2 都为同一个类型 UIImage 定义了 method，编译器无法确定使用哪个方法。</p><p>当然因为有 import 控制，在使用的时候注意一下源文件的划分，避免同时 import F1 和 F2，似乎就能解决这个问题。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="c1">// app</span>
+<span class="kd">import</span> <span class="kt">F1</span>
+<span class="kt">UIImage</span><span class="p">()</span><span class="o">.</span><span class="nf">method</span><span class="p">()</span>
+<span class="c1">// 输出 F2 （结果不确定）</span>
+</pre></table></code></div></div><p>确实，只 import F1 的话，编译错误没有了，但是运行的时候有可能看到虽然 import 的是 F1，但是实际上调用到的是 F2 中的方法。</p><p>这是因为虽然有命名空间隔离，但 NSObject 的 extension 实际上还是依赖于 Objective-C runtime 的，这两个框架都在 app 启动时候被加载，运行时究竟调用了哪个方法是和加载顺序相关的，并不确定。</p><p>这种问题可以实际遇到的话，会非常难调试。</p><p>所以我们开发框架时的选择，对于已存在类型的 <code class="language-plaintext highlighter-rouge">extension</code>，<strong>必须添加前缀</strong>， 这和以前我们写 Objective-C 的 Category 的时候的原则是一样的。</p><p>上面的例子里，在开发的时候，不应该写这样的代码，而应该加上合适的前缀，以减少冲突的可能性。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="c1">// Do this</span>
+<span class="c1">// F1.framework</span>
+<span class="kd">extension</span> <span class="kt">UIImage</span> <span class="p">{</span>
+  <span class="kd">public</span> <span class="nf">f1_method</span><span class="p">()</span> <span class="p">{</span> <span class="nf">print</span><span class="p">(</span><span class="s">"F1"</span><span class="p">)</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// F2.framework</span>
+<span class="kd">extension</span> <span class="kt">UIImage</span> <span class="p">{</span>
+  <span class="kd">public</span> <span class="nf">f2_method</span><span class="p">()</span> <span class="p">{</span> <span class="nf">print</span><span class="p">(</span><span class="s">"F2"</span><span class="p">)</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="资源-bundle">资源 bundle</h4><p>刚才提到过，framework 的一大优势是可以在自己的 bundle 中包含资源文件。在使用时，不需要关心框架的用户的环境，直接访问自己的类型的 bundle 就可以获取框架内的资源。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">bundle</span> <span class="o">=</span>
+    <span class="kt">NSBundle</span><span class="p">(</span><span class="nv">forClass</span><span class="p">:</span> <span class="kt">ClassInFramework</span><span class="o">.</span><span class="k">self</span><span class="p">)</span>
+<span class="k">let</span> <span class="nv">path</span> <span class="o">=</span>
+    <span class="n">bundle</span><span class="o">.</span><span class="nf">pathForResource</span><span class="p">(</span><span class="s">"resource"</span><span class="p">,</span> <span class="nv">ofType</span><span class="p">:</span> <span class="s">"png"</span><span class="p">)</span>
+</pre></table></code></div></div><h2 id="发布框架">发布框架</h2><p>最后说说发布和维护一个框架。辛苦制作的框架的最终目的其实就是让别人使用，一个没有人用的框架可以说是没有价值的。</p><p>如果你想让更多的人知道你的框架，那抛开各种爱国感情和个人喜好，可以说 iOS 或者 Swift 开发者的发布目的地只有一个，那就是 GitHub。</p><p>当然在像是开源中国或者 CSDN 这样的代码托管服务上发布也是很好的选择，但是不可否认的现状是只有在 GitHub 上你才能很方便地和全世界其他地方的开发者分享和交流你的代码。</p><h3 id="选择依赖工具">选择依赖工具</h3><p>关于发布，另外一个重要的问题，一般你需要选择支持一个或多个依赖管理工具。</p><h4 id="cocoapods">CocoaPods</h4><p>刚才也提到，CocoaPods 用 podspec 文件来描述项目信息，使用 CocoaPods 提供的命令行工具 可以创建一个 podspec 模板，我们要做的就是按照项目的情况编辑这个文件。 比如这里列出了一个podspec的基本结构，可以看到包含了很多项目信息。关于更详细的用法，可以参看 CocoaPods 的<a href="https://guides.cocoapods.org/making/getting-setup-with-trunk.html">文档</a>。</p><div class="language-bash highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>pod spec create MyFramework
+</pre></table></code></div></div><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="kt">Pod</span><span class="p">::</span><span class="kt">Spec</span><span class="o">.</span><span class="k">new</span> <span class="k">do</span> <span class="o">|</span><span class="n">s</span><span class="o">|</span>
+  <span class="n">s</span><span class="o">.</span><span class="n">name</span>         <span class="o">=</span> <span class="s">"MyFramework"</span>
+  <span class="n">s</span><span class="o">.</span><span class="n">version</span>      <span class="o">=</span> <span class="s">"1.0.2"</span>
+  <span class="n">s</span><span class="o">.</span><span class="n">summary</span>      <span class="o">=</span> <span class="s">"My first framework"</span>
+  <span class="n">s</span><span class="o">.</span><span class="n">description</span>  <span class="o">=</span> <span class="o">&lt;&lt;-</span><span class="kt">DESC</span>
+                    <span class="kt">It</span><span class="err">'</span><span class="n">s</span> <span class="n">my</span> <span class="n">first</span> <span class="n">framework</span><span class="o">.</span>
+                   <span class="kt">DESC</span>
+  <span class="n">s</span><span class="o">.</span><span class="n">ios</span><span class="o">.</span><span class="n">deployment_target</span> <span class="o">=</span> <span class="s">"8.0"</span>
+  <span class="n">s</span><span class="o">.</span><span class="n">source</span>       <span class="o">=</span> <span class="p">{</span> <span class="p">:</span><span class="n">git</span> <span class="o">=&gt;</span> <span class="s">"https://github.com/onevcat/myframework.git"</span><span class="p">,</span> 
+                     <span class="p">:</span><span class="n">tag</span> <span class="o">=&gt;</span> <span class="n">s</span><span class="o">.</span><span class="n">version</span> <span class="p">}</span>
+
+  <span class="n">s</span><span class="o">.</span><span class="n">source_files</span>  <span class="o">=</span> <span class="s">"Class/*.{h,swift}"</span>
+  <span class="n">s</span><span class="o">.</span><span class="n">public_header_files</span> <span class="o">=</span> <span class="p">[</span><span class="s">"MyFramework/MyFramework.h"</span><span class="p">]</span>
+<span class="n">end</span>
+</pre></table></code></div></div><p>提交到 CocoaPods 也很简单，使用它们的命令行工具来检查 podspec 语法和项目是否正常编译，最后推送 podspec 到 CocoaPods 的主仓库就可以了。</p><div class="language-bash highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="c"># 打 tag</span>
+git tag 1.0.2 <span class="o">&amp;&amp;</span> git push origin <span class="nt">--tags</span>
+
+<span class="c"># podspec 文法检查</span>
+pod spec lint MyFramework.podspec
+
+<span class="c"># 提交到 CocoaPods 中心仓库</span>
+pod trunk push MyFramework.podspec
+</pre></table></code></div></div><h4 id="carthage">Carthage</h4><p>另一个应该考虑尽量支持的是 Carthage，因为它的用户数量也不可小觑。 支持 Carthage 比 CocoaPods 要简单很多，你需要做的只是保证你的框架 target 能正确编译，然后在 Manage Scheme 里把这个 target 标记为 Shared 就行了。</p><h4 id="swift-package-manager">Swift Package Manager</h4><p>Swift Package Manager 暂时还不能用于 iOS 项目的依赖管理，但是对于那些并不依赖 iOS 平台的框架来说，现在就可以开始支持 Swift Package Manager 了。</p><p>Swift Package Manager 按照文件夹组织来确定模块，你需要把你的代码放到项目根目录下的 Sources 文件夹里。</p><p>然后在根目录下创建 Package.swift 文件来定义 package 信息。这就是一个普通的 swift 源码文件，你需要做的是在里面定义一个 package 成员，为它指定名字和依赖关系等等。Package Manager 命令将根据这个文件和文件夹的层次来构建你的框架。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="c1">// Package.swift</span>
+<span class="kd">import</span> <span class="kt">PackageDescription</span>  
+<span class="k">let</span> <span class="nv">package</span> <span class="o">=</span> <span class="kt">Package</span><span class="p">(</span>
+    <span class="nv">name</span><span class="p">:</span> <span class="s">"MyKit"</span><span class="p">,</span>
+    <span class="nv">dependencies</span><span class="p">:</span> <span class="p">[</span>
+        <span class="o">.</span><span class="kt">Package</span><span class="p">(</span><span class="nv">url</span><span class="p">:</span> <span class="s">"https://github.com/onevcat/anotherPacakge.git"</span><span class="p">,</span>
+                 <span class="nv">majorVersion</span><span class="p">:</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">)</span>
+</pre></table></code></div></div><h3 id="版本管理">版本管理</h3><p>在发布时另外一个需要特别注意的是版本。在 Podfile 或者 Cartfile 中指定依赖版本的时候我们可以看到类似这样的小飘箭头的符号，这代表版本兼容。比如兼容 2.6.1 表示高于 2.6.1 的 2.6.x 版本都可以使用，而 2.7 或以上不行；同理，如果兼容 2.6 的话，2.6，2.7，2.8 等等这些版本都是兼容的，而 3.0 不行。当然也可以使用 &gt;= 或者是 = 这些符号。</p><div class="language-ruby highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="c1"># Podfile</span>
+<span class="n">pod</span> <span class="s1">'AFNetworking'</span><span class="p">,</span> <span class="s1">'~&gt; 2.6.1'</span>
+<span class="c1"># 2.6.x 兼容 (2.6.1, 2.6.2, 2.6.9 等，不包含 2.7)</span>
+
+<span class="c1"># Podfile</span>
+<span class="n">pod</span> <span class="s1">'AFNetworking'</span><span class="p">,</span> <span class="s1">'~&gt; 2.6'</span>
+<span class="c1"># 2.x 兼容 (2.6.1, 2.7, 2.8 等，不包含 3.0)</span>
+
+<span class="c1"># Cartfile</span>
+<span class="n">github</span> <span class="s2">"Mantle/Mantle"</span> <span class="o">&gt;=</span> <span class="mf">1.1</span>
+<span class="c1"># 大于等于 1.1 (1.1，1.1.4, 1.3, 2.1 等)</span>
+</pre></table></code></div></div><h4 id="semantic-versioning-和版本兼容">Semantic Versioning 和版本兼容</h4><p>那什么叫版本兼容呢？我们看到的这套版本管理的方法叫做 <a href="http://semver.org">Semantic Versioning</a>。它一般通过三个数字来定义版本。</p><blockquote><p><code class="language-plaintext highlighter-rouge">x(major).y(minor).z(patch)</code></p></blockquote><ul><li>major - 公共 API 改动或者删减<li>minor - 新添加了公共 API<li>patch - bug 修正等<li><code class="language-plaintext highlighter-rouge">0.x.y</code> 只遵守最后一条</ul><p>major 的更改表示用户必须修改自己的代码才能继续使用框架；minor 表示框架添加了新的 API，但是现有用户不需要修改代码可以保持原有行为不变；而 patch 则代表 API 没有改变，仅只是内部修正。</p><p>在这个约定下，同样的 major 版本号就意味着用户不需要修改现有代码就能继续使用这个框架，所以这是使用最广的一个依赖方式，在这个兼容保证下，用户可以自由升级 minor 版本号。</p><p>但是有一个例外，那就是还没有正式到达 1.0.0 版本号的框架。 这种框架代表还在早期开发，没有正式发布，API 还在调整中，开发者只需要遵守 patch 的规则，也就是说 0.1.1 和 0.1.2 只有小的修正。但是 0.2 和 0.1 是可以完全不兼容。如果你正在使用一个未正式发布的框架的时候，需要小心这一点。</p><p>框架的版本应该和 git 的 tag 对应，这可以和大多数版本管理工具兼容 一般来说用户会默认你的框架时遵循 Semantic Versioning 和兼容规则。</p><p>我们在设置版本的时候可能会注意到 Info.plist 中的 Version 和 Build 这两个值。虽然 CocoaPods 或者 Carthage 这样的包管理系统并不是使用 Info.plist 里的内容来确定依赖关系，但是我们最好还是保持这里的版本号和 git tag 的一致性。</p><p>当我们编译框架项目的时候，会在头文件或者 module map 里看到这样的定义。 框架的用户想要在运行时知道所使用的框架的版本号的话，使用这些属性会十分方便。这在做框架版本迁移的时候可能会有用。所以作为开发者，也应该维护这两个值来帮助我们确定框架版本。</p><div class="language-c highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="c1">// MyFramework.h</span>
+<span class="c1">//! Project version string for MyFramework.</span>
+<span class="n">FOUNDATION_EXPORT</span> <span class="k">const</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">MyFrameworkVersionString</span><span class="p">[];</span> <span class="c1">// 1.8.3</span>
+<span class="c1">//! Project version number for MyFramework.</span>
+<span class="n">FOUNDATION_EXPORT</span> <span class="kt">double</span> <span class="n">MyFrameworkVersionNumber</span><span class="p">;</span> <span class="c1">// 347</span>
+
+<span class="c1">// Exported module map</span>
+<span class="c1">//! Project version number for MyFramework.</span>
+<span class="n">public</span> <span class="n">var</span> <span class="n">MyFrameworkVersionNumber</span><span class="o">:</span> <span class="n">Double</span>
+<span class="c1">// 并没有导出 MyFrameworkVersionString</span>
+</pre></table></code></div></div><h3 id="持续集成">持续集成</h3><p>在框架开发中，一个优秀的持续集成环境是至关重要的。CI 可以保证潜在的贡献者在有保障的情况下对代码进行修改，减小了框架的维护压力。大部分 CI 环境对于开源项目都是免费的，得益于此，我们可以利用这个星球上最优秀的 CI 来确保我们的代码正常工作。</p><p>就 iOS 或者 OSX 开发来说，Travis CI, CircleCI, Coveralls，Codecov 等都是很好的选择。</p><p>开发总是有趣的，但是发布一般都很无聊。因为发布流程每次都一样，非常机械。无非就是跑测试，打 tag，上传代码，写 release log，更新 podspec 等等。虽然简单，但是费时费力，容易出错。对于这种情景，自动化流程显然是最好的选择。而相比于自己写发布脚本，在 Cocoa 社区我们有更好的工具，那就是 <a href="https://fastlane.tools">fastlane</a>。</p><p>fastlane 是一系列 Cocoa 开发的工具的集合，包括跑测试，打包 app，自动截图，管理 iTunes Connect 等等。</p><p>不单单是 app 开发，在框架开发中，我们也可以利用到 fastlane 里很多很方便的命令。</p><p>使用 fastlane 做持续发布很简单，建立自己的合适的 Fastfile 文件，然后把你想做什么写进去就好了。比如这里是一个简单的 Fastfile 的例子：</p><div class="language-ruby highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+</pre><td class="rouge-code"><pre><span class="c1"># Fastfile</span>
+<span class="n">desc</span> <span class="s2">"Release new version"</span>
+<span class="n">lane</span> <span class="ss">:release</span> <span class="k">do</span> <span class="o">|</span><span class="n">options</span><span class="o">|</span>
+  <span class="n">target_version</span> <span class="o">=</span> <span class="n">options</span><span class="p">[</span><span class="ss">:version</span><span class="p">]</span>
+  <span class="k">raise</span> <span class="s2">"The version is missed."</span> <span class="k">if</span> <span class="n">target_version</span><span class="p">.</span><span class="nf">nil?</span>
+  <span class="n">ensure_git_branch</span>                                             <span class="c1"># 确认 master 分支</span>
+  <span class="n">ensure_git_status_clean</span>                                       <span class="c1"># 确认没有未提交的文件</span>
+  <span class="nb">scan</span>                                                          <span class="c1"># 运行测试</span>
+
+  <span class="n">sync_build_number_to_git</span>                                      <span class="c1"># 将 build 号设为 git commit 数</span>
+  <span class="n">increment_version_number</span><span class="p">(</span><span class="ss">version_number: </span><span class="n">target_version</span><span class="p">)</span>      <span class="c1"># 设置版本号</span>
+
+  <span class="n">version_bump_podspec</span><span class="p">(</span><span class="ss">path: </span><span class="s2">"Kingfisher.podspec"</span><span class="p">,</span>
+             <span class="ss">version_number: </span><span class="n">target_version</span><span class="p">)</span>                    <span class="c1"># 更新 podspec</span>
+  <span class="n">git_commit_all</span><span class="p">(</span><span class="ss">message: </span><span class="s2">"Bump version to </span><span class="si">#{</span><span class="n">target_version</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>  <span class="c1"># 提交版本号修改</span>
+  <span class="n">add_git_tag</span> <span class="ss">tag: </span><span class="n">target_version</span>                               <span class="c1"># 设置 tag</span>
+  <span class="n">push_to_git_remote</span>                                            <span class="c1"># 推送到 git 仓库</span>
+  <span class="n">pod_push</span>                                                      <span class="c1"># 提交到 CocoaPods</span>
+<span class="k">end</span>
+
+<span class="err">$</span> <span class="n">fastlane</span> <span class="n">release</span> <span class="n">version</span><span class="p">:</span><span class="mf">1.8</span><span class="o">.</span><span class="mi">4</span>
+</pre></table></code></div></div><p>AFNetworking 在 3.0 版本开始加入了 fastlane 做自动集成和发布，可以说把开源项目的 CI 做到了极致。在这里强烈推荐大家有空可以看一看<a href="https://github.com/AFNetworking/fastlane">这个项目</a>，除了使用 fastlane 简化流程以外，这个项目里还介绍了一些发布框架时的最佳实践。</p><p>我们能不能创造出像 AFNetworking 这样优秀的框架呢？一个优秀的框架包含哪些要求？</p><h3 id="创建一个优秀的框架">创建一个优秀的框架</h3><p>一个优秀的框架必定包含这些特性：详尽的文档说明，可以指导后来开发者或者协作者迅速上手的注释，</p><p>完善的测试保证功能正确以及不发生退化，简短易读可维护的代码，可以让使用者了解版本变化的更新日志，对于issue的解答等等。</p><p>我们知道在科技界或者说 IT 界会有很多喜欢跑分的朋友。其实跑分这个事情可以辩证来看，它有其有意义的一面。跑分高的不一定优秀，但是优秀的跑分一般一定都会高。</p><p>不止在硬件类的产品，其实在框架开发中我们其实也可以做类似的跑分来检验我们的框架质量如何。</p><p>那就是 <a href="https://cocoapods.org/pods/Kingfisher/quality">CocoaPods Quality</a>，它是一个给开源框架打分的索引类的项目，会按照项目的受欢迎程度和完整度，并基于我们上面说的这些标准来对项目质量进行评判。</p><p>对于框架使用者来说，这可以成为一个选择框架时的<a href="https://guides.cocoapods.org/making/quality-indexes">重要参考</a>，分数越高基本可以确定可能遇到的坑会越少。</p><p>而对于框架的开发者来说，努力提高这个分数的同时，代码和框架质量肯定也得到了提高，这是一个自我完善的良好途径。在遇到功能类似的框架，我们也可以说“不服？跑个分”</p><h3 id="可能的问题">可能的问题</h3><p>最后想和大家探讨一下在框架开发中几个比较常见和需要特别注意的问题。</p><p>首先是兼容性的保证这里的兼容性不是 API 的兼容性，而是逻辑上的兼容性。 最可能出现问题的地方就是在不同版本中对数据持久化部分的处理是否兼容， 包括数据库和Key-archiving。比如在新版本中添加了一个属性，如何从老版本中进行迁移如果处理不当，很可能就造成严重错误甚至 crash。</p><p>另一个问题是重复的依赖。Swift 运行时还没有包含在设备中，如果对于框架，将 <code class="language-plaintext highlighter-rouge">EMBEDDED_CONTENT_CONTAINS_SWIFT</code> 设为 <code class="language-plaintext highlighter-rouge">YES</code> 的话，Swift 运行库将会被复制到框架中，这不是我们想见到的。在框架开发中这个 flag 一定是 NO，我们应该在 app 的 target 中进行设置。另外，可能你的框架会依赖其他框架，不要在项目中通过 copy file 把依赖的框架 copy 到框架 target 中，而是应该通过 Podfile 和 Cartfile 来解决依赖问题。</p><p>在决定框架依赖的时候，可能遇到的最大的问题就是不同框架的依赖可能<a href="https://github.com/apple/swift-package-manager/blob/master/Documentation/DependencyHells.md">无法兼容</a>。</p><p>比如说一个 app 同时依赖了框架 A 和框架 B，而这两个框架又都依赖另一个框架 C。如果 A 中指定了兼容 1.1.2 而 B 中指定的是精确的 1.6.1 的话，app 的依赖关系就无法兼容了。</p><p>在框架开发中，如果我们依赖了别的框架，就必须考虑和其他框架及应用的兼容。 为了避免这种依赖无法满足的情况，我们最好尽量选择最宽松的依赖关系。</p><p>一般情况下我们没有必要限定依赖的版本，如果被依赖的框架遵守我们上面提到的版本管理的规则的话，我们并没有必要去选择固定某一个版本，而应该尽可能放宽依赖限制以避免无法兼容。</p><p>如果在使用框架中遇到这样的情况的话，去向依赖版本较旧的框架的维护者提 issue 或者发 pull request 会是好选择。</p><p>有一些开发者表示在转向使用 Framework 以后遇到首次应用加载速度变长的问题 (<a href="https://github.com/artsy/eigen/issues/586">参考 1</a>，<a href="rdar://22948371](http://openradar.appspot.com/radar?id=4867644041723904)">参考 2</a>。</p><p>社区讨论和探索结果表明可能是 Dynamic linker 在验证证书的时候的问题。 这个时间和 app 中 dynamic framework 的数量为 n^2 时间复杂度。不过现在大家发现这可能是 Apple 在证书管理上的一个 bug，应该是只发生在开发阶段。可能现在比较安全的做法是控制使用的框架数量在合理范围之内，就我们公司的产品来说，并没有在生产环境遇到这个问题。如果你在 app 开发中遇到类似情况，这算是一个小提醒。</p><p>最后，因为现在 Swift 现在 Binary Interface 还没有稳定，不论是框架还是应用项目中所有的 Swift 代码都必须用同样版本的编译器进行编译。就是说，每当 Swift 版本升级，原来 build 过的 framework 需要重新构建否则无法通过编译。对框架开发者来说，保持使用最新 release 版本的编译器来发布框架就不会有大的问题。</p><p>在 Swift 3.0 以后语言的二进制接口将会稳定，届时 Swift 也将被集成到 iOS 系统中。也就是说到今年下半年的话这个问题就将不再存在。</p><h2 id="从今天开始开发框架">从今天开始开发框架</h2><p>做一个小的总结。现在这个时机对于中国的 Cocoa 开发者来说是非常好的时代，GitHub 中国用户很多，国内 iOS 开发圈子大家的分享精神和新东西的传播速度也非常快。可以说，我们中国开发者正在离这个世界的中心舞台越来越近，只要出现好东西的话，应该很快就能得到国内开发者的关注，继而登上 GitHub Trending 页面被世界所知。不要说五年，可能在两年之前，这都是难以想象的。</p><blockquote><p>Write the code, change the world.</p></blockquote><p>Swift 是随着这句口号诞生的，而现在开发者改变这个世界的力度可以说是前所未有的。</p><p>对于国内的开发者来说，我们真的应该希望少一些像 MingGeJS 这样的东西，而多一些能帮助这个世界的项目，以认真的态度多写一些有意义的代码，回馈开源社区，这于人于己都是一件好事。</p><p>希望中国的开发者能够在 Swift 这个新时代创造出更多世界级的框架，让这些框架能帮助全球的开发者一起构建更优秀的软件。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/" class="post-tag no-text-decoration" >开发者体验</a> <a href="/tags/api/" class="post-tag no-text-decoration" >api</a> <a href="/tags/%E8%AE%B2%E7%A8%BF/" class="post-tag no-text-decoration" >讲稿</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=如何打造一个让人愉快的框架 - OneV's Den&url=https://onevcat.com/2016/01/create-framework/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=如何打造一个让人愉快的框架 - OneV's Den&u=https://onevcat.com/2016/01/create-framework/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=如何打造一个让人愉快的框架 - OneV's Den&url=https://onevcat.com/2016/01/create-framework/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=如何打造一个让人愉快的框架 - OneV's Den&url=https://onevcat.com/2016/01/create-framework/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2016/11/pop-cocoa-1/"><div class="card-body"> <span class="timeago small" > 2016-11-29 <i class="unloaded">2016-11-29T10:22:11+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>面向协议编程与 Cocoa 的邂逅 (上)</h3><div class="text-muted small"><p> 本文是笔者在 MDCC 16 (移动开发者大会) 上 iOS 专场中的主题演讲的文字整理。您可以在这里找到演讲使用的 Keynote，部分示例代码可以在 MDCC 2016 的官方 repo 中找到。因为全部内容比较长，所以分成了上下两个部分，本文 (上) 主要介绍了一些理论方面的内容，包括面向对象编程存在的问题，面向协议的基本概念和决策模型等，下半部分主要展示了一些笔者日常使用面向协议思想...</p></div></div></a></div><div class="card"> <a href="/2016/12/pop-cocoa-2/"><div class="card-body"> <span class="timeago small" > 2016-12-01 <i class="unloaded">2016-12-01T11:22:11+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>面向协议编程与 Cocoa 的邂逅 (下)</h3><div class="text-muted small"><p> 本文是笔者在 MDCC 16 (移动开发者大会) 上 iOS 专场中的主题演讲的文字整理。您可以在这里找到演讲使用的 Keynote，部分示例代码可以在 MDCC 2016 的官方 repo 中找到。 在上半部分主要介绍了一些理论方面的内容，包括面向对象编程存在的问题，面向协议的基本概念和决策模型等。本文 (下) 主要展示了一些笔者日常使用面向协议思想和 Cocoa 开发结合的示例代码，并...</p></div></div></a></div><div class="card"> <a href="/2014/06/my-opinion-about-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-03 <i class="unloaded">2014-06-03T12:05:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>关于 Swift 的一点初步看法</h3><div class="text-muted small"><p> 虽然四点半就起床去排队等入场，结果还是只能坐在了蛮后面的位置看着大屏幕参加了今年的 Keynote。其实今年 OS X 和 iOS 的更新亮点都不少，但是显然风头和光芒都让横空出世的 Swift 给抢走了。这部分内容因为不是 NDA，所以可以提前说一说。 Swift 是 Apple 自创的一门专门为 Cocoa 和 CocoaTouch 设计的语言，意在用来替代 objc。早上发布的时候有...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2015/12/2015-final/" class="btn btn-outline-primary"><p>写在 2015 的尾巴</p></a> <a href="/2016/02/swift-performance/" class="btn btn-outline-primary"><p>Swift 性能探索和优化分析</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

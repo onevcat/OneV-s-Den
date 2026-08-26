@@ -1,0 +1,403 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="Scheme 初步" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="之前定了每年学习一门语言的目标，自然不能轻言放弃。今年目标：简单掌握 Scheme。" /><meta property="og:description" content="之前定了每年学习一门语言的目标，自然不能轻言放弃。今年目标：简单掌握 Scheme。" /><link rel="canonical" href="https://onevcat.com/2015/05/scheme/" /><meta property="og:url" content="https://onevcat.com/2015/05/scheme/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2015-05-08T12:59:45+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Scheme 初步" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"之前定了每年学习一门语言的目标，自然不能轻言放弃。今年目标：简单掌握 Scheme。","url":"https://onevcat.com/2015/05/scheme/","@type":"BlogPosting","headline":"Scheme 初步","dateModified":"2015-05-08T12:59:45+09:00","datePublished":"2015-05-08T12:59:45+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2015/05/scheme/"},"@context":"https://schema.org"}</script><title>Scheme 初步 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>Scheme 初步</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>Scheme 初步</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Fri, May 8, 2015, 12:59 PM +0900" > 2015-05-08 <i class="unloaded">2015-05-08T12:59:45+09:00</i> </span></div></div><div class="post-content"><p>之前定了<a href="http://onevcat.com/2014/09/bye-kayac/">每年学习一门语言</a>的目标，自然不能轻言放弃。今年目标：简单掌握 Scheme。</p><p>因为自己接触这门语言也不过寥寥数天，所以更多的会以引导的方式简单介绍语法，而不会 (也没有能力) 去探讨什么深入的东西。本文很多例程和图示参考了紫藤貴文的<a href="http://www.shido.info/lisp/idx_scm.html">《もうひとつの Scheme 入門》</a>这篇深入浅出的教程，这篇教程现在也有<a href="http://www.shido.info/lisp/idx_scm_e.html">英译版</a>和<a href="http://deathking.github.io/yast-cn/index.html">中译版</a>。我自己是参照这篇教程入门的，一方面这篇教程可以说是能找到合适初学者学习的很好的材料，另一方面也希望能挑战一下自己的日文阅读能力 (结果对比日文和英文看下来发现果然还是日文版写的比较有趣，英文翻译版本就太严肃了，而中文版感觉是照着英文译版二次翻译的，有不少内容上的缺失和翻译生硬的问题，蛮可惜的)。因为中文的 Scheme 的资料其实很少，所以顺便把自己学习的过程和一些体会整理记录下来，算是作为备忘。本文只涉及 Scheme 里最基础的一些语法部分，要是恰好能够帮助到后来的学习者入门 Scheme，那更是再好不过。</p><h2 id="为什么选择学-scheme">为什么选择学 Scheme</h2><p>三方面的原因。</p><p>首先是自己基本上对函数式语言的接触为零。平时工作和自己的开发中基本不使用函数式编程，大脑已经被指令式程序占满，有时候总显得不很灵光。而像 Swift 这样的语言其实引入了一些函数式编程的可能性。多接触一些函数式的语言，可能会对实际工作中解决某些问题有所帮助。而 Scheme 比起另一门常用 Lisp 方言 Common Lisp 来说，要简单不少。比较适合像我这样非科班出身，CS 功力不足的开发者。</p><p>其次，<a href="http://mitpress.mit.edu/sicp/">Structure and Interpretation of Computer Programs (SICP)</a> 里的例程都是使用 Scheme 写的。虽然不太有可能有时间补习这本经典，但是如果不会一点 Scheme 的话，那就完全没有机会去读这本书了。</p><p>最后，Scheme 很酷也很好玩，虽然在实际中可能并没有鸟用，但是和别人说起来自己会一点 Scheme 的话，那种感觉还是很棒的。</p><p>其实还有一点对 hacker 们很重要，如果你喜欢使用像 <a href="https://www.gnu.org/software/emacs/">Emacs</a> 这样的基于 Lisp 的编辑器的话，使用 Scheme 就可以与它进行交互或者是扩展它的功能了。</p><p>那让我们尽快开始吧。</p><h2 id="成为-scheme-hacker-的第一步">成为 Scheme Hacker 的第一步</h2><p>成为 Scheme Hacker 的第一步，当然是安装和配置运行环境，同时这也是最难跨过去的一步。想想有多少次你决心学习一门新语言的时候，在配置好开发环境后就再也没有碰过吧。所以我们需要尽快跨过这个步骤。</p><p>最简单的开发环境点击这个<a href="http://repl.it/languages/Scheme">链接</a>，然后你就可以开始用 Scheme 编程了。如果你更喜欢在本地环境和终端里操作的话，可以下载 <a href="https://www.gnu.org/software/mit-scheme/">MIT/GNU Scheme</a>。在 OS X 上解包后是一个 .app 文件，运行 .app 包里的 <code class="language-plaintext highlighter-rouge">/Contents/Resources/mit-scheme</code> 就可以打开一个解释器了。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2015/scheme-terminal.png" alt="" /></p><h2 id="hello-1--1">Hello 1 + 1</h2><p>虽然大部分语言都是从 Hello World 开始的，但是对于 Scheme 来说，计算才是它的强项。所以我们从 1 + 1 开始。计算 1 + 1 程序在 Scheme 中是这样的：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">+</span> <span class="mi">1</span> <span class="mi">1</span><span class="p">)</span>
+
+<span class="c1">;Value: 2</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">1 ]=&gt; </code> 是输入提示符，我们输入的内容是 <code class="language-plaintext highlighter-rouge">(+ 1 1)</code>，得到的结果是 2。虽然语句很简单，但是这里包含了 Scheme 的最基本的语素，有三个地方值得特别注意。</p><ol><li>成对的括号。一对括号表示的是一步计算，这里 <code class="language-plaintext highlighter-rouge">(+ 1 1)</code> 表示的就是 1 + 1 这一步运算。<li>紧接括号的是函数名字，再然后是函数的参数。在这里，函数名字就是 “+”，两个 1 是它的参数。Scheme 中大部分的运算符其实都是函数。<li>使用空格，tab 或是换行符来分割函数名以及参数。</ol><p>和别的很多语言一样，Scheme 在函数调用时也有计算优先级，会先对输入的参数进行计算，然后再进行函数调用。还是以上面的 1 + 1 为例。首先解释器看到加号，但是此时运算并没有开始。解释器会先计算第一个参数 1 的值 (其实就是 1)，然后计算第二个参数 1 的值 (其实还是 1)。然后再用两个计算得到的值来进行加法运算。</p><p>另外，”+” 这个函数不仅可以接受两个参数，其实它是可以接受任意多个参数的。比如 <code class="language-plaintext highlighter-rouge">(+)</code> 的结果是 0，<code class="language-plaintext highlighter-rouge">(+ 1 2 3 4)</code> 的结果是 10。</p><p>学会加法以后，乘法自然也不在话下了。</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">*</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="c1">;Value: 6</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span>
+</pre></table></code></div></div><p>减法和除法稍微不同一些，因为它们并不满足交换律，所以可能会有疑问。但是只要记住参数是平等的，它们会顺次计算就可以了。举个例子：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">-</span> <span class="mi">10</span> <span class="mi">5</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="c1">;Value: 2</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">/</span> <span class="mi">20</span> <span class="mi">2</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1">;Value: 5</span>
+</pre></table></code></div></div><p>对于除法，有两个需要注意的地方。首先和我们熟悉的很多语言不同，Scheme 是默认有分数的概念的。比如在 C 系语言中，如果只是在整数范围的话，我们计算 <code class="language-plaintext highlighter-rouge">10 / 3</code> 的结果会是 <code class="language-plaintext highlighter-rouge">3</code>；如果是浮点型的话结果为 <code class="language-plaintext highlighter-rouge">3.33333</code>。而在 Scheme 中，结果是这样的：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">/</span> <span class="mi">10</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="c1">;Value: 10/3</span>
+</pre></table></code></div></div><p>这是一个分数，就是三分之十，绝对精确！</p><p>另一个需要注意的是，如果 <code class="language-plaintext highlighter-rouge">/</code> 只有一个输入的话，它的意思是取倒数。</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">/</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1">;Value: 1/2</span>
+</pre></table></code></div></div><p>如果你需要一个浮点数而不是分数的话，可以使用 <code class="language-plaintext highlighter-rouge">exact-&gt;inexact</code> 方法，将精确值转为非精确值：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">exact-&gt;inexact</span> <span class="p">(</span><span class="nb">/</span> <span class="mi">10</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1">;Value: 3.3333333333333335</span>
+</pre></table></code></div></div><p>Scheme 也内建定义了一些其他的数学运算符号，如果你感兴趣，可以查看 R6RS 的<a href="http://www.r6rs.org/final/html/r6rs/r6rs-Z-H-14.html#node_sec_11.7.4">相关章节</a>。</p><blockquote><p>R6RS (Revisedn Report on the Algorithmic Language Scheme, Version 6) 是当前的 Scheme 标准。</p></blockquote><h2 id="定义变量和方法hello-world">定义变量和方法，Hello World</h2><p>通过简单的 1 + 1 运算我们可以大概知道 Scheme 中的奇怪的括号开头的意思了。有了这个作为基础，我们可以来看看如何定义变量和方法了。</p><p>Scheme 中通过 <code class="language-plaintext highlighter-rouge">define</code> 来定义变量和方法：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="c1">; s 是一个变量，值为 "Hello World"</span>
+<span class="p">(</span><span class="k">define</span> <span class="nv">s</span> <span class="s">"Hello World"</span><span class="p">)</span>
+
+<span class="c1">; f 是一个函数，它不接受参数，调用时返回 "Hello World"</span>
+<span class="p">(</span><span class="k">define</span> <span class="nv">f</span> <span class="p">(</span><span class="k">lambda</span> <span class="p">()</span> <span class="s">"Hello World"</span><span class="p">))</span>
+</pre></table></code></div></div><p>上面的 <code class="language-plaintext highlighter-rouge">lambda</code> 可以生成一个闭包，它接受两个参数，第一个是一个空的列表 <code class="language-plaintext highlighter-rouge">()</code>，表示这个闭包不接受参数；第二个是 “Hello World” 这个字符串。在解释器中定义好两者之后，就可以进行调用了：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">define</span> <span class="nv">s</span> <span class="s">"Hello World"</span><span class="p">)</span>
+
+<span class="c1">;Value: s</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">define</span> <span class="nv">f</span> <span class="p">(</span><span class="k">lambda</span> <span class="p">()</span> <span class="s">"Hello World"</span><span class="p">))</span>
+
+<span class="c1">;Value: f</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="nv">s</span>
+
+<span class="c1">;Value 24: "Hello World"</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="nv">f</span>
+
+<span class="c1">;Value 25: #[compound-procedure 25 f]</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">f</span><span class="p">)</span>
+
+<span class="c1">;Value 26: "Hello World"</span>
+</pre></table></code></div></div><p>既然我们已经知道了 <code class="language-plaintext highlighter-rouge">lambda</code> 的意义和用法，那么定义一个接受参数的函数也就不是什么难事了。比如上面的 <code class="language-plaintext highlighter-rouge">f</code>，我们想要定义一个接受名字的函数的话：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">define</span> <span class="nv">hello</span>
+        <span class="p">(</span><span class="k">lambda</span> <span class="p">(</span><span class="nf">name</span><span class="p">)</span>
+            <span class="p">(</span><span class="nb">string-append</span> <span class="s">"Hello "</span> <span class="nv">name</span> <span class="s">"!"</span><span class="p">)</span>
+        <span class="p">)</span>
+      <span class="p">)</span>
+
+<span class="c1">;Value: hello</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">hello</span> <span class="s">"onevcat"</span><span class="p">)</span>
+
+<span class="c1">;Value 27: "Hello onevcat!"</span>
+</pre></table></code></div></div><p>很简单，对吧？其实甚至可以更简单，define 的第一个参数可以是一个列表，其中第一个元素是函数名名字，之后的是参数列表。</p><blockquote><p>用专业一点的术语来说的话，就是 define 的第一个参数是一个 cons cell 的话，它的 car 是函数名，cdr 是参数。关于这些概念我们稍后再仔细说说。</p></blockquote><p>于是上面的方法可以简单地写作：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="nf">hello</span> <span class="nv">name</span><span class="p">)</span>
+        <span class="p">(</span><span class="nb">string-append</span> <span class="s">"Hello "</span> <span class="nv">name</span> <span class="s">"!"</span><span class="p">))</span>
+
+<span class="c1">;Value: hello</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">hello</span> <span class="s">"onevcat"</span><span class="p">)</span>
+
+<span class="c1">;Value 28: "Hello onevcat!"</span>
+</pre></table></code></div></div><p>光说不练假把式，所以留个小练习给大家吧，用 <code class="language-plaintext highlighter-rouge">define</code> 来定义一个函数，让其为输入的数字 +1。如果你无压力地搞定了的话，我们就可以继续看看 Scheme 里的条件语句怎么写了。</p><h2 id="条件分支和布尔逻辑">条件分支和布尔逻辑</h2><p>不论是什么编程语言，条件分支或者类似的概念应该都是不可缺少的部分。在 Scheme 中，使用 <code class="language-plaintext highlighter-rouge">if</code> 可以进行条件分支的处理。和其他很多语言不一样的地方在于，函数式语言中函数才是一等公民，<code class="language-plaintext highlighter-rouge">if</code> 的行为也和一个其他的普通函数很相似，是作为一个函数来使用的。它的语法是：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre>(if condition ture_action false_action)
+</pre></table></code></div></div><p>与普通函数先进行输入的取值不同，<code class="language-plaintext highlighter-rouge">if</code> 将会先对 <code class="language-plaintext highlighter-rouge">condition</code> 运算式进行取值判断。如果结果是 <code class="language-plaintext highlighter-rouge">true</code> (在 Scheme 中用 <code class="language-plaintext highlighter-rouge">#t</code> 代表 true，<code class="language-plaintext highlighter-rouge">#f</code> 代表 false)，则再对 <code class="language-plaintext highlighter-rouge">ture_action</code> 进行取值，否则就执行 <code class="language-plaintext highlighter-rouge">false_action</code>。比如我们可以实现一个 <code class="language-plaintext highlighter-rouge">abs</code> 函数来返回输入的绝对值：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="nb">abs</span> <span class="nv">input</span><span class="p">)</span>
+        <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="nb">&lt;</span> <span class="nv">input</span> <span class="mi">0</span><span class="p">)</span> <span class="p">(</span><span class="nb">-</span> <span class="nv">input</span><span class="p">)</span> <span class="nv">input</span><span class="p">))</span>
+
+<span class="c1">;Value: abs</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">abs</span> <span class="mi">100</span><span class="p">)</span>
+
+<span class="c1">;Value: 100</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">abs</span> <span class="mi">-100</span><span class="p">)</span>
+
+<span class="c1">;Value: 100</span>
+</pre></table></code></div></div><p>也许你已经猜到了，Scheme 的布尔逻辑也是遵循函数式的，最常用的就是 <code class="language-plaintext highlighter-rouge">and</code> 和 <code class="language-plaintext highlighter-rouge">or</code> 两种了。和常见 C 系语言类似的是，<code class="language-plaintext highlighter-rouge">and</code> 和 <code class="language-plaintext highlighter-rouge">or</code> 都会将参数从左到右取值，一旦遇到满足停止条件的值就会停止。但是和传统 C 系语言不同，布尔逻辑的函数返回的不一定就是 <code class="language-plaintext highlighter-rouge">#t</code> 或者 <code class="language-plaintext highlighter-rouge">#f</code>，而有可能是输入值，这和很多脚本语言的行为是比较一致的：<code class="language-plaintext highlighter-rouge">and</code> 会返回最后一个非 <code class="language-plaintext highlighter-rouge">#f</code> 的值，而 <code class="language-plaintext highlighter-rouge">or</code> 则返回第一个非 <code class="language-plaintext highlighter-rouge">#f</code> 的值：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">and</span> <span class="no">#f</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1">;Value: #f</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">and</span> <span class="mi">1</span> <span class="mi">2</span> <span class="s">"Hello"</span><span class="p">)</span>
+
+<span class="c1">;Value 13: "Hello"</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">or</span> <span class="no">#f</span> <span class="mi">0</span><span class="p">)</span>
+
+<span class="c1">;Value: 0</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">or</span> <span class="mi">1</span> <span class="mi">2</span> <span class="s">"Hello"</span><span class="p">)</span>
+
+<span class="c1">;Value: 1</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">or</span> <span class="no">#f</span> <span class="no">#f</span> <span class="no">#f</span><span class="p">)</span>
+
+<span class="c1">;Value: #f</span>
+</pre></table></code></div></div><p>在很多时候，Scheme 中的 <code class="language-plaintext highlighter-rouge">and</code> 和 <code class="language-plaintext highlighter-rouge">or</code> 并不全是用来做条件的组合，而是用来简化一些代码的写法，以及为了顺次执行一些代码的。比如说下面的函数在三个输入都为正数的情况下返回它们的乘积，可以想象和对比一下在指令式编程中同样功能的实现。</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="nf">pro3and</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">and</span> <span class="p">(</span><span class="nb">positive?</span> <span class="nv">a</span><span class="p">)</span>
+        <span class="p">(</span><span class="nb">positive?</span> <span class="nv">b</span><span class="p">)</span>
+        <span class="p">(</span><span class="nb">positive?</span> <span class="nv">c</span><span class="p">)</span>
+        <span class="p">(</span><span class="nb">*</span> <span class="nv">a</span> <span class="nv">b</span> <span class="nv">c</span><span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></table></code></div></div><p>除了 <code class="language-plaintext highlighter-rouge">if</code> 之外，在 C 系语言里另一种常见的条件分支语句是 <code class="language-plaintext highlighter-rouge">switch</code>。Scheme 里对应的函数是 <code class="language-plaintext highlighter-rouge">cond</code>。<code class="language-plaintext highlighter-rouge">cond</code> 接受多个二元列表作为输入，从上至下依次判断列表的第一项是否满足，如果满足则返回第二项的求值结果并结束，否则一直继续到最后的 <code class="language-plaintext highlighter-rouge">else</code>：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="p">(</span><span class="k">cond</span>
+  <span class="p">(</span><span class="nf">predicate_1</span> <span class="nv">clauses_1</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">predicate_2</span> <span class="nv">clauses_2</span><span class="p">)</span>
+    <span class="o">......</span>
+  <span class="p">(</span><span class="nf">predicate_n</span> <span class="nv">clauses_n</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">else</span>        <span class="nv">clauses_else</span><span class="p">))</span>
+</pre></table></code></div></div><p>在新版的 Scheme 中，标准里加入了更多的流程控制的函数，它们包括 <code class="language-plaintext highlighter-rouge">begin</code>，<code class="language-plaintext highlighter-rouge">when</code> 和 <code class="language-plaintext highlighter-rouge">unless</code> 等。</p><p><code class="language-plaintext highlighter-rouge">begin</code> 将顺次执行一系列语句：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="nf">foo</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">begin</span>
+    <span class="p">(</span><span class="nb">display</span> <span class="s">"hello"</span><span class="p">)</span>
+    <span class="p">(</span><span class="nb">newline</span><span class="p">)</span>
+    <span class="p">(</span><span class="nb">display</span> <span class="s">"world"</span><span class="p">)</span>
+  <span class="p">)</span>
+<span class="p">)</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">when</code> 当条件满足时执行一系列代码，而 <code class="language-plaintext highlighter-rouge">unless</code> 在条件不满足时执行一系列代码。这些改动可以看出一些现代脚本语言的特色，但是新的标准据说也在 Scheme 社区造成了不小争论。虽然结合使用 <code class="language-plaintext highlighter-rouge">if</code>，<code class="language-plaintext highlighter-rouge">and</code> 和 <code class="language-plaintext highlighter-rouge">or</code> 肯定是可以写出等效的代码的，但是这些额外的分支控制语句确实增加了语言的便利性。</p><h2 id="循环">循环</h2><p>一门完备的编程语言必须的三个要素就是赋值，分支和循环。前两个我们已经看到了，现在来看看循环吧：</p><h3 id="do">do</h3><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">do</span> <span class="p">((</span><span class="nf">i</span> <span class="mi">0</span> <span class="p">(</span><span class="nb">+</span> <span class="nv">i</span> <span class="mi">1</span><span class="p">)))</span> <span class="c1">; 初始值和 step 条件</span>
+          <span class="p">((</span><span class="nb">&gt;</span> <span class="nv">i</span> <span class="mi">4</span><span class="p">))</span>       <span class="c1">; 停止条件，取值为 #f 时停止</span>
+        <span class="p">(</span><span class="nb">display</span> <span class="nv">i</span><span class="p">)</span>       <span class="c1">; 循环主体 (命令)</span>
+      <span class="p">)</span>
+<span class="mi">01234</span>
+<span class="c1">;Value: #t</span>
+</pre></table></code></div></div><p>唯一要解释的是这里的条件是停止条件，而不是我们习惯的进入循环主体的条件。</p><h3 id="递归">递归</h3><p>可以看出其实 <code class="language-plaintext highlighter-rouge">do</code> 写起来还是比较繁琐的。在 Scheme 中，一种更贴合语言特点的写法是使用递归的方式来完成循环：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="nf">count</span> <span class="nv">n</span><span class="p">)</span>
+          <span class="p">(</span><span class="k">and</span> <span class="p">(</span><span class="nb">display</span> <span class="p">(</span><span class="nb">-</span> <span class="mi">4</span> <span class="nv">n</span><span class="p">))</span>
+               <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="nb">=</span> <span class="nv">n</span> <span class="mi">0</span><span class="p">)</span> <span class="no">#t</span> <span class="p">(</span><span class="nf">count</span> <span class="p">(</span><span class="nb">-</span> <span class="nv">n</span> <span class="mi">1</span><span class="p">)))</span>
+          <span class="p">)</span>
+      <span class="p">)</span>
+
+<span class="c1">;Value: count</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">count</span> <span class="mi">4</span><span class="p">)</span>
+<span class="mi">01234</span>
+<span class="c1">;Value: #t</span>
+</pre></table></code></div></div><h3 id="列表和递归">列表和递归</h3><p>也许你会说，用递归的方式看起来一点也不简单，甚至代码要比上面的 <code class="language-plaintext highlighter-rouge">do</code> 的版本更难理解。现在看来确实是这样的，那是因为我们还没有接触 Scheme 里一些很独特的概念，cons cell 和 list。我们在上面介绍 <code class="language-plaintext highlighter-rouge">define</code> 的时候曾经提到过，cons cell 的 <code class="language-plaintext highlighter-rouge">car</code> 和 <code class="language-plaintext highlighter-rouge">cdr</code>。结合这个数据结构，Scheme 里的递归就会变得非常好用。</p><p>那么什么是 cons cell 呢？其实没有什么特别的，cons cell 就是一种数据结构，它对应了内存的两个地址，每个地址指向一个值。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2015/cons2.png" alt="" /></p><p>要初始化一个上面图示的 cons cell，可以使用 <code class="language-plaintext highlighter-rouge">cons</code> 函数：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">cons</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1">;Value 13: (1 . 2)</span>
+</pre></table></code></div></div><p>我们可以使用 <code class="language-plaintext highlighter-rouge">car</code> 和 <code class="language-plaintext highlighter-rouge">cdr</code> 来取得一个 cons cell 的两部分内容 (<code class="language-plaintext highlighter-rouge">car</code> 是 “Contents of Address part of Register” 的缩写，<code class="language-plaintext highlighter-rouge">cdr</code> 是 “Contents of Decrement part of Register”)：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">car</span> <span class="p">(</span><span class="nb">cons</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">))</span>
+
+<span class="c1">;Value: 1</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">cdr</span> <span class="p">(</span><span class="nb">cons</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">))</span>
+
+<span class="c1">;Value: 2</span>
+</pre></table></code></div></div><p>cons cell 每个节点的内容可以是任意的数据类型。一种最常见的结构是 <code class="language-plaintext highlighter-rouge">car</code> 中是数据，而 <code class="language-plaintext highlighter-rouge">cdr</code> 指向另一个 cons cell：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2015/conss2.png" alt="" /></p><p>上面这样的数据结构对应的生成代码为：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">cons</span> <span class="mi">3</span> <span class="p">(</span><span class="nb">cons</span> <span class="mi">1</span> <span class="mi">2</span><span class="p">))</span>
+
+<span class="c1">;Value 14: (3 1 . 2)</span>
+</pre></table></code></div></div><p>有一种特殊的 cons cell 链，其最后一个 cons cell 的 <code class="language-plaintext highlighter-rouge">cdr</code> 为空列表 <code class="language-plaintext highlighter-rouge">'()</code>，这类数据结构就是 Scheme 中的列表。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2015/list2.png" alt="" /></p><p>对于列表，我们有一种更简单的创建方式，就是类似 <code class="language-plaintext highlighter-rouge">'(1 2 3)</code> 这样。对于列表来说，它的 <code class="language-plaintext highlighter-rouge">cdr</code> 值是一个子列表：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span>  <span class="o">'</span><span class="p">(</span><span class="nf">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">)</span>
+
+<span class="c1">;Value 15: (1 2 3)</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">car</span> <span class="o">'</span><span class="p">(</span><span class="nf">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1">;Value: 1</span>
+
+<span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nb">cdr</span> <span class="o">'</span><span class="p">(</span><span class="nf">1</span> <span class="mi">2</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1">;Value 16: (2 3)</span>
+</pre></table></code></div></div><p>而循环其实质就是对一列数据进行处理的过程，结合 Scheme 列表的特性，我们意识到如果把列表运用在递归中的话，<code class="language-plaintext highlighter-rouge">car</code> 就是遍历的当前项，而 <code class="language-plaintext highlighter-rouge">cdr</code> 就是下一次递归的输入。Scheme 和递归调用可以说能配合得天衣无缝。</p><p>比如我们定义一个将列表中的所有数都加上 1 的函数的话，可以这么处理：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="nf">ins_ls</span> <span class="nv">ls</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="nb">null?</span> <span class="nv">ls</span><span class="p">)</span>
+      <span class="o">'</span><span class="p">()</span>
+      <span class="p">(</span><span class="nb">cons</span> <span class="p">(</span><span class="nb">+</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">ls</span><span class="p">)</span> <span class="mi">1</span><span class="p">)</span> <span class="p">(</span><span class="nf">ins_ls</span> <span class="p">(</span><span class="nb">cdr</span> <span class="nv">ls</span><span class="p">)))</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+
+<span class="p">(</span><span class="nf">ins_ls</span> <span class="o">'</span><span class="p">(</span><span class="nf">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="c1">;=&gt; (2 3 4 5 6)</span>
+</pre></table></code></div></div><h3 id="尾递归">尾递归</h3><p>递归存在性能上的问题，因为递归的调用需要在栈上保持，然后再层层返回，这会造成很多额外的开销。对于小型的递归来说还勉强可以接受，但是对于递归调用太深的情况来说，这显然是不可扩展的做法。于是在 Scheme 中对于大型的递归我们一般会倾向于将它写为尾递归的方式。比如上面的加 1 函数，用尾递归重写的话：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="nf">ins_ls</span> <span class="nv">ls</span><span class="p">)</span>
+    <span class="p">(</span><span class="nf">ins_ls_interal</span> <span class="nv">ls</span> <span class="o">'</span><span class="p">()))</span>
+
+<span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="nf">ins_ls_interal</span> <span class="nv">ls</span> <span class="nv">ls0</span><span class="p">)</span>
+    <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="nb">null?</span> <span class="nv">ls</span><span class="p">)</span>
+        <span class="nv">ls0</span>
+        <span class="p">(</span><span class="nf">ins_ls_interal</span> <span class="p">(</span><span class="nb">cdr</span> <span class="nv">ls</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons</span> <span class="p">(</span> <span class="nv">+</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">ls</span><span class="p">)</span> <span class="mi">1</span><span class="p">)</span> <span class="nv">ls0</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="nf">rev_ls</span> <span class="nv">ls</span><span class="p">)</span>
+  <span class="p">(</span><span class="nf">rev_ls_internal</span> <span class="nv">ls</span> <span class="o">'</span><span class="p">()))</span>
+
+<span class="p">(</span><span class="k">define</span> <span class="p">(</span><span class="nf">rev_ls_internal</span> <span class="nv">ls</span> <span class="nv">ls0</span><span class="p">)</span>
+  <span class="p">(</span><span class="k">if</span> <span class="p">(</span><span class="nb">null?</span> <span class="nv">ls</span><span class="p">)</span>
+      <span class="nv">ls0</span>
+      <span class="p">(</span><span class="nf">rev_ls_internal</span> <span class="p">(</span><span class="nb">cdr</span> <span class="nv">ls</span><span class="p">)</span> <span class="p">(</span><span class="nb">cons</span> <span class="p">(</span><span class="nb">car</span> <span class="nv">ls</span><span class="p">)</span> <span class="nv">ls0</span><span class="p">))))</span>
+
+<span class="p">(</span><span class="nf">rev_ls</span> <span class="p">(</span><span class="nf">ins_ls</span> <span class="o">'</span><span class="p">(</span><span class="nf">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">)))</span>
+
+<span class="c1">;=&gt; (2 3 4 5 6)</span>
+</pre></table></code></div></div><h2 id="函数式">函数式</h2><p>上面介绍了 Scheme 的最基本的赋值，分支和循环。可以说用这些东西就能够写出一些基本的程序了。一开始会比较难理解 (特别是递归)，但是相信随着深入下去和习惯以后就会好很多。到现在为止，除了在定义函数时，其实我们还没有直接触碰到 Scheme 的函数式特性。在 Scheme 里函数是一等公民，我们可以将一个函数作为参数传给另外的函数并进行调用，这就是高阶函数。</p><p>一个最简单的例子是排序的时候我们可以将一个返回布尔值的函数作为排序规则：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">sort</span> <span class="o">'</span><span class="p">(</span><span class="nf">7883</span> <span class="mi">9099</span> <span class="mi">6729</span> <span class="mi">2828</span> <span class="mi">7754</span> <span class="mi">4179</span> <span class="mi">5340</span> <span class="mi">2644</span> <span class="mi">2958</span> <span class="mi">2239</span><span class="p">)</span> <span class="nv">&lt;</span><span class="p">)</span>
+
+<span class="c1">;Value 13: (2239 2644 2828 2958 4179 5340 6729 7754 7883 9099)</span>
+</pre></table></code></div></div><p>更甚于我们可以使用一个匿名函数来控制这个排序，比如按照模 100 之后的大小 (也就是数字的后两位) 进行排序：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="mi">1</span> <span class="p">]</span><span class="nv">=&gt;</span> <span class="p">(</span><span class="nf">sort</span> <span class="o">'</span><span class="p">(</span><span class="nf">7883</span> <span class="mi">9099</span> <span class="mi">6729</span> <span class="mi">2828</span> <span class="mi">7754</span> <span class="mi">4179</span> <span class="mi">5340</span> <span class="mi">2644</span> <span class="mi">2958</span> <span class="mi">2239</span><span class="p">)</span>
+      <span class="p">(</span><span class="k">lambda</span> <span class="p">(</span><span class="nf">x</span> <span class="nv">y</span><span class="p">)</span> <span class="p">(</span><span class="nb">&lt;</span> <span class="p">(</span><span class="nb">modulo</span> <span class="nv">x</span> <span class="mi">100</span><span class="p">)</span> <span class="p">(</span><span class="nb">modulo</span> <span class="nv">y</span> <span class="mi">100</span><span class="p">))))</span>
+
+<span class="c1">;Value 14: (2828 6729 2239 5340 2644 7754 2958 4179 7883 9099)</span>
+</pre></table></code></div></div><p>类似这样的特性在一些 modern 的语言里并不算罕见，但是要知道 Scheme 可是有些年头的东西了。类似的还有 <code class="language-plaintext highlighter-rouge">map</code>，<code class="language-plaintext highlighter-rouge">filter</code> 等。比如上面的 list 加 1 的例子，用 <code class="language-plaintext highlighter-rouge">map</code> 函数就可以非常简单地实现：</p><div class="language-scheme highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="p">(</span><span class="nb">map</span> <span class="p">(</span><span class="k">lambda</span> <span class="p">(</span><span class="nf">x</span><span class="p">)</span> <span class="p">(</span><span class="nb">+</span> <span class="nv">x</span> <span class="mi">1</span><span class="p">))</span> <span class="o">'</span><span class="p">(</span><span class="nf">1</span> <span class="mi">2</span> <span class="mi">3</span> <span class="mi">4</span> <span class="mi">5</span><span class="p">))</span>
+
+<span class="c1">;=&gt; (2 3 4 5 6)</span>
+</pre></table></code></div></div><h2 id="接下来">接下来…</h2><p>篇幅有限，再往长写的话估计没什么人会想看完了。到这里为止关于 Scheme 的一些基础内容也算差不多了，大概阅读最简单的 Scheme 程序应该也没有太大问题了。在进一步的学习中，如果出现不认识的函数或者语法的话，可以求助 <a href="http://srfi.schemers.org/final-srfis.html">SRFI</a> 下对应的文档或是在 <a href="http://www.gnu.org/software/mit-scheme/documentation/mit-scheme-ref/index.html#Top">MIT/GNU Scheme 文档</a>中寻找。</p><p>本文一开始提到的<a href="http://www.shido.info/lisp/idx_scm_e.html">教程</a>很适合入门，之后的话可以开始参看 <a href="http://mitpress.mit.edu/sicp/">SICP</a>，可以对程序设计和 Scheme 的思想有更深的了解 (虽然阅读 SICP 的目的不应该是学 Scheme，Scheme 只是帮助你进行阅读和练习的工具)。因为我自己也就是个愣头青的初学者，所以无法再给出其他建议了。如果您有什么好的资源或者建议，非常欢迎在评论中提出。</p><p>另外，相比起 Scheme，如果你想要在实际的工程中使用 Lisp 家族的语言的话，<a href="http://racket-lang.org">Racket</a> 也许会是更好的选择。相比于面向数学和科学计算来说，Racket 支持对象类型等概念，更注重在项目实践方面的运用。</p><p>就这样吧，我要继续去和 Scheme 过周末了。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/%E6%9D%82%E8%B0%88/'>杂谈</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/scheme/" class="post-tag no-text-decoration" >scheme</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" class="post-tag no-text-decoration" >编程语言</a> <a href="/tags/%E5%87%BD%E6%95%B0%E5%BC%8F%E7%BC%96%E7%A8%8B/" class="post-tag no-text-decoration" >函数式编程</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Scheme 初步 - OneV's Den&url=https://onevcat.com/2015/05/scheme/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Scheme 初步 - OneV's Den&u=https://onevcat.com/2015/05/scheme/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=Scheme 初步 - OneV's Den&url=https://onevcat.com/2015/05/scheme/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=Scheme 初步 - OneV's Den&url=https://onevcat.com/2015/05/scheme/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2014/01/black-magic-in-macro/"><div class="card-body"> <span class="timeago small" > 2014-01-17 <i class="unloaded">2014-01-17T01:03:36+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>宏定义的黑魔法 - 宏菜鸟起飞手册</h3><div class="text-muted small"><p> 宏定义在C系开发中可以说占有举足轻重的作用。底层框架自不必说，为了编译优化和方便，以及跨平台能力，宏被大量使用，可以说底层开发离开define将寸步难行。而在更高层级进行开发时，我们会将更多的重心放在业务逻辑上，似乎对宏的使用和依赖并不多。但是使用宏定义的好处是不言自明的，在节省工作量的同时，代码可读性大大增加。如果想成为一个能写出漂亮优雅代码的开发者，宏定义绝对是必不可少的技能（虽然宏本身...</p></div></div></a></div><div class="card"> <a href="/2014/09/bye-kayac/"><div class="card-body"> <span class="timeago small" > 2014-09-24 <i class="unloaded">2014-09-24T21:57:31+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>偷得浮生半月闲</h3><div class="text-muted small"><p> 还有三天就正好是到日本两周年整的日子了。 最近忙完了包括写书和为 iOS 8 更新 app 在内的一摊子事儿，今天又从 Kayac 办妥了离职手续，所以正式进入无业状态，也算是和这一段时期的忙碌道别了。之后会在下个月中旬入职 Line，中间有半个月时间可以用来陪陪父母到处走走，以及看书充电，也算是忙里偷闲。 近期的爱好 两年时间说长不长，说短也不短。现在回头回顾和总结这两年的生活，...</p></div></div></a></div><div class="card"> <a href="/2014/06/my-opinion-about-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-03 <i class="unloaded">2014-06-03T12:05:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>关于 Swift 的一点初步看法</h3><div class="text-muted small"><p> 虽然四点半就起床去排队等入场，结果还是只能坐在了蛮后面的位置看着大屏幕参加了今年的 Keynote。其实今年 OS X 和 iOS 的更新亮点都不少，但是显然风头和光芒都让横空出世的 Swift 给抢走了。这部分内容因为不是 NDA，所以可以提前说一说。 Swift 是 Apple 自创的一门专门为 Cocoa 和 CocoaTouch 设计的语言，意在用来替代 objc。早上发布的时候有...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2015/03/cross-platform/" class="btn btn-outline-primary"><p>跨平台开发时代的 (再次) 到来？</p></a> <a href="/2015/06/ios9-sdk/" class="btn btn-outline-primary"><p>开发者所需要知道的 iOS 9 SDK 新特性</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

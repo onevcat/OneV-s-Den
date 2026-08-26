@@ -1,0 +1,481 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="TCA - SwiftUI 的救星？(二)" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="在上一篇关于 TCA 的文章中，我们通过总览的方式看到了 TCA 中一个 Feature 的运作方式，并尝试实现了一个最小的 Feature 和它的测试。在这篇文章中，我们会继续深入，看看 TCA 中对 Binding 的处理，以及使用 Environment 来把依赖从 reducer 中解耦的方法。" /><meta property="og:description" content="在上一篇关于 TCA 的文章中，我们通过总览的方式看到了 TCA 中一个 Feature 的运作方式，并尝试实现了一个最小的 Feature 和它的测试。在这篇文章中，我们会继续深入，看看 TCA 中对 Binding 的处理，以及使用 Environment 来把依赖从 reducer 中解耦的方法。" /><link rel="canonical" href="https://onevcat.com/2021/12/tca-2/" /><meta property="og:url" content="https://onevcat.com/2021/12/tca-2/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2021-12-16T09:50:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="TCA - SwiftUI 的救星？(二)" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"在上一篇关于 TCA 的文章中，我们通过总览的方式看到了 TCA 中一个 Feature 的运作方式，并尝试实现了一个最小的 Feature 和它的测试。在这篇文章中，我们会继续深入，看看 TCA 中对 Binding 的处理，以及使用 Environment 来把依赖从 reducer 中解耦的方法。","url":"https://onevcat.com/2021/12/tca-2/","@type":"BlogPosting","headline":"TCA - SwiftUI 的救星？(二)","dateModified":"2021-12-16T09:50:00+09:00","datePublished":"2021-12-16T09:50:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2021/12/tca-2/"},"@context":"https://schema.org"}</script><title>TCA - SwiftUI 的救星？(二) | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>TCA - SwiftUI 的救星？(二)</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>TCA - SwiftUI 的救星？(二)</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Thu, Dec 16, 2021, 9:50 AM +0900" > 2021-12-16 <i class="unloaded">2021-12-16T09:50:00+09:00</i> </span></div></div><div class="post-content"><p>在<a href="https://onevcat.com/2021/12/tca-1/">上一篇关于 TCA 的文章</a>中，我们通过总览的方式看到了 TCA 中一个 Feature 的运作方式，并尝试实现了一个最小的 Feature 和它的测试。在这篇文章中，我们会继续深入，看看 TCA 中对 Binding 的处理，以及使用 Environment 来把依赖从 reducer 中解耦的方法。</p><blockquote><p>如果你想要跟做，可以直接使用上一篇文章完成练习后最后的状态，或者从<a href="https://github.com/onevcat/CounterDemo/releases/tag/part-1-finish">这里</a>获取到起始代码。</p></blockquote><h2 id="关于绑定">关于绑定</h2><h3 id="绑定和普通状态的区别">绑定和普通状态的区别</h3><p>在上一篇文章中，我们实现了“点击按钮” -&gt; “发送 Action” -&gt; “更新 State” -&gt; “触发 UI 更新” 的流程，这解决了“状态驱动 UI”这一课题。不过，除了单纯的“通过状态来更新 UI” 以外，SwiftUI 同时也支持在反方向使用 <code class="language-plaintext highlighter-rouge">@Binding</code> 的方式把某个 State 绑定给控件，让 UI 能够不经由我们的代码，来更改某个状态。在 SwiftUI 中，我们几乎可以在所有既表示状态，又能接受输入的控件上找到这种模式，比如 <code class="language-plaintext highlighter-rouge">TextField</code> 接受 <code class="language-plaintext highlighter-rouge">String</code> 的绑定 <code class="language-plaintext highlighter-rouge">Binding&lt;String&gt;</code>，<code class="language-plaintext highlighter-rouge">Toggle</code> 接受 <code class="language-plaintext highlighter-rouge">Bool</code> 的绑定 <code class="language-plaintext highlighter-rouge">Binding&lt;Bool&gt;</code> 等。</p><p>当我们把某个状态通过 <code class="language-plaintext highlighter-rouge">Binding</code> 交给其他 view 时，这个 view 就有能力改变去直接改变状态了，实际上这是违反了 TCA 中关于只能在 reducer 中更改状态的规定的。对于绑定，TCA 中为 View Store 添加了将状态转换为一种“特殊绑定关系”的方法。我们来试试看把 Counter 例子中的显示数字的 <code class="language-plaintext highlighter-rouge">Text</code> 改成可以接受直接输入的 <code class="language-plaintext highlighter-rouge">TextField</code>。</p><h3 id="在-tca-中实现单个绑定">在 TCA 中实现单个绑定</h3><p>首先，为 <code class="language-plaintext highlighter-rouge">CounterAction</code> 和 <code class="language-plaintext highlighter-rouge">counterReducer</code> 添加对应的接受一个字符串值来设定 <code class="language-plaintext highlighter-rouge">count</code> 的能力：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">CounterAction</span> <span class="p">{</span>
+  <span class="k">case</span> <span class="n">increment</span>
+  <span class="k">case</span> <span class="n">decrement</span>
+<span class="gi">+ case setCount(String)
+</span>  <span class="k">case</span> <span class="n">reset</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">counterReducer</span> <span class="o">=</span> <span class="kt">Reducer</span><span class="o">&lt;</span><span class="kt">Counter</span><span class="p">,</span> <span class="kt">CounterAction</span><span class="p">,</span> <span class="kt">CounterEnvironment</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">_</span> <span class="k">in</span>
+  <span class="k">switch</span> <span class="n">action</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="gi">+ case .setCount(let text):
++   if let value = Int(text) {
++     state.count = value
++   }
++   return .none
+</span>  <span class="c1">// ...</span>
+<span class="p">}</span><span class="o">.</span><span class="nf">debug</span><span class="p">()</span>
+</pre></table></code></div></div><p>接下来，把 <code class="language-plaintext highlighter-rouge">body</code> 中原来的 <code class="language-plaintext highlighter-rouge">Text</code> 替换为下面的 <code class="language-plaintext highlighter-rouge">TextField</code>：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre><span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="kt">WithViewStore</span><span class="p">(</span><span class="n">store</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span> <span class="k">in</span>
+    <span class="c1">// ...</span>
+<span class="gd">-   Text("\(viewStore.count)")
+</span><span class="gi">+   TextField(
++     String(viewStore.count),
++     text: viewStore.binding(
++       get: { String($0.count) },
++       send: { CounterAction.setCount($0) }
++     )
++   )
++     .frame(width: 40)
++     .multilineTextAlignment(.center)
+</span>      <span class="o">.</span><span class="nf">foregroundColor</span><span class="p">(</span><span class="nf">colorOfCount</span><span class="p">(</span><span class="n">viewStore</span><span class="o">.</span><span class="n">count</span><span class="p">))</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">viewStore.binding</code> 方法接受 <code class="language-plaintext highlighter-rouge">get</code> 和 <code class="language-plaintext highlighter-rouge">send</code> 两个参数，它们都是和当前 View Store 及绑定 view 类型相关的泛型函数。在特化 (将泛型在这个上下文中转换为具体类型) 后：</p><ul><li><code class="language-plaintext highlighter-rouge">get: (Counter) -&gt; String</code> 负责为对象 View (这里的 <code class="language-plaintext highlighter-rouge">TextField</code>) 提供数据。<li><code class="language-plaintext highlighter-rouge">send: (String) -&gt; CounterAction</code> 负责将 View 新发送的值转换为 View Store 可以理解的 action，并发送它来触发 <code class="language-plaintext highlighter-rouge">counterReducer</code>。</ul><p>在 <code class="language-plaintext highlighter-rouge">counterReducer</code> 接到 <code class="language-plaintext highlighter-rouge">binding</code> 给出的 <code class="language-plaintext highlighter-rouge">setCount</code> 事件后，我们就回到使用 reducer 进行状态更新，并驱动 UI 的标准 TCA 循环中了。</p><blockquote><p>传统的 SwiftUI 中，我们在通过 <code class="language-plaintext highlighter-rouge">$</code> 符号获取一个状态的 Binding 时，实际上是调用了它的 <code class="language-plaintext highlighter-rouge">projectedValue</code>。而 <code class="language-plaintext highlighter-rouge">viewStore.binding</code> 在内部通过将 View Store 自己包装到一个 <code class="language-plaintext highlighter-rouge">ObservedObject</code> 里，然后通过自定义的 <code class="language-plaintext highlighter-rouge">projectedValue</code> 来把输入的 <code class="language-plaintext highlighter-rouge">get</code> 和 <code class="language-plaintext highlighter-rouge">send</code> 设置给 <code class="language-plaintext highlighter-rouge">Binding</code> 使用中。对内，它通过内部存储维持了状态，并把这个细节隐藏起来；对外，它通过 action 来把状态的改变发送出去。捕获这个改变，并对应地更新它，最后再把新的状态再次通过 <code class="language-plaintext highlighter-rouge">get</code> 设置给 binding，是开发者需要保证的事情。</p></blockquote><h3 id="简化代码">简化代码</h3><p>做一点重构：现在 <code class="language-plaintext highlighter-rouge">binding</code> 的 <code class="language-plaintext highlighter-rouge">get</code> 是从 <code class="language-plaintext highlighter-rouge">$0.count</code> 生成的 <code class="language-plaintext highlighter-rouge">String</code>，reducer 中对 <code class="language-plaintext highlighter-rouge">state.count</code> 的设定也需要先从 <code class="language-plaintext highlighter-rouge">String</code> 转换为 <code class="language-plaintext highlighter-rouge">Int</code>。我们把这部分 Mode 和 View 表现形式相关的部分抽取出来，放到 <code class="language-plaintext highlighter-rouge">Counter</code> 的一个 extension 中，作为 View Model 使用：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Counter</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">countString</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span>
+    <span class="k">get</span> <span class="p">{</span> <span class="kt">String</span><span class="p">(</span><span class="n">count</span><span class="p">)</span> <span class="p">}</span>
+    <span class="k">set</span> <span class="p">{</span> <span class="n">count</span> <span class="o">=</span> <span class="kt">Int</span><span class="p">(</span><span class="n">newValue</span><span class="p">)</span> <span class="p">??</span> <span class="n">count</span> <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>把 reducer 中转换 <code class="language-plaintext highlighter-rouge">String</code> 的部分替换成 <code class="language-plaintext highlighter-rouge">countString</code>：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">counterReducer</span> <span class="o">=</span> <span class="kt">Reducer</span><span class="o">&lt;</span><span class="kt">Counter</span><span class="p">,</span> <span class="kt">CounterAction</span><span class="p">,</span> <span class="kt">CounterEnvironment</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">_</span> <span class="k">in</span>
+  <span class="k">switch</span> <span class="n">action</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+  <span class="k">case</span> <span class="o">.</span><span class="nf">setCount</span><span class="p">(</span><span class="k">let</span> <span class="nv">text</span><span class="p">):</span>
+<span class="gd">-   if let value = Int(text) {
+-     state.count = value
+-   }
+</span><span class="gi">+   state.countString = text
+</span>    <span class="k">return</span> <span class="o">.</span><span class="k">none</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span><span class="o">.</span><span class="nf">debug</span><span class="p">()</span>
+</pre></table></code></div></div><p>在 Swift 5.2 中，<code class="language-plaintext highlighter-rouge">KeyPath</code> 已经可以被当作函数使用了，因此我们可以把 <code class="language-plaintext highlighter-rouge">\Counter.countString</code> 的类型看作 <code class="language-plaintext highlighter-rouge">(Counter) -&gt; String</code>。同时，Swift 5.3 中 <a href="https://github.com/apple/swift-evolution/blob/main/proposals/0280-enum-cases-as-protocol-witnesses.md">enum case 也可以当作函数</a>，可以认为 <code class="language-plaintext highlighter-rouge">CounterAction.setCount</code> 具有类型 <code class="language-plaintext highlighter-rouge">(String) -&gt; CounterAction</code>。两者恰好满足 <code class="language-plaintext highlighter-rouge">binding</code> 的两个参数的要求，所以可以进一步将创建绑定的部分简化：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="c1">// ...</span>
+  <span class="kt">TextField</span><span class="p">(</span>
+    <span class="kt">String</span><span class="p">(</span><span class="n">viewStore</span><span class="o">.</span><span class="n">count</span><span class="p">),</span>
+    <span class="nv">text</span><span class="p">:</span> <span class="n">viewStore</span><span class="o">.</span><span class="nf">binding</span><span class="p">(</span>
+<span class="gd">-     get: { String($0.count) },
+</span><span class="gi">+     get: \.countString,
+</span><span class="gd">-     send: { CounterAction.setCount($0) }
+</span><span class="gi">+     send: CounterAction.setCount
+</span>    <span class="p">)</span>
+  <span class="p">)</span>
+<span class="c1">// ...</span>
+</pre></table></code></div></div><p>最后，别忘了为 <code class="language-plaintext highlighter-rouge">.setCount</code> 添加测试！</p><h3 id="多个绑定值">多个绑定值</h3><p>如果在一个 Feature 中，有多个绑定值的话，使用例子中这样的方式，每次我们都会需要添加一个 action，然后在 <code class="language-plaintext highlighter-rouge">binding</code> 中 <code class="language-plaintext highlighter-rouge">send</code> 它。这是千篇一律的模板代码，TCA 中设计了 <code class="language-plaintext highlighter-rouge">@BindableState</code> 和 <code class="language-plaintext highlighter-rouge">BindableAction</code>，让多个绑定的写法简单一些。具体来说，分三步：</p><ol><li>为 <code class="language-plaintext highlighter-rouge">State</code> 中的需要和 UI 绑定的变量添加 <code class="language-plaintext highlighter-rouge">@BindableState</code>。<li>将 <code class="language-plaintext highlighter-rouge">Action</code> 声明为 <code class="language-plaintext highlighter-rouge">BindableAction</code>，然后添加一个“特殊”的 case <code class="language-plaintext highlighter-rouge">binding(BindingAction&lt;Counter&gt;)</code> 。<li>在 Reducer 中处理这个 <code class="language-plaintext highlighter-rouge">.binding</code>，并添加 <code class="language-plaintext highlighter-rouge">.binding()</code> 调用。</ol><p>直接用代码说明会更快：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="c1">// 1</span>
+<span class="kd">struct</span> <span class="kt">MyState</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="p">{</span>
+<span class="gi">+ @BindableState var foo: Bool = false
++ @BindableState var bar: String = ""
+</span><span class="p">}</span>
+
+<span class="c1">// 2</span>
+<span class="gd">- enum MyAction {
+</span><span class="gi">+ enum MyAction: BindableAction {
++   case binding(BindingAction&lt;MyState&gt;)
+</span><span class="p">}</span>
+
+<span class="c1">// 3</span>
+<span class="k">let</span> <span class="nv">myReducer</span> <span class="o">=</span> <span class="c1">//...</span>
+  <span class="c1">// ...</span>
+<span class="gi">+ case .binding:
++   return .none
+</span><span class="p">}</span>
+<span class="gi">+ .binding()
+</span></pre></table></code></div></div><p>这样一番操作后，我们就可以在 View 里用类似标准 SwiftUI 的做法，使用 <code class="language-plaintext highlighter-rouge">$</code> 取 projected value 来进行 Binding 了：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">MyView</span><span class="p">:</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="o">&lt;</span><span class="kt">MyState</span><span class="p">,</span> <span class="kt">MyAction</span><span class="o">&gt;</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="kt">WithViewStore</span><span class="p">(</span><span class="n">store</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span> <span class="k">in</span>
+<span class="gi">+     Toggle("Toggle!", isOn: viewStore.binding(\.$foo))
++     TextField("Text Field!", text: viewStore.binding(\.$bar))
+</span>    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这样一来，即使有多个 binding 值，我们也只需要用一个 <code class="language-plaintext highlighter-rouge">.binding</code> action 就能对应了。这段代码能够工作，是因为 <code class="language-plaintext highlighter-rouge">BindableAction</code> 要求一个签名为 <code class="language-plaintext highlighter-rouge">BindingAction&lt;State&gt; -&gt; Self</code> 且名为 <code class="language-plaintext highlighter-rouge">binding</code> 的函数：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">public</span> <span class="kd">protocol</span> <span class="kt">BindableAction</span> <span class="p">{</span>
+  <span class="kd">static</span> <span class="kd">func</span> <span class="nf">binding</span><span class="p">(</span><span class="n">_</span> <span class="nv">action</span><span class="p">:</span> <span class="kt">BindingAction</span><span class="o">&lt;</span><span class="kt">State</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">Self</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>再一次，利用了将 enum case 作为函数使用的 Swift 新特性，代码可以变得非常简单优雅。</p><h2 id="环境值">环境值</h2><h3 id="猜数字游戏">猜数字游戏</h3><p>回到 Counter 的例子来。既然已经有输入数字的方式了，那不如来做一个猜数字的小游戏吧！</p><p class="alert alert-info">猜数字：程序随机选择 -100 到 100 之间的数字，用户输入一个数字，程序判断这个数字是否就是随机选择的数字。如果不是，返回“太大”或者“太小”作为反馈，并要求用户继续尝试输入下一个数字进行猜测。</p><p>最简单的方法，是在 <code class="language-plaintext highlighter-rouge">Counter</code> 中添加一个属性，用来持有这个随机数：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Counter</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gi">+ let secret = Int.random(in: -100 ... 100)
+</span><span class="p">}</span>
+</pre></table></code></div></div><p>检查 <code class="language-plaintext highlighter-rouge">count</code> 和 <code class="language-plaintext highlighter-rouge">secret</code> 的关系，返回答案：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Counter</span> <span class="p">{</span>
+  <span class="kd">enum</span> <span class="kt">CheckResult</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="n">lower</span><span class="p">,</span> <span class="n">equal</span><span class="p">,</span> <span class="n">higher</span>
+  <span class="p">}</span>
+  
+  <span class="k">var</span> <span class="nv">checkResult</span><span class="p">:</span> <span class="kt">CheckResult</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="n">secret</span> <span class="p">{</span> <span class="k">return</span> <span class="o">.</span><span class="n">lower</span> <span class="p">}</span>
+    <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="n">secret</span> <span class="p">{</span> <span class="k">return</span> <span class="o">.</span><span class="n">higher</span> <span class="p">}</span>
+    <span class="k">return</span> <span class="o">.</span><span class="n">equal</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>有了这个模型，我们就可以通过使用 <code class="language-plaintext highlighter-rouge">checkResult</code> 来在 view 中显示一个代表结果的 <code class="language-plaintext highlighter-rouge">Label</code> 了：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">CounterView</span><span class="p">:</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="o">&lt;</span><span class="kt">Counter</span><span class="p">,</span> <span class="kt">CounterAction</span><span class="o">&gt;</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="kt">WithViewStore</span><span class="p">(</span><span class="n">store</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span> <span class="k">in</span>
+      <span class="kt">VStack</span> <span class="p">{</span>
+<span class="gi">+       checkLabel(with: viewStore.checkResult)
+</span>        <span class="kt">HStack</span> <span class="p">{</span>
+          <span class="kt">Button</span><span class="p">(</span><span class="s">"-"</span><span class="p">)</span> <span class="p">{</span> <span class="n">viewStore</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="n">decrement</span><span class="p">)</span> <span class="p">}</span>
+          <span class="c1">// ...</span>
+  <span class="p">}</span>
+  
+  <span class="kd">func</span> <span class="nf">checkLabel</span><span class="p">(</span><span class="n">with</span> <span class="nv">checkResult</span><span class="p">:</span> <span class="kt">Counter</span><span class="o">.</span><span class="kt">CheckResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="k">switch</span> <span class="n">checkResult</span> <span class="p">{</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nv">lower</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kt">Label</span><span class="p">(</span><span class="s">"Lower"</span><span class="p">,</span> <span class="nv">systemImage</span><span class="p">:</span> <span class="s">"lessthan.circle"</span><span class="p">)</span>
+        <span class="o">.</span><span class="nf">foregroundColor</span><span class="p">(</span><span class="o">.</span><span class="n">red</span><span class="p">)</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nv">higher</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kt">Label</span><span class="p">(</span><span class="s">"Higher"</span><span class="p">,</span> <span class="nv">systemImage</span><span class="p">:</span> <span class="s">"greaterthan.circle"</span><span class="p">)</span>
+        <span class="o">.</span><span class="nf">foregroundColor</span><span class="p">(</span><span class="o">.</span><span class="n">red</span><span class="p">)</span>
+    <span class="k">case</span> <span class="o">.</span><span class="nv">equal</span><span class="p">:</span>
+      <span class="k">return</span> <span class="kt">Label</span><span class="p">(</span><span class="s">"Correct"</span><span class="p">,</span> <span class="nv">systemImage</span><span class="p">:</span> <span class="s">"checkmark.circle"</span><span class="p">)</span>
+        <span class="o">.</span><span class="nf">foregroundColor</span><span class="p">(</span><span class="o">.</span><span class="n">green</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>最终，我们可以得到这样的 UI：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-check-result.png" alt="" /></p><h3 id="外部依赖">外部依赖</h3><p>当我们用这个 UI “蒙对”答案后，Reset 按钮虽然可以把猜测归零，但它并不能为我们重开一局，这当然有点无聊。我们来试试看把 Reset 按钮改成 New Game 按钮。</p><p>在 UI 和 <code class="language-plaintext highlighter-rouge">CounterAction</code> 里我们已经定义了 <code class="language-plaintext highlighter-rouge">.reset</code> 行为了，进行一些重命名的工作：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="kd">enum</span> <span class="kt">CounterAction</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="gd">- case reset
+</span><span class="gi">+ case playNext
+</span><span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">CounterView</span><span class="p">:</span> <span class="kt">View</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+  <span class="k">var</span> <span class="nv">body</span><span class="p">:</span> <span class="kd">some</span> <span class="kt">View</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="gd">-   Button("Reset") { viewStore.send(.reset) }
+</span><span class="gi">+   Button("Next") { viewStore.send(.playNext) }
+</span>  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>然后在 <code class="language-plaintext highlighter-rouge">counterReducer</code> 里处理这个情况，</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Counter</span><span class="p">:</span> <span class="kt">Equatable</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gd">- let secret = Int.random(in: -100 ... 100)
+</span><span class="gi">+ var secret = Int.random(in: -100 ... 100)
+</span><span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">counterReducer</span> <span class="o">=</span> <span class="kt">Reducer</span><span class="o">&lt;</span><span class="kt">Counter</span><span class="p">,</span> <span class="kt">CounterAction</span><span class="p">,</span> <span class="kt">CounterEnvironment</span><span class="o">&gt;</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="gd">- case .reset:
+</span><span class="gi">+ case .playNext:
+</span>    <span class="n">state</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gi">+   state.secret = Int.random(in: -100 ... 100)
+</span>    <span class="k">return</span> <span class="o">.</span><span class="k">none</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span><span class="o">.</span><span class="nf">debug</span><span class="p">()</span>
+</pre></table></code></div></div><p>运行 app，观察 reducer <code class="language-plaintext highlighter-rouge">debug()</code> 的输出，可以看到一切正常！太好了。</p><p>随时 Cmd + U 运行测试是大家都应该养成的习惯，这时候我们可以发现测试编译失败了。最后的任务就是修正原来的 <code class="language-plaintext highlighter-rouge">.reset</code> 测试，这也很简单：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">testReset</span><span class="p">()</span> <span class="k">throws</span> <span class="p">{</span>
+<span class="o">-</span> <span class="n">store</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="n">reset</span><span class="p">)</span> <span class="p">{</span> <span class="n">state</span> <span class="k">in</span>
+<span class="o">+</span> <span class="n">store</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="n">playNext</span><span class="p">)</span> <span class="p">{</span> <span class="n">state</span> <span class="k">in</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>但是，测试的运行结果大概率会失败！</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-environment-test-failure.png" alt="" /></p><p>这是因为 <code class="language-plaintext highlighter-rouge">.playNext</code> 现在不仅重置 <code class="language-plaintext highlighter-rouge">count</code>，也会随机生成新的 <code class="language-plaintext highlighter-rouge">secret</code>。而 <code class="language-plaintext highlighter-rouge">TestStore</code> 会把 <code class="language-plaintext highlighter-rouge">send</code> 闭包结束时的 <code class="language-plaintext highlighter-rouge">state</code> 和真正的由 reducer 操作的 state 进行比较并断言：前者没有设置合适的 <code class="language-plaintext highlighter-rouge">secret</code>，导致它们并不相等，所以测试失败了。</p><p>我们需要一种稳定的方式，来保证测试成功。</p><h3 id="使用环境值解决依赖">使用环境值解决依赖</h3><p>在 TCA 中，为了保证可测试性，reducer <strong>必须</strong>是纯函数：也就是说，相同的输入 (state, action 和 environment) 的组合，必须能给出相同的输入 (在这里输出是 state 和 effect，我们会在后面的文章再接触 effect 角色)。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">counterReducer</span> <span class="o">=</span> <span class="c1">// ... {</span>
+
+  <span class="n">state</span><span class="p">,</span> <span class="n">action</span><span class="p">,</span> <span class="n">_</span> <span class="k">in</span> 
+  <span class="c1">// ...</span>
+  <span class="k">case</span> <span class="o">.</span><span class="nv">playNext</span><span class="p">:</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">secret</span> <span class="o">=</span> <span class="kt">Int</span><span class="o">.</span><span class="nf">random</span><span class="p">(</span><span class="nv">in</span><span class="p">:</span> <span class="o">-</span><span class="mi">100</span> <span class="o">...</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">return</span> <span class="o">.</span><span class="k">none</span>
+  <span class="c1">//...</span>
+<span class="p">}</span><span class="o">.</span><span class="nf">debug</span><span class="p">()</span>
+</pre></table></code></div></div><p>在处理 <code class="language-plaintext highlighter-rouge">.playNext</code> 时，<code class="language-plaintext highlighter-rouge">Int.random</code> 显然无法保证每次调用都给出同样结果，它也是导致 reducer 变得无法测试的原因。TCA 中环境 (Environment) 的概念，就是为了对应这类外部依赖的情况。如果在 reducer 内部出现了依赖外部状态的情况 (比如说这里的 <code class="language-plaintext highlighter-rouge">Int.random</code>，使用的是自动选择随机种子的 <code class="language-plaintext highlighter-rouge">SystemRandomNumberGenerator</code>)，我们可以把这个状态通过 <code class="language-plaintext highlighter-rouge">Environment</code> 进行注入，让实际 app 和单元测试能使用不同的环境。</p><p>首先，更新 <code class="language-plaintext highlighter-rouge">CounterEnvironment</code>，加入一个属性，用它来持有随机生成 <code class="language-plaintext highlighter-rouge">Int</code> 的方法。</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">CounterEnvironment</span> <span class="p">{</span>
+<span class="gi">+ var generateRandom: (ClosedRange&lt;Int&gt;) -&gt; Int
+</span><span class="p">}</span>
+</pre></table></code></div></div><p>现在编译器需要我们为原来 <code class="language-plaintext highlighter-rouge">CounterEnvironment()</code> 的地方加上 <code class="language-plaintext highlighter-rouge">generateRandom</code> 的设定。我们可以直接在生成时用 <code class="language-plaintext highlighter-rouge">Int.random</code> 来创建一个 <code class="language-plaintext highlighter-rouge">CounterEnvironment</code>：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kt">CounterView</span><span class="p">(</span>
+  <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="p">(</span>
+    <span class="nv">initialState</span><span class="p">:</span> <span class="kt">Counter</span><span class="p">(),</span>
+    <span class="nv">reducer</span><span class="p">:</span> <span class="n">counterReducer</span><span class="p">,</span>
+<span class="gd">-   environment: CounterEnvironment()
+</span><span class="gi">+   environment: CounterEnvironment(
++     generateRandom: { Int.random(in: $0) }
++   )
+</span>  <span class="p">)</span>
+<span class="p">)</span>
+</pre></table></code></div></div><p>一种更加常见和简洁的做法，是为 <code class="language-plaintext highlighter-rouge">CounterEnvironment</code> 定义一组环境，然后把它们传到相应的地方：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">CounterEnvironment</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">generateRandom</span><span class="p">:</span> <span class="p">(</span><span class="kt">ClosedRange</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Int</span>
+  
+<span class="gi">+ static let live = CounterEnvironment(
++   generateRandom: Int.random
++ )
+</span><span class="p">}</span>
+
+<span class="kt">CounterView</span><span class="p">(</span>
+  <span class="nv">store</span><span class="p">:</span> <span class="kt">Store</span><span class="p">(</span>
+    <span class="nv">initialState</span><span class="p">:</span> <span class="kt">Counter</span><span class="p">(),</span>
+    <span class="nv">reducer</span><span class="p">:</span> <span class="n">counterReducer</span><span class="p">,</span>
+<span class="gd">-   environment: CounterEnvironment()
+</span><span class="gi">+   environment: .live
+</span>  <span class="p">)</span>
+<span class="p">)</span>
+</pre></table></code></div></div><p>现在，在 reducer 中，就可以使用注入的环境值来达到和原来等效的结果了：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">counterReducer</span> <span class="o">=</span> <span class="c1">// ... {</span>
+<span class="gd">- state, action, _ in
+</span><span class="gi">+ state, action, environment in
+</span>  <span class="c1">// ...</span>
+  <span class="k">case</span> <span class="o">.</span><span class="nv">playNext</span><span class="p">:</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">count</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="gd">-   state.secret = Int.random(in: -100 ... 100)
+</span><span class="gi">+   state.secret = environment.generateRandom(-100 ... 100)
+</span>    <span class="k">return</span> <span class="o">.</span><span class="k">none</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span><span class="o">.</span><span class="nf">debug</span><span class="p">()</span>
+</pre></table></code></div></div><p>万事俱备，回到最开始的目的 - 保证测试能顺利通过。在 test target 中，用类似的方法创建一个 <code class="language-plaintext highlighter-rouge">.test</code> 环境：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">CounterEnvironment</span> <span class="p">{</span>
+  <span class="kd">static</span> <span class="k">let</span> <span class="nv">test</span> <span class="o">=</span> <span class="kt">CounterEnvironment</span><span class="p">(</span><span class="nv">generateRandom</span><span class="p">:</span> <span class="p">{</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">5</span> <span class="p">})</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>现在，在生成 <code class="language-plaintext highlighter-rouge">TestStore</code> 的时候，使用 <code class="language-plaintext highlighter-rouge">.test</code>，然后在断言时生成合适的 <code class="language-plaintext highlighter-rouge">Counter</code> 作为新的 state，测试就能顺利通过了：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="n">store</span> <span class="o">=</span> <span class="kt">TestStore</span><span class="p">(</span>
+  <span class="nv">initialState</span><span class="p">:</span> <span class="kt">Counter</span><span class="p">(</span><span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="nf">random</span><span class="p">(</span><span class="nv">in</span><span class="p">:</span> <span class="o">-</span><span class="mi">100</span><span class="o">...</span><span class="mi">100</span><span class="p">)),</span>
+  <span class="nv">reducer</span><span class="p">:</span> <span class="n">counterReducer</span><span class="p">,</span>
+<span class="gd">- environment: CounterEnvironment()
+</span><span class="gi">+ environment: .test
+</span><span class="p">)</span>
+
+<span class="n">store</span><span class="o">.</span><span class="nf">send</span><span class="p">(</span><span class="o">.</span><span class="n">playNext</span><span class="p">)</span> <span class="p">{</span> <span class="n">state</span> <span class="k">in</span>
+<span class="gd">- state.count = 0
+</span><span class="gi">+ state = Counter(count: 0, secret: 5)
+</span><span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>在 <code class="language-plaintext highlighter-rouge">store.send</code> 的闭包里，我们现在直接为 <code class="language-plaintext highlighter-rouge">state</code> 设置了一个新的 <code class="language-plaintext highlighter-rouge">Counter</code>，并明确了所有期望的属性。这里也可以分开两行，写成 <code class="language-plaintext highlighter-rouge">state.count = 0</code> 以及 <code class="language-plaintext highlighter-rouge">state.secret = 5</code>，测试也可以通过。选择哪种方式都可以，但在涉及到复杂的情况下，会倾向于选择完整的赋值：在测试中，我们希望的是通过断言来比较期望 state 和实际 state 的差别，而不是重新去实现一次 reducer 中的逻辑。这可能引入混乱，因为在测试失败时你需要去排查到底是 reducer 本身的问题，还是测试代码中操作状态造成的问题。</p></blockquote><h3 id="其他常见依赖">其他常见依赖</h3><p>除了像是 random 系列以外，凡是会随着调用环境的变化 (包括时间，地点，各种外部状态等等) 而打破 reducer 纯函数特性的外部依赖，都应该被纳入 Environment 的范畴。常见的像是 <code class="language-plaintext highlighter-rouge">UUID</code> 的生成，当前 <code class="language-plaintext highlighter-rouge">Date</code> 的获取，获取某个运行队列 (比如 main queue)，使用 Core Location 获取现在的位置信息，负责发送网络请求的网络框架等等。</p><p>它们之中有一些是可以同步完成的，比如例子中的 <code class="language-plaintext highlighter-rouge">Int.random</code>；有一些则是需要一定时间才能得到结果，比如获取位置信息和发送网络请求。对于后者，我们往往会把它转换为一个 <code class="language-plaintext highlighter-rouge">Effect</code>。我们会在下一篇文章中再讨论 <code class="language-plaintext highlighter-rouge">Effect</code>。</p><h2 id="练习">练习</h2><p>如果你没有跟随本文更新代码，你可以在<a href="https://github.com/onevcat/CounterDemo/releases/tag/part-2-start">这里</a>找到下面练习的起始代码。参考实现可以在<a href="https://github.com/onevcat/CounterDemo/releases/tag/part-2-finish">这里</a>找到。</p><h4 id="添加一个-slider">添加一个 Slider</h4><p>用键盘和加减号来控制 Counter 已经不错了，但是添加一个 Slider 会更有趣。请为 CounterView 添加一个 <code class="language-plaintext highlighter-rouge">Slider</code>，用来来和 <code class="language-plaintext highlighter-rouge">TextField</code> 以及 “+” “-“ <code class="language-plaintext highlighter-rouge">Button</code> 一起，控制我们的猜数字游戏。</p><p>期望的 UI 大概是这样：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/tca-slider-binding.png" alt="" /></p><p>别忘了写测试！</p><h4 id="完善-counter记录更多信息">完善 Counter，记录更多信息</h4><p>为了后面功能的开发，我们需要更新一下 Counter 模型。首先，每个谜题添加一些元信息，比如谜题 ID：</p><p>在 Counter 中加上下面的属性，然后让它满足 <code class="language-plaintext highlighter-rouge">Identifiable</code>：</p><div class="language-swift-diff highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="gd">- struct Counter: Equatable {
+</span><span class="gi">+ struct Counter: Equatable, Identifiable {
+</span>    <span class="k">var</span> <span class="nv">count</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">var</span> <span class="nv">secret</span> <span class="o">=</span> <span class="kt">Int</span><span class="o">.</span><span class="nf">random</span><span class="p">(</span><span class="nv">in</span><span class="p">:</span> <span class="o">-</span><span class="mi">100</span> <span class="o">...</span> <span class="mi">100</span><span class="p">)</span>
+  
+<span class="gi">+   var id: UUID = UUID()
+</span>  <span class="p">}</span>
+</pre></table></code></div></div><p>在开始新一轮游戏的时候，记得更新 <code class="language-plaintext highlighter-rouge">id</code>。还有，别忘了写测试！</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swiftui/'>SwiftUI</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" class="post-tag no-text-decoration" >编程语言</a> <a href="/tags/swiftui/" class="post-tag no-text-decoration" >swiftui</a> <a href="/tags/tca/" class="post-tag no-text-decoration" >tca</a> <a href="/tags/elm/" class="post-tag no-text-decoration" >elm</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=TCA - SwiftUI 的救星？(二) - OneV's Den&url=https://onevcat.com/2021/12/tca-2/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=TCA - SwiftUI 的救星？(二) - OneV's Den&u=https://onevcat.com/2021/12/tca-2/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=TCA - SwiftUI 的救星？(二) - OneV's Den&url=https://onevcat.com/2021/12/tca-2/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=TCA - SwiftUI 的救星？(二) - OneV's Den&url=https://onevcat.com/2021/12/tca-2/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2021/12/tca-1/"><div class="card-body"> <span class="timeago small" > 2021-12-09 <i class="unloaded">2021-12-09T16:50:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>TCA - SwiftUI 的救星？(一)</h3><div class="text-muted small"><p> 打算用几篇文章介绍一下 TCA (The Composable Architecture)，这是一种看起来非常契合 SwiftUI 的架构方式。 四年多前我写过一篇关于使用单向数据流来架构 View Controller 的文章，因为 UIKit 中并没有强制的 view 刷新流程，所以包括绑定数据在内的很多事情都需要自己动手，这为大规模使用造成了不小的障碍。而自那时过了两年后， Swif...</p></div></div></a></div><div class="card"> <a href="/2022/03/tca-3/"><div class="card-body"> <span class="timeago small" > 2022-03-17 <i class="unloaded">2022-03-17T13:50:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>TCA - SwiftUI 的救星？(三)</h3><div class="text-muted small"><p> 在上一篇关于 TCA 的文章中，我们看到了绑定的工作方式以及 Environment 在管理依赖和提供易测试性时发挥的作用。在这篇文章中，我们会继续深入，来看看 TCA 中的两个重要话题：Effect 角色到底是什么，以及如何通过组合的方式来把多个小 Feature 组合在一起，形成更加复杂的 UI 结构。 如果你想要跟做，可以直接使用上一篇文章完成练习后最后的状态，或者从这里获取到...</p></div></div></a></div><div class="card"> <a href="/2022/05/tca-4/"><div class="card-body"> <span class="timeago small" > 2022-05-18 <i class="unloaded">2022-05-18T12:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>TCA - SwiftUI 的救星？(四)</h3><div class="text-muted small"><p> 这是一系列关于 TCA 文章的最后一篇。在系列中前面的几篇里，我们简述了 TCA 的最小 Feature 核心思想，并研究了绑定和环境值的处理，以及 Effect 角色和 Feature 组合的方式等话题。作为贯穿整个系列的示例 app，现在应该已经拥有一个可用的猜数字游戏了。这篇文章会综合运用之前的内容，来看看和 UI 以及日常操作更贴近的一些话题，比如如何用 TCA 的方式展示 List...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2021/12/tca-1/" class="btn btn-outline-primary"><p>TCA - SwiftUI 的救星？(一)</p></a> <a href="/2021/12/2021-final/" class="btn btn-outline-primary"><p>2021 年终总结</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

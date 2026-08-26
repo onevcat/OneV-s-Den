@@ -1,0 +1,569 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="WWDC 2013 Session笔记 - SpriteKit快速入门和新时代iOS游戏开发指南" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="这是我的WWDC2013系列笔记中的一篇，完整的笔记列表请参看这篇总览。本文仅作为个人记录使用，也欢迎在许可协议范围内转载或使用，但是还烦请保留原文链接，谢谢您的理解合作。如果您觉得本站对您能有帮助，您可以使用RSS或邮件方式订阅本站，这样您将能在第一时间获取本站信息。" /><meta property="og:description" content="这是我的WWDC2013系列笔记中的一篇，完整的笔记列表请参看这篇总览。本文仅作为个人记录使用，也欢迎在许可协议范围内转载或使用，但是还烦请保留原文链接，谢谢您的理解合作。如果您觉得本站对您能有帮助，您可以使用RSS或邮件方式订阅本站，这样您将能在第一时间获取本站信息。" /><link rel="canonical" href="https://onevcat.com/2013/06/sprite-kit-start/" /><meta property="og:url" content="https://onevcat.com/2013/06/sprite-kit-start/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:image" content="https://onevcat.com/assets/images/2013/spritekit-intro.png" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2013-06-16T00:51:18+09:00" /><meta name="twitter:card" content="summary_large_image" /><meta property="twitter:image" content="https://onevcat.com/assets/images/2013/spritekit-intro.png" /><meta property="twitter:title" content="WWDC 2013 Session笔记 - SpriteKit快速入门和新时代iOS游戏开发指南" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"这是我的WWDC2013系列笔记中的一篇，完整的笔记列表请参看这篇总览。本文仅作为个人记录使用，也欢迎在许可协议范围内转载或使用，但是还烦请保留原文链接，谢谢您的理解合作。如果您觉得本站对您能有帮助，您可以使用RSS或邮件方式订阅本站，这样您将能在第一时间获取本站信息。","url":"https://onevcat.com/2013/06/sprite-kit-start/","@type":"BlogPosting","headline":"WWDC 2013 Session笔记 - SpriteKit快速入门和新时代iOS游戏开发指南","dateModified":"2013-06-16T00:51:18+09:00","datePublished":"2013-06-16T00:51:18+09:00","image":"https://onevcat.com/assets/images/2013/spritekit-intro.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2013/06/sprite-kit-start/"},"@context":"https://schema.org"}</script><title>WWDC 2013 Session笔记 - SpriteKit快速入门和新时代iOS游戏开发指南 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>WWDC 2013 Session笔记 - SpriteKit快速入门和新时代iOS游戏开发指南</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>WWDC 2013 Session笔记 - SpriteKit快速入门和新时代iOS游戏开发指南</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Sun, Jun 16, 2013, 12:51 AM +0900" > 2013-06-16 <i class="unloaded">2013-06-16T00:51:18+09:00</i> </span></div></div><div class="post-content"> <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/spritekit-intro.png" class="post-preview-img"><p>这是我的WWDC2013系列笔记中的一篇，完整的笔记列表请参看<a href="http://onevcat.com/2013/06/developer-should-know-about-ios7/">这篇总览</a>。本文仅作为个人记录使用，也欢迎在<a href="http://creativecommons.org/licenses/by-nc/3.0/deed.zh">许可协议</a>范围内转载或使用，但是还烦请保留原文链接，谢谢您的理解合作。如果您觉得本站对您能有帮助，您可以使用<a href="http://onevcat.com/atom.xml">RSS</a>或<a href="http://eepurl.com/wNSkj">邮件</a>方式订阅本站，这样您将能在第一时间获取本站信息。</p><p>本文涉及到的WWDC2013 Session有</p><ul><li>Session 502 Introduction to Sprite Kit<li>Session 503 Designing Games with Sprite Kit</ul><p>SpriteKit的加入绝对是iOS 7/OSX 10.9的SDK最大的亮点。从此以后官方SDK也可以方便地进行游戏制作了。</p><p>如果你在看这篇帖子，那我估计你应该稍微知道一些iOS平台上2D游戏开发的东西，比如cocos2d，那很好，因为SpriteKit的很多概念其实和cocos2d非常类似，你应该能很快掌握。如果上面这张图你看着眼熟，或者自己动手实践过，那更好，因为这篇文章的内容就是通过使用SpriteKit来一步一步带你重新实践一遍这个经典教程。如果你既不知道cocos2d，更没有使用游戏引擎开发iOS游戏的经验，只是想一窥游戏开发的天地，那现在，SpriteKit将是一个非常好的入口，因为是iOS SDK自带的框架，因此思想和用法上和现有的其他框架是统一的，这极大地降低了学习的难度和门槛。</p><h3 id="什么是spritekit">什么是SpriteKit</h3><p>首先要知道什么是<code class="language-plaintext highlighter-rouge">Sprite</code>。Sprite的中文译名就是精灵，在游戏开发中，精灵指的是以图像方式呈现在屏幕上的一个图像。这个图像也许可以移动，用户可以与其交互，也有可能仅只是游戏的一个静止的背景图。塔防游戏中敌方源源不断涌来的每个小兵都是一个精灵，我方防御塔发出的炮弹也是精灵。可以说精灵构成了游戏的绝大部分主体视觉内容，而一个2D引擎的主要工作，就是高效地组织，管理和渲染这些精灵。SpriteKit是在iOS7 SDK中Apple新加入的一个2D游戏引擎框架，在SpriteKit出现之前，iOS开发平台上已经出现了像cocos2d这样的比较成熟的2D引擎解决方案。SpriteKit展现出的是Apple将Xcode和iOS/Mac SDK打造成游戏引擎的野心，但是同时也确实与IDE有着更好的集成，减少了开发者的工作。</p><h3 id="hello-spritekit">Hello SpriteKit</h3><p>废话不多说，本文直接上实例教程来说明SpriteKit的基本用法。</p><p>好吧，我要做的是将非常风靡流行妇孺皆知的<a href="http://www.raywenderlich.com/25736/how-to-make-a-simple-iphone-game-with-cocos2d-2-x-tutorial">raywenderlich的经典cocos2d教程</a>使用全新的SpriteKit重新实现一遍。重做这个demo的主要原因是cocos2d的这个入门实在是太经典了，包括了精灵管理，交互检测，声音播放和场景切换等等方面的内容，麻雀虽小，却五脏俱全。这个小demo讲的是一个无畏的英雄抵御外敌侵略的故事，英雄在画面左侧，敌人源源不断从右侧涌来，通过点击屏幕发射飞镖来消灭敌人，阻止它们越过屏幕左侧边缘。在示例中用到的素材，可以从<a href="/assets/images/2013/ResourcePackSpriteKit.zip">这里下载</a>。另外为了方便大家，整个工程示例我也放在了github上，<a href="https://github.com/onevcat/SpriteKitSimpleGame">传送门在此</a>。</p><h3 id="配置工程">配置工程</h3><p>首先当然是建立工程，Xcode5提供了SpriteKit模板，使用该模板建立新工程，名字就叫做SpriteKitSimpleGame好了。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/spritekit-create.png" alt="新建一个SpriteKit工程" /></p><p>因为我们需要一个横屏游戏，所以在新建工程后，在工程设定的General标签中，把Depoyment Info中Device Orientation中的Portrait勾去掉，使应用只在横屏下运行。另外，为了使之后的工作轻松一些，我们可以选择在初始的view显示完成，尺寸通过rotation计算完毕之后再添加新的Scene，这样得到的Scene的尺寸将是宽480（或者568）高320的size。如果在appear之前就使用bounds.size添加的话，将得到宽320 高480（568）的size，会很麻烦。将ViewController.m中的<code class="language-plaintext highlighter-rouge">-viewDidLoad:</code>方法全部替换成下面的<code class="language-plaintext highlighter-rouge">-viewDidAppear:</code>。</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">viewDidAppear</span><span class="p">:(</span><span class="n">BOOL</span><span class="p">)</span><span class="nv">animated</span>
+<span class="p">{</span>
+    <span class="p">[</span><span class="n">super</span> <span class="nf">viewDidAppear</span><span class="p">:</span><span class="n">animated</span><span class="p">];</span>
+
+    <span class="c1">// Configure the view.</span>
+    <span class="n">SKView</span> <span class="o">*</span> <span class="n">skView</span> <span class="o">=</span> <span class="p">(</span><span class="n">SKView</span> <span class="o">*</span><span class="p">)</span><span class="n">self</span><span class="p">.</span><span class="n">view</span><span class="p">;</span>
+    <span class="n">skView</span><span class="p">.</span><span class="n">showsFPS</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+    <span class="n">skView</span><span class="p">.</span><span class="n">showsNodeCount</span> <span class="o">=</span> <span class="nb">YES</span><span class="p">;</span>
+    
+    <span class="c1">// Create and configure the scene.</span>
+    <span class="n">SKScene</span> <span class="o">*</span> <span class="n">scene</span> <span class="o">=</span> <span class="p">[</span><span class="n">MyScene</span> <span class="nf">sceneWithSize</span><span class="p">:</span><span class="n">skView</span><span class="p">.</span><span class="n">bounds</span><span class="p">.</span><span class="n">size</span><span class="p">];</span>
+    <span class="n">scene</span><span class="p">.</span><span class="n">scaleMode</span> <span class="o">=</span> <span class="n">SKSceneScaleModeAspectFill</span><span class="p">;</span>
+    
+    <span class="c1">// Present the scene.</span>
+    <span class="p">[</span><span class="n">skView</span> <span class="nf">presentScene</span><span class="p">:</span><span class="n">scene</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>然后编译运行，应如果一切正常，该显示类似于下面的画面，每点击画面时，会出现一架不停旋转的飞机。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/sprite-kit-begin-screen.png" alt="SpriteKit正常运行" /></p><h3 id="加入精灵">加入精灵</h3><p>SpriteKit是基于场景（Scene）来组织的，每个SKView（专门用来呈现SpriteKit的View）中可以渲染和管理一个SKScene，每个Scene中可以装载多个精灵（或者其他Node，之后会详细说明），并管理它们的行为。</p><p>现在让我们在这个Scene里加一个精灵吧，先从我们的英雄开始。首先要做的是把刚才下载的素材导入到工程中。我们这次用资源目录（Asset Catalog）来管理资源吧。点击工程中的<code class="language-plaintext highlighter-rouge">Images.xcassets</code>，以打开Asset Catalog。将下载解压后Art文件夹中的图片都拖入到打开的资源目录中，资源目录会自动根据文件的命名规则识别图片，1x的图片将用于iPhone4和iPad3之前的非retina设备，2x的图片将用于retina设备。当然，如果你对设备性能有信心的话，也可以把1x的图片删除掉，这样在非retina设备中也将使用2x的高清图（画面上的大小自然会帮你缩小成2x的一半），以获取更好的视觉效果。做完这一步后，工程的资源目录会是这个样子的：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/spritekit-import-images.png" alt="将图片素材导入工程中" /></p><p>开始coding吧～默认的SpriteKit模板做的事情就是在ViewController的self.view（这个view是一个SKView，可以到storyboard文件中确认一下）中加入并显示了一个SKScene的子类实例MyScene。正如在做app开发时我们主要代码量会集中在ViewController一样，在用SpriteKit进行游戏开发时，因为所有游戏逻辑和精灵管理都会在Scene中完成，我们的代码量会集中在SKScene中。在MyScene.m中，把原来的<code class="language-plaintext highlighter-rouge">-initWithSize</code>替换成这样：</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre><span class="k">-</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithSize</span><span class="p">:(</span><span class="n">CGSize</span><span class="p">)</span><span class="nv">size</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">initWithSize</span><span class="p">:</span><span class="n">size</span><span class="p">])</span> <span class="p">{</span>
+        <span class="cm">/* Setup your scene here */</span>
+
+        <span class="c1">//1 Set background color for this scene</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">backgroundColor</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKColor</span> <span class="nf">colorWithRed</span><span class="p">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span> <span class="nf">green</span><span class="p">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span> <span class="n">blue</span><span class="o">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span> <span class="n">alpha</span><span class="o">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">];</span>
+        
+        <span class="c1">//2 Create a new sprite</span>
+        <span class="n">SKSpriteNode</span> <span class="o">*</span><span class="n">player</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKSpriteNode</span> <span class="nf">spriteNodeWithImageNamed</span><span class="p">:</span><span class="s">@"player"</span><span class="p">];</span>
+        
+        <span class="c1">//3 Set it's position to the center right edge of screen</span>
+        <span class="n">player</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="n">player</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">size</span><span class="p">.</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">);</span>
+        
+        <span class="c1">//4 Add it to current scene</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">addChild</span><span class="p">:</span><span class="n">player</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></table></code></div></div><ol><li>因为默认工程的Scene背景偏黑，而我们的主角和怪物也都是黑色的，所以先设定为白色。SKColor只是一个define定义而已，在iOS平台下被定义为UIColor，在Mac下被定义为NSColor。在SpriteKit开发时，尽量使用SK开头的对应的UI类可以统一代码而减少跨iOS和Mac平台的成本。类似的定义还有SKView，它在iOS下是UIView的子类，在Mac下是NSView的子类。<li>在SpriteKit中初始化一个精灵很简单，直接用<code class="language-plaintext highlighter-rouge">SKSpriteNode</code>的<code class="language-plaintext highlighter-rouge">+spriteNodeWithImageNamed:</code>，指定图片名就行。实际上一个SKSpriteNode中包含了贴图（SKTexture对象），颜色，尺寸等等参数，这个简便方法为我们读取图片，生成SKTexture，并设定精灵尺寸和图片大小一致。在实际使用中，绝大多数情况这个简便方法就足够了。<li>设定精灵的位置。SpriteKit中的坐标系和其他OpenGL游戏坐标系是一致的，屏幕左下角为(0,0)。不过需要注意的是不论是横屏还是竖屏游戏，view的尺寸都是按照竖屏进行计算的，即对于iPhone来说在这里传入的sizewidth是320，height是480或者568，而不会因为横屏而发生交换。因此在开发时，请千万不要使用绝对数值来进行位置设定及计算（否则你会死的很难看啊很难看）。<li>把player加入到当前scene中，addChild接受SKNode对象（SKSprite是SKNode的子类），关于SKNode稍后再说。</ol><p>运行游戏，yes～主角出现在屏幕上了。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/sprite-kit-add-player.png" alt="在屏幕左侧添加了一个精灵" /></p><h3 id="源源不断涌来的怪物大军">源源不断涌来的怪物大军</h3><p>没有怪物的陪衬，主角再潇洒也是寂寞。添加怪物精灵的方法和之前添加主角没什么两样，生成精灵，设定位置，加到scene中。区别在于怪物是会移动的 &amp; 怪物是每隔一段时间就会出现一个的。</p><p>在MyScene.m中，加入一个方法<code class="language-plaintext highlighter-rouge">-addMonster</code></p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+</pre><td class="rouge-code"><pre><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">addMonster</span> <span class="p">{</span>
+    
+    <span class="n">SKSpriteNode</span> <span class="o">*</span><span class="n">monster</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKSpriteNode</span> <span class="nf">spriteNodeWithImageNamed</span><span class="p">:</span><span class="s">@"monster"</span><span class="p">];</span>
+    
+    <span class="c1">//1 Determine where to spawn the monster along the Y axis</span>
+    <span class="n">CGSize</span> <span class="n">winSize</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">minY</span> <span class="o">=</span> <span class="n">monster</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">maxY</span> <span class="o">=</span> <span class="n">winSize</span><span class="p">.</span><span class="n">height</span> <span class="o">-</span> <span class="n">monster</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">rangeY</span> <span class="o">=</span> <span class="n">maxY</span> <span class="o">-</span> <span class="n">minY</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">actualY</span> <span class="o">=</span> <span class="p">(</span><span class="n">arc4random</span><span class="p">()</span> <span class="o">%</span> <span class="n">rangeY</span><span class="p">)</span> <span class="o">+</span> <span class="n">minY</span><span class="p">;</span>
+
+    <span class="c1">//2 Create the monster slightly off-screen along the right edge,</span>
+    <span class="c1">// and along a random position along the Y axis as calculated above</span>
+    <span class="n">monster</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="n">winSize</span><span class="p">.</span><span class="n">width</span> <span class="o">+</span> <span class="n">monster</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">actualY</span><span class="p">);</span>
+    <span class="p">[</span><span class="n">self</span> <span class="nf">addChild</span><span class="p">:</span><span class="n">monster</span><span class="p">];</span>
+    
+    <span class="c1">//3 Determine speed of the monster</span>
+    <span class="kt">int</span> <span class="n">minDuration</span> <span class="o">=</span> <span class="mi">2</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">maxDuration</span> <span class="o">=</span> <span class="mi">4</span><span class="p">.</span><span class="mi">0</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">rangeDuration</span> <span class="o">=</span> <span class="n">maxDuration</span> <span class="o">-</span> <span class="n">minDuration</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">actualDuration</span> <span class="o">=</span> <span class="p">(</span><span class="n">arc4random</span><span class="p">()</span> <span class="o">%</span> <span class="n">rangeDuration</span><span class="p">)</span> <span class="o">+</span> <span class="n">minDuration</span><span class="p">;</span>
+    
+    <span class="c1">//4 Create the actions. Move monster sprite across the screen and remove it from scene after finished.</span>
+    <span class="n">SKAction</span> <span class="o">*</span><span class="n">actionMove</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKAction</span> <span class="nf">moveTo</span><span class="p">:</span><span class="n">CGPointMake</span><span class="p">(</span><span class="o">-</span><span class="n">monster</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">actualY</span><span class="p">)</span>
+                                   <span class="nl">duration:</span><span class="n">actualDuration</span><span class="p">];</span>
+    <span class="n">SKAction</span> <span class="o">*</span><span class="n">actionMoveDone</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKAction</span> <span class="nf">runBlock</span><span class="p">:</span><span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">monster</span> <span class="nf">removeFromParent</span><span class="p">];</span>
+    <span class="p">}];</span>
+    <span class="p">[</span><span class="n">monster</span> <span class="nf">runAction</span><span class="p">:[</span><span class="n">SKAction</span> <span class="nf">sequence</span><span class="p">:@[</span><span class="n">actionMove</span><span class="p">,</span><span class="n">actionMoveDone</span><span class="p">]]];</span>
+    
+<span class="p">}</span>
+</pre></table></code></div></div><ol><li>计算怪物的出生点（移动开始位置）的Y值。怪物从右侧屏幕外随机的高度处进入屏幕，为了保证怪物图像都在屏幕范围内，需要指定最小和最大Y值。然后从这个范围内随机一个Y值作为出生点。<li>设定出生点恰好在屏幕右侧外面，然后添加怪物精灵。<li>怪物要是匀速过来的话太死板了，加一点随机量，这样怪物有快有慢不会显得单调<li>建立SKAction。SKAction可以操作SKNode，完成诸如精灵移动，旋转，消失等等。这里声明了两个SKAction，<code class="language-plaintext highlighter-rouge">actionMove</code>负责将精灵在<code class="language-plaintext highlighter-rouge">actualDuration</code>的时间间隔内移动到结束点（直线横穿屏幕）；<code class="language-plaintext highlighter-rouge">actionMoveDone</code>负责将精灵移出场景，其实是run一段接受到的block代码。<code class="language-plaintext highlighter-rouge">runAction</code>方法可以让精灵执行某个操作，而在这里我们要做的是先将精灵移动到结束点，当移动结束后，移除精灵。我们需要的是一个顺序执行，这里sequence:可以让我们顺序执行多个action。</ol><p>然后尝试在上面的<code class="language-plaintext highlighter-rouge">-initWithSize:</code>里调用这个方法看看结果</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="k">-</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithSize</span><span class="p">:(</span><span class="n">CGSize</span><span class="p">)</span><span class="nv">size</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">initWithSize</span><span class="p">:</span><span class="n">size</span><span class="p">])</span> <span class="p">{</span>
+		<span class="c1">//...</span>
+		<span class="p">[</span><span class="n">self</span> <span class="nf">addChild</span><span class="p">:</span><span class="n">player</span><span class="p">];</span>
+		<span class="p">[</span><span class="n">self</span> <span class="nf">addMonster</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/spritekit-add-moving-monster.png" alt="在游戏中加入会动的敌人" /></p><p>Cool，我们的游戏有个能动的图像。知道么，游戏的本质是什么？就是一堆能动的图像！</p><p>只有一个怪物的话，英雄大大还是很寂寞，所以我们说好了会有源源不断的怪物..在<code class="language-plaintext highlighter-rouge">-initWithSize:</code>的4之后加入以下代码</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre>	<span class="c1">//...</span>
+    <span class="c1">//5 Repeat add monster to the scene every 1 second.</span>
+    <span class="n">SKAction</span> <span class="o">*</span><span class="n">actionAddMonster</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKAction</span> <span class="nf">runBlock</span><span class="p">:</span><span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">addMonster</span><span class="p">];</span>
+    <span class="p">}];</span>
+    <span class="n">SKAction</span> <span class="o">*</span><span class="n">actionWaitNextMonster</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKAction</span> <span class="nf">waitForDuration</span><span class="p">:</span><span class="mi">1</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">self</span> <span class="nf">runAction</span><span class="p">:[</span><span class="n">SKAction</span> <span class="nf">repeatActionForever</span><span class="p">:[</span><span class="n">SKAction</span> <span class="nf">sequence</span><span class="p">:@[</span><span class="n">actionAddMonster</span><span class="p">,</span><span class="n">actionWaitNextMonster</span><span class="p">]]]];</span>
+	<span class="c1">//...</span>
+</pre></table></code></div></div><p>这里声明了一个SKAction的序列，run一个block，然后等待1秒。用这个动作序列用<code class="language-plaintext highlighter-rouge">-repeatActionForever:</code>生成一个无限重复的动作，然后让scene执行。这样就可以实现每秒调用一次<code class="language-plaintext highlighter-rouge">-addMonster</code>来向场景中不断添加敌人了。如果你对Cocoa（Touch）开发比较熟悉的话，可能会说，为什么不用一个NSTimer来做同样的事情，而要写这样的SKAction呢？能不能用NSTimer来达到同样的目的？答案是在对场景或者精灵等SpriteKit对象进行类似操作时，尽量不要用NSTimer。因为NSTimer将不受SpriteKit的影响和管理，使用SKAction可以不加入其它任何代码就获取如下好处：</p><ul><li>自动暂停和继续，当设定一个SKNode的<code class="language-plaintext highlighter-rouge">paused</code>属性为YES时，这个SKNode和它管理的子node的action都会自动被暂停。这里详细说明一下SKNode的概念：SKNode是SpriteKit中要素的基本组织方式，它代表了SKView中的一种游戏资源的组织方式。我们现在接触到的SKScene和SKSprite都是SKNode的子类，而一个SKNode可以有很多的子Node，从而构成一个SKNode的树。在我们的例子中，MyScene直接加在SKView中作为最root的node存在，而英雄或者敌人的精灵都作为Scene这个node的子node被添加进来。SKAction和node上的各种属性的的作用范围是当前这个node和它的所有子node，在这里我们如果设定MySecnen这个node（也就是self）的<code class="language-plaintext highlighter-rouge">paused</code>属性被设为YES的话，所有的Action都会被暂停，包括这个每隔一秒调用一次的action，而如果你用NSTimer的话，恭喜，你必须自行维护它的状态。<li>当SKAction依附的结点被从结点树中拿掉的时候，这个action会自动结束并停止，这是符合一般逻辑的。</ul><p>编译，运行，一切如我们所预期的那样，每个一秒有一个怪物从右侧进入，并以不同的速度穿过屏幕。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/sprtekit-monsters.gif" alt="添加了源源不断滚滚而来的敌人大军" /></p><h3 id="奥特曼打小怪兽是天经地义的">奥特曼打小怪兽是天经地义的</h3><p>有了英雄，有了怪兽，就差一个“打”了。我们打算做的是在用户点击屏幕某个位置时，就由英雄所在的位置向点击位置发射一枚固定速度的飞镖。然后这每飞镖要是命中怪物的话，就把怪物从屏幕中移除。</p><p>先来实现发射飞镖吧。检测点击，然后让一个精灵朝向点击的方向以某个速度移动，有很多种SKAction可以实现，但是为了尽量保持简单，我们使用上面曾经使用过的<code class="language-plaintext highlighter-rouge">moveTo:duration:</code>吧。在发射之前，我们先要来做一点基本的数学运算，希望你还能记得相似三角形之类的概念。我们的飞镖是由英雄发出的，然后经过手指点击的点，两点决定一条直线。简单说我们需要求解出这条直线和屏幕右侧边缘外的交点，以此来确定飞镖的最终目的。一旦我们得到了这个终点，就可以控制飞镖moveTo到这个终点，从而模拟出发射飞镖的action了。如图所示，很简单的几何学，关于具体的计算就不再讲解了，要是算不出来的话，请考虑call你的中学数学老师并负荆请罪以示诚意。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/spritekit-math.png" alt="通过点击计算飞镖终止位置" /></p><p>然后开始写代码吧，还记得我们之前点击会出现一个飞机的精灵么，找到相应的地方，MyScene.m里的<code class="language-plaintext highlighter-rouge">-touchesBegan:withEvent:</code>：，用下面的代码替换掉原来的。</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+</pre><td class="rouge-code"><pre><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">touchesBegan</span><span class="p">:(</span><span class="n">NSSet</span> <span class="o">*</span><span class="p">)</span><span class="nv">touches</span> <span class="nf">withEvent</span><span class="p">:(</span><span class="n">UIEvent</span> <span class="o">*</span><span class="p">)</span><span class="nv">event</span> <span class="p">{</span>
+    <span class="cm">/* Called when a touch begins */</span>
+    
+    <span class="k">for</span> <span class="p">(</span><span class="n">UITouch</span> <span class="o">*</span><span class="n">touch</span> <span class="k">in</span> <span class="n">touches</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//1 Set up initial location of projectile</span>
+        <span class="n">CGSize</span> <span class="n">winSize</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">;</span>
+        <span class="n">SKSpriteNode</span> <span class="o">*</span><span class="n">projectile</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKSpriteNode</span> <span class="nf">spriteNodeWithImageNamed</span><span class="p">:</span><span class="s">@"projectile.png"</span><span class="p">];</span>
+        <span class="n">projectile</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="n">projectile</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="n">winSize</span><span class="p">.</span><span class="n">height</span><span class="o">/</span><span class="mi">2</span><span class="p">);</span>
+        
+        <span class="c1">//2 Get the touch location tn the scene and calculate offset</span>
+        <span class="n">CGPoint</span> <span class="n">location</span> <span class="o">=</span> <span class="p">[</span><span class="n">touch</span> <span class="nf">locationInNode</span><span class="p">:</span><span class="n">self</span><span class="p">];</span>
+        <span class="n">CGPoint</span> <span class="n">offset</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="n">location</span><span class="p">.</span><span class="n">x</span> <span class="o">-</span> <span class="n">projectile</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">location</span><span class="p">.</span><span class="n">y</span> <span class="o">-</span> <span class="n">projectile</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">y</span><span class="p">);</span>
+        
+        <span class="c1">// Bail out if you are shooting down or backwards</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">offset</span><span class="p">.</span><span class="n">x</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+        <span class="c1">// Ok to add now - we've double checked position</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">addChild</span><span class="p">:</span><span class="n">projectile</span><span class="p">];</span>
+        
+        <span class="kt">int</span> <span class="n">realX</span> <span class="o">=</span> <span class="n">winSize</span><span class="p">.</span><span class="n">width</span> <span class="o">+</span> <span class="p">(</span><span class="n">projectile</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="o">/</span><span class="mi">2</span><span class="p">);</span>
+        <span class="kt">float</span> <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span> <span class="n">offset</span><span class="p">.</span><span class="n">y</span> <span class="o">/</span> <span class="p">(</span><span class="kt">float</span><span class="p">)</span> <span class="n">offset</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">realY</span> <span class="o">=</span> <span class="p">(</span><span class="n">realX</span> <span class="o">*</span> <span class="n">ratio</span><span class="p">)</span> <span class="o">+</span> <span class="n">projectile</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+        <span class="n">CGPoint</span> <span class="n">realDest</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="n">realX</span><span class="p">,</span> <span class="n">realY</span><span class="p">);</span>
+        
+        <span class="c1">//3 Determine the length of how far you're shooting</span>
+        <span class="kt">int</span> <span class="n">offRealX</span> <span class="o">=</span> <span class="n">realX</span> <span class="o">-</span> <span class="n">projectile</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">x</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">offRealY</span> <span class="o">=</span> <span class="n">realY</span> <span class="o">-</span> <span class="n">projectile</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">y</span><span class="p">;</span>
+        <span class="kt">float</span> <span class="n">length</span> <span class="o">=</span> <span class="n">sqrtf</span><span class="p">((</span><span class="n">offRealX</span><span class="o">*</span><span class="n">offRealX</span><span class="p">)</span><span class="o">+</span><span class="p">(</span><span class="n">offRealY</span><span class="o">*</span><span class="n">offRealY</span><span class="p">));</span>
+        <span class="kt">float</span> <span class="n">velocity</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="o">/</span><span class="mi">1</span><span class="p">;</span> <span class="c1">// projectile speed. </span>
+        <span class="kt">float</span> <span class="n">realMoveDuration</span> <span class="o">=</span> <span class="n">length</span><span class="o">/</span><span class="n">velocity</span><span class="p">;</span>
+        
+        <span class="c1">//4 Move projectile to actual endpoint</span>
+        <span class="p">[</span><span class="n">projectile</span> <span class="nf">runAction</span><span class="p">:[</span><span class="n">SKAction</span> <span class="nf">moveTo</span><span class="p">:</span><span class="n">realDest</span> <span class="nf">duration</span><span class="p">:</span><span class="n">realMoveDuration</span><span class="p">]</span> <span class="n">completion</span><span class="o">:^</span><span class="p">{</span>
+            <span class="p">[</span><span class="n">projectile</span> <span class="nf">removeFromParent</span><span class="p">];</span>
+        <span class="p">}];</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><ol><li>为飞镖设定初始位置。<li>将点击的位置转换为node的坐标系的坐标，并计算点击位置和飞镖位置的偏移量。如果点击位置在飞镖初始位置的后方，则直接返回<li>根据相似三角形计算屏幕右侧外的结束位置。<li>移动飞镖，并在移动结束后将飞镖从场景中移除。注意在移动怪物的时候我们用了两个action（actionMove和actionMoveDone来做移动+移除），这里只使用了一个action并用带completion block移除精灵。这里对飞镖的这种做法是比较简明常见高效的，之前的做法只是为了说明action的<code class="language-plaintext highlighter-rouge">sequence:</code>的用法。</ol><p>运行看看现在的游戏吧，我们有英雄有怪物还有打怪物的小飞镖，好像气氛上已经开始有趣了！</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/spritekit-add-projectile.gif" alt="加入飞镖之后，游戏开始变得有趣了" /></p><h3 id="飞镖击中的检测">飞镖击中的检测</h3><p>但是一个严重的问题是，现在的飞镖就算接触到了怪物也是直穿而过，完全就是空气一般的存在。为什么？因为我们还没有写任何检测飞镖和怪物的接触的代码（废话）。我们想要做的是在飞镖和怪物接触到的时候，将它们都移出场景，这样看起来就像是飞镖打中了怪物，并且把怪物消灭了。</p><p>基本思路是在每隔一个小的时间间隔，就扫描一遍场景中现存的飞镖和怪物。这里就需要提到SpriteKit中最基本的每一帧的周期概念。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/spritekit-update_loop.png" alt="SpriteKit的更新周期" /></p><p>在iOS传统的view的系统中，view的内容被渲染一次后就将一直等待，直到需要渲染的内容发生改变（比如用户发生交互，view的迁移等）的时候，才进行下一次渲染。这主要是因为传统的view大多工作在静态环境下，并没有需要频繁改变的需求。而对于SpriteKit来说，其本身就是用来制作大多数时候是动态的游戏的，为了保证动画的流畅和场景的持续更新，在SpriteKit中view将会循环不断地重绘。</p><p>动画和渲染的进程是和SKScene对象绑定的，只有当场景被呈现时，这些渲染以及其中的action才会被执行。SKScene实例中，一个循环按执行顺序包括</p><ul><li>每一帧开始时，SKScene的<code class="language-plaintext highlighter-rouge">-update:</code>方法将被调用，参数是从开始时到调用时所经过的时间。在该方法中，我们应该实现一些游戏逻辑，包括AI，精灵行为等等，另外也可以在该方法中更新node的属性或者让node执行action<li>在update执行完毕后，SKScene将会开始执行所有的action。因为action是可以由开发者设定的（还记得runBlock:么），因此在这一个阶段我们也是可以执行自己的代码的。<li>在当前帧的action结束之后，SKScene的<code class="language-plaintext highlighter-rouge">-didEvaluateActions</code>将被调用，我们可以在这个方法里对结点做最后的调整或者限制，之后将进入物理引擎的计算阶段。<li>然后SKScene将会开始物理计算，如果在结点上添加了SKPhysicsBody的话，那么这个结点将会具有物理特性，并参与到这个阶段的计算。根据物理计算的结果，SpriteKit将会决定结点新的状态。<li>然后<code class="language-plaintext highlighter-rouge">-didSimulatePhysics</code>会被调用，这类似之前的<code class="language-plaintext highlighter-rouge">-didEvaluateActions</code>。这里是我们开发者能参与的最后的地方，是我们改变结点的最后机会。<li>一帧的最后是渲染流程，根据之前设定和计算的结果对整个呈现的场景进行绘制。完成之后，SpriteKit将开始新的一帧。</ul><p>在了解了一些SpriteKit的基础概念后，回到我们的demo。检测场景上每个怪物和飞镖的状态，如果它们相撞就移除，这是对精灵的计算的和操作，我们可以将其放到<code class="language-plaintext highlighter-rouge">-update:</code>方法中来处理。在此之前，我们需要保存一下添加到场景中的怪物和飞镖，在MyScene.m的@implementation之前加入下面的声明：</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="k">@interface</span> <span class="nc">MyScene</span><span class="p">()</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">monsters</span><span class="p">;</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">projectiles</span><span class="p">;</span>
+<span class="k">@end</span>
+</pre></table></code></div></div><p>然后在<code class="language-plaintext highlighter-rouge">-initWithSize:</code>中配置场景之前，初始化这两个数组：</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="k">-</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithSize</span><span class="p">:(</span><span class="n">CGSize</span><span class="p">)</span><span class="nv">size</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">initWithSize</span><span class="p">:</span><span class="n">size</span><span class="p">])</span> <span class="p">{</span>
+        <span class="cm">/* Setup your scene here */</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">monsters</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="nf">array</span><span class="p">];</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">projectiles</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSMutableArray</span> <span class="nf">array</span><span class="p">];</span>
+        
+        <span class="c1">//...</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在将怪物或者飞镖加入场景中的同时，分别将它们加入到数组中，</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">addMonster</span> <span class="p">{</span>
+	<span class="c1">//...</span>
+	
+	<span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">monsters</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">monster</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></table></code></div></div><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">touchesBegan</span><span class="p">:(</span><span class="n">NSSet</span> <span class="o">*</span><span class="p">)</span><span class="nv">touches</span> <span class="nf">withEvent</span><span class="p">:(</span><span class="n">UIEvent</span> <span class="o">*</span><span class="p">)</span><span class="nv">event</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">UITouch</span> <span class="o">*</span><span class="n">touch</span> <span class="k">in</span> <span class="n">touches</span><span class="p">)</span> <span class="p">{</span>
+		<span class="c1">//...</span>
+	
+        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">projectiles</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">projectile</span><span class="p">];</span>
+	<span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>同时，在将它们移除场景时，将它们移出所在数组，分别在<code class="language-plaintext highlighter-rouge">[monster removeFromParent]</code>和<code class="language-plaintext highlighter-rouge">[projectile removeFromParent]</code>后加入<code class="language-plaintext highlighter-rouge">[self.monsters removeObject:monster]</code>和<code class="language-plaintext highlighter-rouge">[self.projectiles removeObject:projectile]</code>。接下来终于可以在<code class="language-plaintext highlighter-rouge">-update:</code>中检测并移除了：</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+</pre><td class="rouge-code"><pre><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">update</span><span class="p">:(</span><span class="n">CFTimeInterval</span><span class="p">)</span><span class="nv">currentTime</span> <span class="p">{</span>
+    <span class="cm">/* Called before each frame is rendered */</span>
+    <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">projectilesToDelete</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSMutableArray</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">SKSpriteNode</span> <span class="o">*</span><span class="n">projectile</span> <span class="k">in</span> <span class="n">self</span><span class="p">.</span><span class="n">projectiles</span><span class="p">)</span> <span class="p">{</span>
+        
+        <span class="n">NSMutableArray</span> <span class="o">*</span><span class="n">monstersToDelete</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSMutableArray</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">init</span><span class="p">];</span>
+        <span class="k">for</span> <span class="p">(</span><span class="n">SKSpriteNode</span> <span class="o">*</span><span class="n">monster</span> <span class="k">in</span> <span class="n">self</span><span class="p">.</span><span class="n">monsters</span><span class="p">)</span> <span class="p">{</span>
+            
+            <span class="k">if</span> <span class="p">(</span><span class="n">CGRectIntersectsRect</span><span class="p">(</span><span class="n">projectile</span><span class="p">.</span><span class="n">frame</span><span class="p">,</span> <span class="n">monster</span><span class="p">.</span><span class="n">frame</span><span class="p">))</span> <span class="p">{</span>
+                <span class="p">[</span><span class="n">monstersToDelete</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">monster</span><span class="p">];</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        
+        <span class="k">for</span> <span class="p">(</span><span class="n">SKSpriteNode</span> <span class="o">*</span><span class="n">monster</span> <span class="k">in</span> <span class="n">monstersToDelete</span><span class="p">)</span> <span class="p">{</span>
+            <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">monsters</span> <span class="nf">removeObject</span><span class="p">:</span><span class="n">monster</span><span class="p">];</span>
+            <span class="p">[</span><span class="n">monster</span> <span class="nf">removeFromParent</span><span class="p">];</span>
+        <span class="p">}</span>
+        
+        <span class="k">if</span> <span class="p">(</span><span class="n">monstersToDelete</span><span class="p">.</span><span class="n">count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
+            <span class="p">[</span><span class="n">projectilesToDelete</span> <span class="nf">addObject</span><span class="p">:</span><span class="n">projectile</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="k">for</span> <span class="p">(</span><span class="n">SKSpriteNode</span> <span class="o">*</span><span class="n">projectile</span> <span class="k">in</span> <span class="n">projectilesToDelete</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">projectiles</span> <span class="nf">removeObject</span><span class="p">:</span><span class="n">projectile</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">projectile</span> <span class="nf">removeFromParent</span><span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>代码比较简单，不多解释了。直接运行看结果</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/spritekit-hit.gif" alt="发射飞镖，消灭敌人！" /></p><h3 id="播放声音">播放声音</h3><p>音效绝对是游戏的一个重要环节，还记得一开始下载的那个资源文件压缩包么？里面除了Art文件夹外还有个Sounds文件夹，我们把Sounds加入工程里，整个文件夹拖到工程导航里面，然后勾上“Copy item”。</p><p>我们想在发射飞镖时播出一个音效，对于音效的播放是十分简单的，SpriteKit为我们提供了一个action，用来播放单个音效。因为每次的音效是相同的，所以只需要在一开始加载一次action，之后就一直使用这个action，以提高效率。先在MyScene.m的@interface中加入</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">SKAction</span> <span class="o">*</span><span class="n">projectileSoundEffectAction</span><span class="p">;</span>
+</pre></table></code></div></div><p>然后在<code class="language-plaintext highlighter-rouge">-initWithSize:</code>一开始的地方加入</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+</pre><td class="rouge-code"><pre><span class="n">self</span><span class="p">.</span><span class="n">projectileSoundEffectAction</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKAction</span> <span class="nf">playSoundFileNamed</span><span class="p">:</span><span class="s">@"pew-pew-lei.caf"</span> <span class="nf">waitForCompletion</span><span class="p">:</span><span class="nb">NO</span><span class="p">];</span>
+</pre></table></code></div></div><p>最后，修改发射飞镖的action，使播放音效的action和移动精灵的action同时执行。将<code class="language-plaintext highlighter-rouge">-touchesBegan:withEvent:</code>最后runAction的部分改为</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="c1">//...</span>
+<span class="c1">//4 Move projectile to actual endpoint and play the throw sound effect</span>
+<span class="n">SKAction</span> <span class="o">*</span><span class="n">moveAction</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKAction</span> <span class="nf">moveTo</span><span class="p">:</span><span class="n">realDest</span> <span class="nf">duration</span><span class="p">:</span><span class="n">realMoveDuration</span><span class="p">];</span>
+<span class="n">SKAction</span> <span class="o">*</span><span class="n">projectileCastAction</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKAction</span> <span class="nf">group</span><span class="p">:@[</span><span class="n">moveAction</span><span class="p">,</span><span class="n">self</span><span class="p">.</span><span class="n">projectileSoundEffectAction</span><span class="p">]];</span>
+<span class="p">[</span><span class="n">projectile</span> <span class="nf">runAction</span><span class="p">:</span><span class="n">projectileCastAction</span> <span class="nf">completion</span><span class="p">:</span><span class="o">^</span><span class="p">{</span>
+    <span class="p">[</span><span class="n">projectile</span> <span class="nf">removeFromParent</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">projectiles</span> <span class="nf">removeObject</span><span class="p">:</span><span class="n">projectile</span><span class="p">];</span>
+<span class="p">}];</span>
+
+<span class="c1">//...</span>
+</pre></table></code></div></div><p>之前我们介绍了用<code class="language-plaintext highlighter-rouge">-sequence:</code>连接不同的action，使它们顺序串行执行。在这里我们用了另一个方便的方法，<code class="language-plaintext highlighter-rouge">-group:</code>可以范围一个新的action，这个action将并行同时开始执行传入的所有action。在这里我们在飞镖开始移动的同时，播放了一个pew-pew-lei的音效（音效效果请下载demo试听，或者自行脑补…）。</p><p>游戏中音效一般来说至少会有效果音（SE）和背景音（BGM）两种，SE可以用SpriteKit的action来解决，而BGM就要惨一些，至少写这篇教程的时候，SpriteKit还没有一个BGM的专门的对应方案（如果之后新加了的话我会更新本教程）。所以现在我们使用传统的播放较长背景音乐的方法来实现背景音，那就是用<code class="language-plaintext highlighter-rouge">AVAudioPlayer</code>。在@interface MyScene()中加入一个bgmPlayer的声明，然后在<code class="language-plaintext highlighter-rouge">-initWithSize:</code>中加载背景音并一直播放。</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre><span class="k">@interface</span> <span class="nc">MyScene</span><span class="p">()</span>
+<span class="c1">//...</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">strong</span><span class="p">)</span> <span class="n">AVAudioPlayer</span> <span class="o">*</span><span class="n">bgmPlayer</span><span class="p">;</span>
+<span class="c1">//...</span>
+<span class="k">@end</span>
+
+<span class="k">@implementation</span> <span class="nc">MyScene</span>
+
+<span class="k">-</span><span class="p">(</span><span class="n">id</span><span class="p">)</span><span class="nf">initWithSize</span><span class="p">:(</span><span class="n">CGSize</span><span class="p">)</span><span class="nv">size</span> <span class="p">{</span>
+<span class="c1">//...</span>
+        <span class="n">NSString</span> <span class="o">*</span><span class="n">bgmPath</span> <span class="o">=</span> <span class="p">[[</span><span class="n">NSBundle</span> <span class="nf">mainBundle</span><span class="p">]</span> <span class="nf">pathForResource</span><span class="p">:</span><span class="s">@"background-music-aac"</span> <span class="nf">ofType</span><span class="p">:</span><span class="s">@"caf"</span><span class="p">];</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">bgmPlayer</span> <span class="o">=</span> <span class="p">[[</span><span class="n">AVAudioPlayer</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithContentsOfURL</span><span class="p">:[</span><span class="n">NSURL</span> <span class="nf">fileURLWithPath</span><span class="p">:</span><span class="n">bgmPath</span><span class="p">]</span> <span class="nf">error</span><span class="p">:</span><span class="nb">NULL</span><span class="p">];</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">bgmPlayer</span><span class="p">.</span><span class="n">numberOfLoops</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">bgmPlayer</span> <span class="nf">play</span><span class="p">];</span>
+<span class="c1">//...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>AVAudioPlayer用来播放背景音乐相当的合适，唯一的问题是有可能你想在暂停的时候停止这个背景音乐的播放。因为使用的是SpriteKit以外的框架，而并非action，因此BGM的播放不会随着设置Scene为暂停或者移除这个Scene而停止。想要停止播放，必须手动显式地调用<code class="language-plaintext highlighter-rouge">[self.bgmPlayer stop]</code>，可以说是比较麻烦，不过有时候你不并不想在暂停或者场景切换的时候中断背景音乐的话，这反倒是一个好的选择。</p><h3 id="结果计算和场景切换">结果计算和场景切换</h3><p>到现在为止，整个关卡作为一个demo来说已经比较完善了。最后，我们可以为这个关卡设定一些条件，毕竟不是每个人都喜欢一直无意义地消灭怪物直到手机没电。我们设定规则，当打死30个怪物后切换到新的场景，以成功结束战斗的结果；另外，要是有任何一个怪物到达了屏幕左侧边缘，则本场战斗失败。另外我们在显示结果的场景中还需要一个交互按钮，以便我们重新开始一轮游戏。</p><p>首先是检测被打死的怪物数，在MyScene里添加一个<code class="language-plaintext highlighter-rouge">monstersDestroyed</code>，然后在打中怪物时使这个值+1，并在随后判断如果消灭怪物数量大于等于30，则切换场景（暂时没有实现，现在留了两个TODO，一会儿我们再实装场景切换）</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="k">@interface</span> <span class="nc">MyScene</span><span class="p">()</span>
+<span class="c1">//...</span>
+<span class="k">@property</span> <span class="p">(</span><span class="n">nonatomic</span><span class="p">,</span> <span class="n">assign</span><span class="p">)</span> <span class="kt">int</span> <span class="n">monstersDestroyed</span><span class="p">;</span>
+<span class="c1">//...</span>
+<span class="k">@end</span>
+
+
+<span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">update</span><span class="p">:(</span><span class="n">CFTimeInterval</span><span class="p">)</span><span class="nv">currentTime</span> <span class="p">{</span>
+<span class="c1">//...</span>
+  <span class="k">for</span> <span class="p">(</span><span class="n">SKSpriteNode</span> <span class="o">*</span><span class="n">monster</span> <span class="k">in</span> <span class="n">monstersToDelete</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">monsters</span> <span class="nf">removeObject</span><span class="p">:</span><span class="n">monster</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">monster</span> <span class="nf">removeFromParent</span><span class="p">];</span>
+            
+    <span class="n">self</span><span class="p">.</span><span class="n">monstersDestroyed</span><span class="o">++</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">monstersDestroyed</span> <span class="o">&gt;=</span> <span class="mi">30</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">//TODO: Show a win scene</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="c1">//...</span>
+</pre></table></code></div></div><p>另外，在怪物到达屏幕边缘的时候也触发场景的切换：</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="k">-</span> <span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">addMonster</span> <span class="p">{</span>
+	<span class="c1">//...</span>
+    <span class="n">SKAction</span> <span class="o">*</span><span class="n">actionMoveDone</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKAction</span> <span class="nf">runBlock</span><span class="p">:</span><span class="o">^</span><span class="p">{</span>
+        <span class="p">[</span><span class="n">monster</span> <span class="nf">removeFromParent</span><span class="p">];</span>
+        <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">monsters</span> <span class="nf">removeObject</span><span class="p">:</span><span class="n">monster</span><span class="p">];</span>
+        
+        <span class="c1">//TODO: Show a lose scene</span>
+    <span class="p">}];</span>
+    <span class="c1">//...</span>
+<span class="p">}</span>
+
+</pre></table></code></div></div><p>接下来就是制作新的表示结果的场景了。新建一个SKScene的子类很简单，和平时我们新建Cocoa或者CocoaTouch的类没有什么区别。菜单中File-&gt;New-&gt;File…，选择Objective-C class，然后将新建的文件取名为ResultScene，父类填写为SKScene，并在新建的时候选择合适的Target即可。在新建的ResultScene.m的@implementation中加入如下代码：</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+</pre><td class="rouge-code"><pre><span class="k">-</span><span class="p">(</span><span class="n">instancetype</span><span class="p">)</span><span class="nf">initWithSize</span><span class="p">:(</span><span class="n">CGSize</span><span class="p">)</span><span class="nv">size</span> <span class="nf">won</span><span class="p">:(</span><span class="n">BOOL</span><span class="p">)</span><span class="nv">won</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">self</span> <span class="o">=</span> <span class="p">[</span><span class="n">super</span> <span class="nf">initWithSize</span><span class="p">:</span><span class="n">size</span><span class="p">])</span> <span class="p">{</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">backgroundColor</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKColor</span> <span class="nf">colorWithRed</span><span class="p">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span> <span class="nf">green</span><span class="p">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span> <span class="n">blue</span><span class="o">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span> <span class="n">alpha</span><span class="o">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">];</span>
+        
+        <span class="c1">//1 Add a result label to the middle of screen</span>
+        <span class="n">SKLabelNode</span> <span class="o">*</span><span class="n">resultLabel</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKLabelNode</span> <span class="nf">labelNodeWithFontNamed</span><span class="p">:</span><span class="s">@"Chalkduster"</span><span class="p">];</span>
+        <span class="n">resultLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">won</span> <span class="p">?</span> <span class="s">@"You win!"</span> <span class="p">:</span> <span class="s">@"You lose"</span><span class="p">;</span>
+        <span class="n">resultLabel</span><span class="p">.</span><span class="n">fontSize</span> <span class="o">=</span> <span class="mi">30</span><span class="p">;</span>
+        <span class="n">resultLabel</span><span class="p">.</span><span class="n">fontColor</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKColor</span> <span class="nf">blackColor</span><span class="p">];</span>
+        <span class="n">resultLabel</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="n">CGRectGetMidX</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">frame</span><span class="p">),</span>
+                                       <span class="n">CGRectGetMidY</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">frame</span><span class="p">));</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">addChild</span><span class="p">:</span><span class="n">resultLabel</span><span class="p">];</span>
+        
+        <span class="c1">//2 Add a retry label below the result label</span>
+        <span class="n">SKLabelNode</span> <span class="o">*</span><span class="n">retryLabel</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKLabelNode</span> <span class="nf">labelNodeWithFontNamed</span><span class="p">:</span><span class="s">@"Chalkduster"</span><span class="p">];</span>
+        <span class="n">retryLabel</span><span class="p">.</span><span class="n">text</span> <span class="o">=</span> <span class="s">@"Try again"</span><span class="p">;</span>
+        <span class="n">retryLabel</span><span class="p">.</span><span class="n">fontSize</span> <span class="o">=</span> <span class="mi">20</span><span class="p">;</span>
+        <span class="n">retryLabel</span><span class="p">.</span><span class="n">fontColor</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKColor</span> <span class="nf">blueColor</span><span class="p">];</span>
+        <span class="n">retryLabel</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">CGPointMake</span><span class="p">(</span><span class="n">resultLabel</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">x</span><span class="p">,</span> <span class="n">resultLabel</span><span class="p">.</span><span class="n">position</span><span class="p">.</span><span class="n">y</span> <span class="o">*</span> <span class="mi">0</span><span class="p">.</span><span class="mi">8</span><span class="p">);</span>
+        <span class="c1">//3 Give a name for this node, it will help up to find the node later.</span>
+        <span class="n">retryLabel</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="s">@"retryLabel"</span><span class="p">;</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">addChild</span><span class="p">:</span><span class="n">retryLabel</span><span class="p">];</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">self</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>我们在ResultScene中自定义了一个含有结果的初始化方法初始化，之后我们将使用这个方法来初始化ResultScene。在这个init方法中我们做了以下这些事：</p><ol><li>根据输入添加了一个SKLabelNode来显示游戏的结果。SKLabelNode也是SKNode的子类，可以用来方便地显示不同字体、颜色或者样式的文字标签。<li>在结果标签的下方加入了一个重开一盘的标签<li>我们为这个node进行了命名，通过对node命名，我们可以在之后方便地拿到这个node的参照，而不必新建一个变量来持有它。在实际运用中，这个命名即可以用来存储一个唯一的名字，来帮助我们之后找到特定的node（使用<code class="language-plaintext highlighter-rouge">-childNodeWithName:</code>），也可以一堆特性类似的node共用一个名字，这样可以方便枚举（使用<code class="language-plaintext highlighter-rouge">-enumerateChildNodesWithName:usingBlock:</code>方法）。不过这次的demo中，我们只是简单地用字符串比较来确定node，稍后会看到具体的用法。</ol><p>最后不要忘了这个方法名写到.h文件中去，这样我们才能在游戏场景中调用到。</p><p>回到游戏场景，在MyScene.m的加入对ResultScene.h的引用，然后在实现中加入一个切换场景的方法</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="cp">#import "ResultScene.h"
+</span>
+<span class="c1">//...</span>
+<span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="nf">changeToResultSceneWithWon</span><span class="p">:(</span><span class="n">BOOL</span><span class="p">)</span><span class="nv">won</span>
+<span class="p">{</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">bgmPlayer</span> <span class="nf">stop</span><span class="p">];</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">bgmPlayer</span> <span class="o">=</span> <span class="nb">nil</span><span class="p">;</span>
+    <span class="n">ResultScene</span> <span class="o">*</span><span class="n">rs</span> <span class="o">=</span> <span class="p">[[</span><span class="n">ResultScene</span> <span class="nf">alloc</span><span class="p">]</span> <span class="nf">initWithSize</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">size</span> <span class="nf">won</span><span class="p">:</span><span class="n">won</span><span class="p">];</span>
+    <span class="n">SKTransition</span> <span class="o">*</span><span class="n">reveal</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKTransition</span> <span class="nf">revealWithDirection</span><span class="p">:</span><span class="n">SKTransitionDirectionUp</span> <span class="nf">duration</span><span class="p">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">scene</span><span class="p">.</span><span class="n">view</span> <span class="nf">presentScene</span><span class="p">:</span><span class="n">rs</span> <span class="nf">transition</span><span class="p">:</span><span class="n">reveal</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">SKTransition</code>是专门用来做不同的Scene之前切换的类，这个类为我们提供了很多“廉价”的场景切换效果（相信我，你如果想要自己实现它们的话会颇费一番功夫）。在这里我们建立了一个将当前场景上推的切换效果，来显示新的ResultScene。另外注意我们在这里停止了BGM的播放。之后，将刚才留下来的两个TODO的地方，分别替换为以相应参数对这个方法的调用。</p><p>最后，我们想要在ResultScene中点击Retry标签时，重开一盘游戏。在ResultScene.m中加入代码</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre><span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span><span class="nf">touchesBegan</span><span class="p">:(</span><span class="n">NSSet</span> <span class="o">*</span><span class="p">)</span><span class="nv">touches</span> <span class="nf">withEvent</span><span class="p">:(</span><span class="n">UIEvent</span> <span class="o">*</span><span class="p">)</span><span class="nv">event</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">UITouch</span> <span class="o">*</span><span class="n">touch</span> <span class="k">in</span> <span class="n">touches</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">CGPoint</span> <span class="n">touchLocation</span> <span class="o">=</span> <span class="p">[</span><span class="n">touch</span> <span class="nf">locationInNode</span><span class="p">:</span><span class="n">self</span><span class="p">];</span>
+        <span class="n">SKNode</span> <span class="o">*</span><span class="n">node</span> <span class="o">=</span> <span class="p">[</span><span class="n">self</span> <span class="nf">nodeAtPoint</span><span class="p">:</span><span class="n">touchLocation</span><span class="p">];</span>
+        
+        <span class="k">if</span> <span class="p">([</span><span class="n">node</span><span class="p">.</span><span class="n">name</span> <span class="nf">isEqualToString</span><span class="p">:</span><span class="s">@"retryLabel"</span><span class="p">])</span> <span class="p">{</span>
+            <span class="p">[</span><span class="n">self</span> <span class="nf">changeToGameScene</span><span class="p">];</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">-</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span> <span class="n">changeToGameScene</span>
+<span class="p">{</span>
+    <span class="n">MyScene</span> <span class="o">*</span><span class="n">ms</span> <span class="o">=</span> <span class="p">[</span><span class="n">MyScene</span> <span class="nf">sceneWithSize</span><span class="p">:</span><span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">];</span>
+    <span class="n">SKTransition</span> <span class="o">*</span><span class="n">reveal</span> <span class="o">=</span> <span class="p">[</span><span class="n">SKTransition</span> <span class="nf">revealWithDirection</span><span class="p">:</span><span class="n">SKTransitionDirectionDown</span> <span class="nf">duration</span><span class="p">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="p">];</span>
+    <span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">scene</span><span class="p">.</span><span class="n">view</span> <span class="nf">presentScene</span><span class="p">:</span><span class="n">ms</span> <span class="nf">transition</span><span class="p">:</span><span class="n">reveal</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>运行游戏，消灭足够多的敌人（或者漏过一个敌人），应该能够可能到场景切换和结果显示。然后点击再来一次的话，将重新开始新的游戏。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/spritekit-result.png" alt="结束时显示结果场景" /></p><h3 id="关于sprite的一些个人补充">关于Sprite的一些个人补充</h3><p>至此，整个Demo的主体部分结束。接下来对于当前的SpriteKit（iOS SDK beta1）说一些我个人的看法和理解。如果之后这部分内容有巨大变化的话，我会尽量更新。首先是性能问题，如果有在iOS平台下使用cocos2d开发的经验的话，很容易看出来SpriteKit在很多地方借鉴了cocos2d。作为SDK内置的框架来说，又有cocos2d的开源实现进行参考，效率方面超越cocos2d应该是理所当然的。在现有的一系列benchmark上来看，实际上SpriteKit在图形渲染方面也有着很不错的表现。另外，在编写过程中，也有不少技巧可以使用，以进一步进行优化，比如在内存中保持住常用的action，预先加载资源，使用Atlas等等。在进行比较全面和完整的优化后，SpriteKit的表现应该是可以期待的。</p><p>使用SpriteKit一个很明显的优点在于，SKView其实是基于UIKit的UIView的一套实现，而其中的所有SKNode对象都UIResponder的子类，并且实现了NSCoding等接口。也就是说，其实在SpriteKit中是可以很容易地使用其他的非游戏Cocoa/CocoaTouch框架的。比如可以使用UIKit或者Cocoa来简单地制作UI，然后只在需要每帧演算的时候使用SpriteKit，藉此来达到快速开发的目的。这点上cocos2d是无法与之比拟的。另外，因为SKSprite同时兼顾了iOS和Mac两者，因此在我们进行开发时如果能稍加注意，理论上可以比较容易地完成iOS和Mac的跨平台。</p><p>由于SKNode是UIResponder的子类，因此在真正制作游戏的时候，对于相应用户点击等操作我们是不必（也不应该）像demo中一样全部放在Scene点击事件中，而是应该尽量封装游戏中用到的node，并在node中处理用户的点击，并且委托到Scene中进行处理，可能逻辑上会更加清晰。关于用户交互事件的处理，另外一个需要注意的地方在于，使用UIResponder监测的用户交互事件和SKScene的事件循环是相互独立的。如果像我们的demo中那样直接处理用户点击并和SpriteKit交互的话，我们并不能确定这个执行时机在SKScene循环中的状态。比如点击的相关代码也许会在<code class="language-plaintext highlighter-rouge">-update</code>后执行，也可能在<code class="language-plaintext highlighter-rouge">-didSimulatePhysics</code>后被调用，这引入了执行顺序的不确定性。对于上面的这个简单的demo来说这没有什么太大关系，但是在对于时间敏感的游戏逻辑或者带有物理模拟的游戏中，也许时序会很关键。由于点击事件的时序和精灵动画和物理等的时序不确定，有可能造成奇怪的问题。对此现在暂时的解决方法是仅在点击事件中设置一个标志位记录点击状态，然后在接下来的<code class="language-plaintext highlighter-rouge">-update:</code>中进行检测并处理（苹果给出的官方SpriteKit的“Adventure”是这样处理的），以此来保证时序的正确性。代价是点击事件会延迟一帧才会被处理，虽然在绝大多数情况下并不是什么问题，但是其实这点上并不优雅，至少在现在的beta版中，算不上优雅。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/wwdc/'>WWDC</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/wwdc/" class="post-tag no-text-decoration" >wwdc</a> <a href="/tags/spritekit/" class="post-tag no-text-decoration" >spritekit</a> <a href="/tags/ios/" class="post-tag no-text-decoration" >iOS</a> <a href="/tags/%E6%B8%B2%E6%9F%93/" class="post-tag no-text-decoration" >渲染</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=WWDC 2013 Session笔记 - SpriteKit快速入门和新时代iOS游戏开发指南 - OneV's Den&url=https://onevcat.com/2013/06/sprite-kit-start/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=WWDC 2013 Session笔记 - SpriteKit快速入门和新时代iOS游戏开发指南 - OneV's Den&u=https://onevcat.com/2013/06/sprite-kit-start/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=WWDC 2013 Session笔记 - SpriteKit快速入门和新时代iOS游戏开发指南 - OneV's Den&url=https://onevcat.com/2013/06/sprite-kit-start/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=WWDC 2013 Session笔记 - SpriteKit快速入门和新时代iOS游戏开发指南 - OneV's Den&url=https://onevcat.com/2013/06/sprite-kit-start/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2013/10/vc-transition-in-ios7/"><div class="card-body"> <span class="timeago small" > 2013-10-11 <i class="unloaded">2013-10-11T00:59:56+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>WWDC 2013 Session笔记 - iOS7中的ViewController切换</h3><div class="text-muted small"><p> 这是我的WWDC2013系列笔记中的一篇，完整的笔记列表请参看这篇总览。本文仅作为个人记录使用，也欢迎在许可协议范围内转载或使用，但是还烦请保留原文链接，谢谢您的理解合作。如果您觉得本站对您能有帮助，您可以使用RSS或邮件方式订阅本站，这样您将能在第一时间获取本站信息。 本文涉及到的WWDC2013 Session有 Session 201 Building User Interf...</p></div></div></a></div><div class="card"> <a href="/2014/07/developer-should-know-about-ios8/"><div class="card-body"> <span class="timeago small" > 2014-07-15 <i class="unloaded">2014-07-15T22:27:05+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>开发者所需要知道的 iOS8 SDK 新特性</h3><div class="text-muted small"><p> WWDC 2014 已经过去一个多月。最激动人心的莫过于 Swift 这门新语言的发布，我在之前已经写了一些关于这么语言的第一印象和一些初步的探索。在写这篇文章的时候，Swift 随着 beta 3 得到了重大的更新，而这门语言现在也还在剧烈的变化之中。对于 Swift，现在大家的探索才刚刚上路，很多背后的机制还并不是非常清楚，或者有可能发生巨大的变化，因此在这里和之后的几篇文章，直到稳...</p></div></div></a></div><div class="card"> <a href="/2015/06/multitasking/"><div class="card-body"> <span class="timeago small" > 2015-06-15 <i class="unloaded">2015-06-15T16:25:07+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>WWDC15 Session笔记 - iOS 9 多任务分屏要点</h3><div class="text-muted small"><p> 本文是我的 WWDC15 笔记中的一篇，涉及的 Session 有 Getting Started with Multitasking on iPad in iOS 9 Multitasking Essentials for Media-Based Apps on iPad in iOS 9 Optimizing Your App for Multitasking on iP...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2013/06/uikit-dynamics-started/" class="btn btn-outline-primary"><p>WWDC 2013 Session笔记 - UIKit Dynamics入门</p></a> <a href="/2013/07/what-i-did-recently/" class="btn btn-outline-primary"><p>近期做的两三事</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

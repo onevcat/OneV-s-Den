@@ -1,0 +1,247 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="iOS中使用blend改变图片颜色" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="最近对Core Animation和Core Graphics的内容东西比较感兴趣，自己之前也在这块相对薄弱，趁此机会也想补习一下这块的内容，所以之后几篇可能都会是对CA和CG学习的记录的文章。" /><meta property="og:description" content="最近对Core Animation和Core Graphics的内容东西比较感兴趣，自己之前也在这块相对薄弱，趁此机会也想补习一下这块的内容，所以之后几篇可能都会是对CA和CG学习的记录的文章。" /><link rel="canonical" href="https://onevcat.com/2013/04/using-blending-in-ios/" /><meta property="og:url" content="https://onevcat.com/2013/04/using-blending-in-ios/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:image" content="https://onevcat.com/assets/images/2013/blend_title.png" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2013-04-29T00:41:33+09:00" /><meta name="twitter:card" content="summary_large_image" /><meta property="twitter:image" content="https://onevcat.com/assets/images/2013/blend_title.png" /><meta property="twitter:title" content="iOS中使用blend改变图片颜色" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"最近对Core Animation和Core Graphics的内容东西比较感兴趣，自己之前也在这块相对薄弱，趁此机会也想补习一下这块的内容，所以之后几篇可能都会是对CA和CG学习的记录的文章。","url":"https://onevcat.com/2013/04/using-blending-in-ios/","@type":"BlogPosting","headline":"iOS中使用blend改变图片颜色","dateModified":"2013-04-29T00:41:33+09:00","datePublished":"2013-04-29T00:41:33+09:00","image":"https://onevcat.com/assets/images/2013/blend_title.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2013/04/using-blending-in-ios/"},"@context":"https://schema.org"}</script><title>iOS中使用blend改变图片颜色 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>iOS中使用blend改变图片颜色</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>iOS中使用blend改变图片颜色</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Mon, Apr 29, 2013, 12:41 AM +0900" > 2013-04-29 <i class="unloaded">2013-04-29T00:41:33+09:00</i> </span></div></div><div class="post-content"> <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/blend_title.png" class="post-preview-img"><p>最近对<code class="language-plaintext highlighter-rouge">Core Animation</code>和<code class="language-plaintext highlighter-rouge">Core Graphics</code>的内容东西比较感兴趣，自己之前也在这块相对薄弱，趁此机会也想补习一下这块的内容，所以之后几篇可能都会是对CA和CG学习的记录的文章。</p><p>在应用里一个很常见的需求是主题变换：同样的图标，同样的素材，但是需要按照用户喜爱变为不同的颜色。在iOS5和6的SDK里部分标准控件引入了<code class="language-plaintext highlighter-rouge">tintColor</code>，来满足个性化界面的需求，但是Apple在这方面还远远做的不够。一是现在用默认控件根本难以做出界面优秀的应用，二是<code class="language-plaintext highlighter-rouge">tintColor</code>所覆盖的并不够全面，在很多情况下开发者都无法使用其来完成个性化定义。解决办法是什么？最简单当然是拜托设计师大大出图，想要蓝色主题？那好，开PS盖个蓝色图层出一套蓝色的UI；又想加粉色UI，那好，再出一套粉色的图然后导入Xcode。代码上的话根据颜色需求使用image-blue或者image-pink这样的名字来加载图片。</p><p>如果有一丁点重构的意识，就会知道这不是一个很好的解决方案。工程中存在大量的冗余和重复（就算你要狡辩这些图片颜色不同不算重复，你也会在内心里知道这种狡辩是多么无力），这是非常致命的。想象一下如果你有10套主题界面，先不论应用的体积会膨胀到多少，光是想做一点修改就会痛苦万分，比如希望改一下某个按钮的形状，很好，设计师大大请重复地修改10遍，并出10套UI，然后一系列的重命名，文件移动和导入…一场灾难。</p><p>当然有其他办法，因为说白了就是tint不同的颜色到图片上而已，如果我们能实现改变UIImage的颜色，那我们就只需要一套UI，然后用代码来改变UI的颜色就可以了，生活有木有一下光明起来呀。嗯，让我们先从一张图片开始吧～下面是一张带有alpha通道的图片，原始颜色是纯的灰色（当然什么颜色都可以，只不过我这个人现在暂时比较喜欢灰色而已）。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/blend_origin.png" alt="要处理的原图" /></p><p>我们将用blending给这张图片加上另一个纯色作为tint，并保持原来的alpha通道。用Core Graphics来做的话，大概的想法很直接：</p><ol><li>创建一个上下文用以画新的图片<li>将新的tintColor设置为填充颜色<li>将原图片画在创建的上下文中，并用新的填充色着色（注意保持alpha通道）<li>从当前上下文中取得图片并返回</ol><p>最麻烦的部分可能就是保持alpha通道了。<a href="https://developer.apple.com/library/ios/#documentation/UIKit/Reference/UIImage_Class/Reference/Reference.html">UIImage的文档</a>中提供了使用blend绘图的方法<code class="language-plaintext highlighter-rouge">drawInRect:blendMode:alpha:</code>，<code class="language-plaintext highlighter-rouge">rect</code>和<code class="language-plaintext highlighter-rouge">alpha</code>都没什么问题，但是<code class="language-plaintext highlighter-rouge">blendMode</code>是个啥玩意儿啊…继续看文档，关于<a href="https://developer.apple.com/library/ios/#documentation/GraphicsImaging/Reference/CGContext/Reference/reference.html#//apple_ref/doc/c_ref/CGBlendMode"><code class="language-plaintext highlighter-rouge">CGBlendMode</code>的文档</a>，里面有一大堆看不懂的枚举值，比如这样：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre>kCGBlendModeDestinationOver
+R = S*(1 - Da) + D
+Available in iOS 2.0 and later.
+Declared in CGContext.h.
+</pre></table></code></div></div><p>完全不懂..直接看之后的Discussion部分：</p><blockquote><p>The blend mode constants introduced in OS X v10.5 represent the Porter-Duff blend modes. The symbols in the equations for these blend modes are:<br /> R is the premultiplied result<br /> S is the source color, and includes alpha<br /> D is the destination color, and includes alpha<br /> Ra, Sa, and Da are the alpha components of R, S, and D</p></blockquote><p>原来如此，R表示结果，S表示包含alpha的原色，D表示包含alpha的目标色，Ra，Sa和Da分别是三个的alpha。明白了这些以后，就可以开始寻找我们所需要的blend模式了。相信你可以和我一样，很快找到这个模式：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre>kCGBlendModeDestinationIn
+R = D*Sa
+Available in iOS 2.0 and later.
+Declared in CGContext.h.
+</pre></table></code></div></div><p>结果 = 目标色和原色透明度的加成，看起来正式所需要的。啦啦啦，还等什么呢，开始动手实现看看对不对吧～</p><p>为了以后使用方便，当然是祭出Category，先创建一个UIImage的类别：</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="c1">//  UIImage+Tint.h</span>
+
+<span class="cp">#import &lt;UIKit/UIKit.h&gt;
+</span>
+<span class="k">@interface</span> <span class="nc">UIImage</span> <span class="p">(</span><span class="nl">Tint</span><span class="p">)</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span> <span class="nf">imageWithTintColor</span><span class="p">:(</span><span class="n">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nv">tintColor</span><span class="p">;</span>
+
+<span class="k">@end</span>
+</pre></table></code></div></div><p>暂时先这样，当然我们也可以创建一个类方法直接完成从bundle读取图片然后加tintColor，但是很多时候并不如上面一个实例方法方便（比如想要从非bundle的地方获取图片），这个问题之后再说。那么就按照之前设想的步骤来实现吧：</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+</pre><td class="rouge-code"><pre><span class="c1">//  UIImage+Tint.m</span>
+
+<span class="cp">#import "UIImage+Tint.h"
+</span>
+<span class="k">@implementation</span> <span class="nc">UIImage</span> <span class="p">(</span><span class="nl">Tint</span><span class="p">)</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span> <span class="nf">imageWithTintColor</span><span class="p">:(</span><span class="n">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nv">tintColor</span>
+<span class="p">{</span>
+    <span class="c1">//We want to keep alpha, set opaque to NO; Use 0.0f for scale to use the scale factor of the device’s main screen.</span>
+    <span class="n">UIGraphicsBeginImageContextWithOptions</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">NO</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">);</span>
+    <span class="p">[</span><span class="n">tintColor</span> <span class="nf">setFill</span><span class="p">];</span>
+    <span class="n">CGRect</span> <span class="n">bounds</span> <span class="o">=</span> <span class="n">CGRectMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span><span class="p">);</span>
+    <span class="n">UIRectFill</span><span class="p">(</span><span class="n">bounds</span><span class="p">);</span>
+    
+    <span class="c1">//Draw the tinted image in context</span>
+    <span class="p">[</span><span class="n">self</span> <span class="nf">drawInRect</span><span class="p">:</span><span class="n">bounds</span> <span class="nf">blendMode</span><span class="p">:</span><span class="n">kCGBlendModeDestinationIn</span> <span class="n">alpha</span><span class="o">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">];</span>
+    
+    <span class="n">UIImage</span> <span class="o">*</span><span class="n">tintedImage</span> <span class="o">=</span> <span class="n">UIGraphicsGetImageFromCurrentImageContext</span><span class="p">();</span>
+    <span class="n">UIGraphicsEndImageContext</span><span class="p">();</span>
+    
+    <span class="k">return</span> <span class="n">tintedImage</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="k">@end</span>
+</pre></table></code></div></div><p>简单明了，没有任何难点。测试之：<code class="language-plaintext highlighter-rouge">[[UIImage imageNamed:@"image"] imageWithTintColor:[UIColor orangeColor]];</code>，得到的结果为：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/blend_1.png" alt="使用kCGBlendModeDestinationIn模式的结果" /></p><p>嗯…怎么说呢，虽然tintColor的颜色是变了，但是总觉得怪怪的。仔细对比一下就会发现，原来灰色图里星星和周围的灰度渐变到了橙色的图里好像都消失了：星星整个变成了橙色，周围的一圈漂亮的光晕也没有了，这是神马情况啊…这种图能交差的话那算见鬼了，会被设计和产品打死的吧。对于无渐变的纯色图的图来说直接用上面的方法是没问题的，但是现在除了Metro的大色块以外哪里无灰度渐变的设计啊…检查一下使用的blend，<code class="language-plaintext highlighter-rouge">R = D * Sa</code>，恍然大悟，我们虽然保留了原色的透明度，但是却把它的所有的灰度信息弄丢了。怎么办？继续刨<code class="language-plaintext highlighter-rouge">CGBlendMode</code>的文档吧，那么多blend模式应该总有我们需要的。功夫不负有心人，<code class="language-plaintext highlighter-rouge">kCGBlendModeOverlay</code>一副嗷嗷待选的样子：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre>kCGBlendModeOverlay
+Either multiplies or screens the source image samples with the background image samples, depending on the background color. The result is to overlay the existing image samples while preserving the highlights and shadows of the background. The background color mixes with the source image to reflect the lightness or darkness of the background.
+Available in iOS 2.0 and later.
+Declared in CGContext.h.
+</pre></table></code></div></div><p>kCGBlendModeOverlay可以保持背景色的明暗，也就是灰度信息，听起来正是我们需要的。加入到声明中，并且添加相应的实现( 顺便重构一下原来的代码 :) )：</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="c1">//  UIImage+Tint.h</span>
+
+<span class="cp">#import &lt;UIKit/UIKit.h&gt;
+</span>
+<span class="k">@interface</span> <span class="nc">UIImage</span> <span class="p">(</span><span class="nl">Tint</span><span class="p">)</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span> <span class="nf">imageWithTintColor</span><span class="p">:(</span><span class="n">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nv">tintColor</span><span class="p">;</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span> <span class="nf">imageWithGradientTintColor</span><span class="p">:(</span><span class="n">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nv">tintColor</span><span class="p">;</span>
+
+<span class="k">@end</span>
+</pre></table></code></div></div><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+</pre><td class="rouge-code"><pre><span class="c1">//  UIImage+Tint.m</span>
+
+<span class="cp">#import "UIImage+Tint.h"
+</span>
+<span class="k">@implementation</span> <span class="nc">UIImage</span> <span class="p">(</span><span class="nl">Tint</span><span class="p">)</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span> <span class="nf">imageWithTintColor</span><span class="p">:(</span><span class="n">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nv">tintColor</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nf">imageWithTintColor</span><span class="p">:</span><span class="n">tintColor</span> <span class="nf">blendMode</span><span class="p">:</span><span class="n">kCGBlendModeDestinationIn</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span> <span class="nf">imageWithGradientTintColor</span><span class="p">:(</span><span class="n">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nv">tintColor</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nf">imageWithTintColor</span><span class="p">:</span><span class="n">tintColor</span> <span class="nf">blendMode</span><span class="p">:</span><span class="n">kCGBlendModeOverlay</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span> <span class="nf">imageWithTintColor</span><span class="p">:(</span><span class="n">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nv">tintColor</span> <span class="nf">blendMode</span><span class="p">:(</span><span class="n">CGBlendMode</span><span class="p">)</span><span class="nv">blendMode</span>
+<span class="p">{</span>
+    <span class="c1">//We want to keep alpha, set opaque to NO; Use 0.0f for scale to use the scale factor of the device’s main screen.</span>
+    <span class="n">UIGraphicsBeginImageContextWithOptions</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">NO</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">);</span>
+    <span class="p">[</span><span class="n">tintColor</span> <span class="nf">setFill</span><span class="p">];</span>
+    <span class="n">CGRect</span> <span class="n">bounds</span> <span class="o">=</span> <span class="n">CGRectMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span><span class="p">);</span>
+    <span class="n">UIRectFill</span><span class="p">(</span><span class="n">bounds</span><span class="p">);</span>
+    
+    <span class="c1">//Draw the tinted image in context</span>
+    <span class="p">[</span><span class="n">self</span> <span class="nf">drawInRect</span><span class="p">:</span><span class="n">bounds</span> <span class="nf">blendMode</span><span class="p">:</span><span class="n">blendMode</span> <span class="n">alpha</span><span class="o">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">];</span>
+    
+    <span class="n">UIImage</span> <span class="o">*</span><span class="n">tintedImage</span> <span class="o">=</span> <span class="n">UIGraphicsGetImageFromCurrentImageContext</span><span class="p">();</span>
+    <span class="n">UIGraphicsEndImageContext</span><span class="p">();</span>
+    
+    <span class="k">return</span> <span class="n">tintedImage</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">@end</span>
+</pre></table></code></div></div><p>完成，测试之…好吧，好尴尬，虽然颜色和周围的光这次对了，但是透明度又没了啊魂淡..一点不奇怪啊，因为<code class="language-plaintext highlighter-rouge">kCGBlendModeOverlay</code>本来就没承诺给你保留原图的透明度的说。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/blend_2.png" alt="使用kCGBlendModeOverlay模式的结果" /></p><p>那么..既然我们用<code class="language-plaintext highlighter-rouge">kCGBlendModeOverlay</code>能保留灰度信息，用<code class="language-plaintext highlighter-rouge">kCGBlendModeDestinationIn</code>能保留透明度信息，那就两个blendMode都用不就完事儿了么～尝试之，如果在blend绘图时不是<code class="language-plaintext highlighter-rouge">kCGBlendModeDestinationIn</code>模式的话，则再用<code class="language-plaintext highlighter-rouge">kCGBlendModeDestinationIn</code>画一次：</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+</pre><td class="rouge-code"><pre><span class="c1">//  UIImage+Tint.m</span>
+
+<span class="cp">#import "UIImage+Tint.h"
+</span>
+<span class="k">@implementation</span> <span class="nc">UIImage</span> <span class="p">(</span><span class="nl">Tint</span><span class="p">)</span>
+<span class="k">-</span> <span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span> <span class="nf">imageWithTintColor</span><span class="p">:(</span><span class="n">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nv">tintColor</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nf">imageWithTintColor</span><span class="p">:</span><span class="n">tintColor</span> <span class="nf">blendMode</span><span class="p">:</span><span class="n">kCGBlendModeDestinationIn</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span> <span class="nf">imageWithGradientTintColor</span><span class="p">:(</span><span class="n">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nv">tintColor</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">self</span> <span class="nf">imageWithTintColor</span><span class="p">:</span><span class="n">tintColor</span> <span class="nf">blendMode</span><span class="p">:</span><span class="n">kCGBlendModeOverlay</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="k">-</span> <span class="p">(</span><span class="n">UIImage</span> <span class="o">*</span><span class="p">)</span> <span class="nf">imageWithTintColor</span><span class="p">:(</span><span class="n">UIColor</span> <span class="o">*</span><span class="p">)</span><span class="nv">tintColor</span> <span class="nf">blendMode</span><span class="p">:(</span><span class="n">CGBlendMode</span><span class="p">)</span><span class="nv">blendMode</span>
+<span class="p">{</span>
+    <span class="c1">//We want to keep alpha, set opaque to NO; Use 0.0f for scale to use the scale factor of the device’s main screen.</span>
+    <span class="n">UIGraphicsBeginImageContextWithOptions</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">,</span> <span class="nb">NO</span><span class="p">,</span> <span class="mi">0</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">);</span>
+    <span class="p">[</span><span class="n">tintColor</span> <span class="nf">setFill</span><span class="p">];</span>
+    <span class="n">CGRect</span> <span class="n">bounds</span> <span class="o">=</span> <span class="n">CGRectMake</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">width</span><span class="p">,</span> <span class="n">self</span><span class="p">.</span><span class="n">size</span><span class="p">.</span><span class="n">height</span><span class="p">);</span>
+    <span class="n">UIRectFill</span><span class="p">(</span><span class="n">bounds</span><span class="p">);</span>
+    
+    <span class="c1">//Draw the tinted image in context</span>
+    <span class="p">[</span><span class="n">self</span> <span class="nf">drawInRect</span><span class="p">:</span><span class="n">bounds</span> <span class="nf">blendMode</span><span class="p">:</span><span class="n">blendMode</span> <span class="n">alpha</span><span class="o">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">];</span>
+    
+    <span class="k">if</span> <span class="p">(</span><span class="n">blendMode</span> <span class="o">!=</span> <span class="n">kCGBlendModeDestinationIn</span><span class="p">)</span> <span class="p">{</span>
+        <span class="p">[</span><span class="n">self</span> <span class="nf">drawInRect</span><span class="p">:</span><span class="n">bounds</span> <span class="nf">blendMode</span><span class="p">:</span><span class="n">kCGBlendModeDestinationIn</span> <span class="n">alpha</span><span class="o">:</span><span class="mi">1</span><span class="p">.</span><span class="mi">0</span><span class="n">f</span><span class="p">];</span>
+    <span class="p">}</span>
+    
+    <span class="n">UIImage</span> <span class="o">*</span><span class="n">tintedImage</span> <span class="o">=</span> <span class="n">UIGraphicsGetImageFromCurrentImageContext</span><span class="p">();</span>
+    <span class="n">UIGraphicsEndImageContext</span><span class="p">();</span>
+    
+    <span class="k">return</span> <span class="n">tintedImage</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">@end</span>
+</pre></table></code></div></div><p>结果如下：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2013/blend_3.png" alt="使用kCGBlendModeOverlay和kCGBlendModeDestinationIn模式的结果" /></p><p>已经很完美了，这样的话只要在代码里设定一下颜色，我们就能够很轻易地使用同样一套UI，将其blend为需要的颜色，来实现素材的重用了。唯一需要注意的是，因为每次使用<code class="language-plaintext highlighter-rouge">UIImage+Tint</code>的方法绘图时，都使用了CG的绘制方法，这就意味着每次调用都会是用到CPU的Offscreen drawing，大量使用的话可能导致性能的问题（主要对于iPhone 3GS或之前的设备，可能同时处理大量这样的绘制调用的能力会有不足）。关于CA和CG的性能的问题，打算在之后用一篇文章来介绍一下。对于这里的<code class="language-plaintext highlighter-rouge">UIImage+Tint</code>的实现，可以写一套缓存的机制，来确保大量重复的元素只在load的时候blend一次，之后将其缓存在内存中以快速读取。当然这是一个权衡的问题，在时间和空间中做出正确的平衡和选择，也正是程序设计的乐趣所在。</p><p>这篇文章中作为示例的工程和UIImage+Tint可以在<a href="https://github.com/onevcat/VVImageTint">Github</a>上找到，您可以随意玩弄..我相信也会是个来研究每种blend的特性的好机会～</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/%E6%9D%82%E8%B0%88/'>杂谈</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/ios/" class="post-tag no-text-decoration" >iOS</a> <a href="/tags/%E6%B8%B2%E6%9F%93/" class="post-tag no-text-decoration" >渲染</a> <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%9B%BE%E5%BD%A2/" class="post-tag no-text-decoration" >计算机图形</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=iOS中使用blend改变图片颜色 - OneV's Den&url=https://onevcat.com/2013/04/using-blending-in-ios/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=iOS中使用blend改变图片颜色 - OneV's Den&u=https://onevcat.com/2013/04/using-blending-in-ios/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=iOS中使用blend改变图片颜色 - OneV's Den&url=https://onevcat.com/2013/04/using-blending-in-ios/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=iOS中使用blend改变图片颜色 - OneV's Den&url=https://onevcat.com/2013/04/using-blending-in-ios/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2012/03/opencv-build-and-config/"><div class="card-body"> <span class="timeago small" > 2012-03-03 <i class="unloaded">2012-03-03T23:06:23+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>OpenCV 在 iOS 开发环境下的编译和配置</h3><div class="text-muted small"><p> 转载本文请保留以下原作者信息: 原作：OneV’s Den http://www.onevcat.com/2012/03/opencv-build-and-config/ 2014.5.3 更新 现在一般都直接使用方便的 CocoaPods 来进行依赖管理了，特别是对于像 OpenCV 这样关系复杂的类库来说尤为如此。可以访问 CocoaPods 的页面并搜索 OpenCV 找到相关的...</p></div></div></a></div><div class="card"> <a href="/2013/06/sprite-kit-start/"><div class="card-body"> <span class="timeago small" > 2013-06-16 <i class="unloaded">2013-06-16T00:51:18+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>WWDC 2013 Session笔记 - SpriteKit快速入门和新时代iOS游戏开发指南</h3><div class="text-muted small"><p> 这是我的WWDC2013系列笔记中的一篇，完整的笔记列表请参看这篇总览。本文仅作为个人记录使用，也欢迎在许可协议范围内转载或使用，但是还烦请保留原文链接，谢谢您的理解合作。如果您觉得本站对您能有帮助，您可以使用RSS或邮件方式订阅本站，这样您将能在第一时间获取本站信息。 本文涉及到的WWDC2013 Session有 Session 502 Introduction to Spri...</p></div></div></a></div><div class="card"> <a href="/2013/07/shader-tutorial-1/"><div class="card-body"> <span class="timeago small" > 2013-07-23 <i class="unloaded">2013-07-23T00:54:38+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>猫都能学会的Unity3D Shader入门指南（一）</h3><div class="text-muted small"><p> 动机 自己使用Unity3D也有一段时间了，但是很多时候是流于表面，更多地是把这个引擎简单地用作脚本控制，而对更深入一些的层次几乎没有了解。虽然说Unity引擎设计的初衷就是创建简单的不需要开发者操心的谁都能用的3D引擎，但是只是肤浅的使用，可能是无法达到随心所欲的境地的，因此，这种状况必须改变！从哪里开始呢，貌似有句话叫做会写Shader的都是高手，于是，想大概看看从Shader开始能不...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2013/04/ios-interview/" class="btn btn-outline-primary"><p>上级向的十个iOS面试问题</p></a> <a href="/2013/05/talk-about-warning/" class="btn btn-outline-primary"><p>谈谈Objective-C的警告</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

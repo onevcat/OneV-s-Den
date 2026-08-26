@@ -1,0 +1,257 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="WWDC 2014 Session笔记 - 可视化开发，IB 的新时代" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="本文是我的 WWDC 2014 笔记 中的一篇，涉及的 Session 有" /><meta property="og:description" content="本文是我的 WWDC 2014 笔记 中的一篇，涉及的 Session 有" /><link rel="canonical" href="https://onevcat.com/2014/10/ib-customize-view/" /><meta property="og:url" content="https://onevcat.com/2014/10/ib-customize-view/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2014-10-25T00:02:07+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="WWDC 2014 Session笔记 - 可视化开发，IB 的新时代" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"本文是我的 WWDC 2014 笔记 中的一篇，涉及的 Session 有","url":"https://onevcat.com/2014/10/ib-customize-view/","@type":"BlogPosting","headline":"WWDC 2014 Session笔记 - 可视化开发，IB 的新时代","dateModified":"2014-10-25T00:02:07+09:00","datePublished":"2014-10-25T00:02:07+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2014/10/ib-customize-view/"},"@context":"https://schema.org"}</script><title>WWDC 2014 Session笔记 - 可视化开发，IB 的新时代 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>WWDC 2014 Session笔记 - 可视化开发，IB 的新时代</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>WWDC 2014 Session笔记 - 可视化开发，IB 的新时代</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Sat, Oct 25, 2014, 12:02 AM +0900" > 2014-10-25 <i class="unloaded">2014-10-25T00:02:07+09:00</i> </span></div></div><div class="post-content"><p>本文是我的 <a href="http://onevcat.com/2014/07/developer-should-know-about-ios8/">WWDC 2014 笔记</a> 中的一篇，涉及的 Session 有</p><ul><li><a href="http://devstreaming.apple.com/videos/wwdc/2014/401xxfkzfrjyb93/401/401_whats_new_in_xcode_6.pdf?dl=1">What’s New in Xcode 6</a><li><a href="http://devstreaming.apple.com/videos/wwdc/2014/411xx0xo98zzoor/411/411_whats_new_in_interface_builder.pdf?dl=1">What’s New in Interface Builder</a></ul><p>如果说在 WWDC 14 之前 Interface Builder (IB) 还是可选项的话，我相信在此之后 IB 已经是毫无疑问的 iOS 开发标配了，纯代码界面可以说已经渐行渐远，可以逐渐离开我们的视线了。</p><p>一言蔽之，就是 Apple 在催促大家使用 IB，特别是 Storyboard 做为界面开发的唯一选择这件事上，下定了决心，也做出了实际的行动。</p><p>如果是纯代码 UI 在此之前还能<a href="http://onevcat.com/2013/12/code-vs-xib-vs-storyboard/">有所挣扎</a>的话，那么压死这个方案的最后一根稻草就是 Size Classes。我已经在<a href="http://onevcat.com/2014/07/ios-ui-unique/">之前的笔记</a>中对这方面内容做了些简单的探索，但是还远远不够，也许在将来某一天我还会重新整理下 Size Classes 这个主题的内容，以及使用 IB 适配不同屏幕的一些实践，但是不是这次。这篇文章里想要介绍的是 Xcode 6 中为 IB 锦上添花的一个特性，那就是实时地预览自定义 view，这个特性让 IB 开发的流程更加直观可视，也可以减少很多无聊的参数配置和 UI 设置的时间。</p><h2 id="以前-ib-的不足">以前 IB 的不足</h2><p>作为可视化开发的工具，IB 和 Storyboard 在组织和构建 ViewController 及其导航关系时已经做得很好的。对于 ViewController 的 view 画布上的诸如 <code class="language-plaintext highlighter-rouge">UILabel</code> 或者 <code class="language-plaintext highlighter-rouge">UIImageView</code> 这样的基础的类，IB 是能够很好地支持并实时在设计的时候进行显示的。但是对于那些自定义的类，之前的 IB 就束手无策了。我们能做的仅仅是在 IB 中拖放一个 <code class="language-plaintext highlighter-rouge">UIView</code>，然后通过将 <code class="language-plaintext highlighter-rouge">Custom Class</code> 属性设置为我们自定义的 <code class="language-plaintext highlighter-rouge">UIView</code> 的子类来在 “暗示” IB 在运行时初始化一个对应的子类。这样的问题是在开发自定义的 view 时，我们不得不一遍遍地修改代码并运行，再根据运行结果进行调整和修正。而实际上，单一对某个 view 的调试这种问题只涉及到设计层面，而非运行层面，如果我们能够在设计时就有一个实时地对自定义 view 的预览该多好。</p><p>没错，Apple 也是这么想的，并且在 Xcode 6 中，我们就已经可以创建这样的 <code class="language-plaintext highlighter-rouge">UIView</code> 子类了：利用新加入的 <code class="language-plaintext highlighter-rouge">@IBDesignable</code> 和 <code class="language-plaintext highlighter-rouge">@IBInspectable</code>，我们可以非常方便地完成在 IB 中实时显示自定义视图，甚至和其他一些内置 <code class="language-plaintext highlighter-rouge">UIView</code> 子类一样，直接在 IB 的 Inspector 改变某些属性，甚至我们还能通过设置断点来在 IB 中显示视图时进行调试。新的这些特性非常强大，使用起来却出乎意料的简单。下面我将通过一个实际的小例子加以说明。最终的完整例子已经放在 <a href="https://github.com/onevcat/ClockFaceView">GitHub</a> 上了，现在我们从开始一步步开始吧。这些代码基于 Xcode 6.1 和 Swift 1.1。</p><h2 id="时钟-view-的例子">时钟 view 的例子</h2><h3 id="单纯的自定义-view">单纯的自定义 view</h3><p>假设我们有一个自定义的 view，用来描画一个时钟，如果有在读 <a href="http://objc.io">objc.io</a> 或者 <a href="http://objccn.io">objc 中国</a> 的读者，可能会发现这段代码是<a href="http://objccn.io/issue-12-2/">动画一章一篇文章里代码</a>的改造过的 Swift 版本。</p><p>在这里我们有一个自定义的 <code class="language-plaintext highlighter-rouge">UIView</code> 的子类：<code class="language-plaintext highlighter-rouge">ClockFaceView</code>，其中嵌套了一个 <code class="language-plaintext highlighter-rouge">ClockFaceLayer</code> 作为 layer。如果我们不需要动画，我们也可以简单地使用 <code class="language-plaintext highlighter-rouge">-drawRect:</code> 来完成绘制。但是在这里我们还是选择使用添加 <code class="language-plaintext highlighter-rouge">CALayer</code> 的方式，这会使之后做动画简单好几个数量级 – 因为我们可以简单地通过 CA 动画而不是每帧去计算绘制来完成动画 (在这篇帖子里不会涉及这些内容)。</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+</pre><td class="rouge-code"><pre>// ClockFaceView.swift
+import UIKit
+
+class ClockFaceView : UIView {
+    
+    class ClockFaceLayer : CAShapeLayer {
+        
+        private let hourHand: CAShapeLayer
+        private let minuteHand: CAShapeLayer
+        
+        override init() {
+            hourHand = CAShapeLayer()
+            minuteHand = CAShapeLayer()
+            
+            super.init()
+            frame = CGRect(x: 0, y: 0, width: 200, height: 200)
+            path = UIBezierPath(ovalInRect: CGRectInset(frame, 5, 5)).CGPath
+            fillColor = UIColor.whiteColor().CGColor
+            strokeColor = UIColor.blackColor().CGColor
+            lineWidth = 4
+            
+            hourHand.path = UIBezierPath(rect: CGRect(x: -2, y: -70, width: 4, height: 70)).CGPath
+            hourHand.fillColor = UIColor.blackColor().CGColor
+            hourHand.position = CGPoint(x: bounds.size.width / 2, y: bounds.size.height / 2)
+            addSublayer(hourHand)
+            
+            minuteHand.path = UIBezierPath(rect: CGRect(x: -1, y: -90, width: 2, height: 90)).CGPath
+            minuteHand.fillColor = UIColor.blackColor().CGColor
+            minuteHand.position = CGPoint(x: bounds.size.width / 2, y: bounds.size.height / 2)
+            addSublayer(minuteHand)   
+        }
+
+        required init(coder aDecoder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+
+        func refreshToHour(hour: Int, minute: Int) {
+            hourHand.setAffineTransform(CGAffineTransformMakeRotation(CGFloat(Double(hour) / 12.0 * 2.0 * M_PI)))
+            minuteHand.setAffineTransform(CGAffineTransformMakeRotation(CGFloat(Double(minute) / 60.0 * 2.0 * M_PI)))
+        }
+    }
+    
+    private let clockFace: ClockFaceLayer
+    
+    var time: NSDate? {
+        didSet {
+            refreshTime()
+        }
+    }
+    
+    private func refreshTime() {
+        if let realTime = time {
+            if let calendar = NSCalendar(calendarIdentifier: NSGregorianCalendar) {
+                let components = calendar.components(NSCalendarUnit.CalendarUnitHour |
+                                                     NSCalendarUnit.CalendarUnitMinute, fromDate: realTime)
+                clockFace.refreshToHour(components.hour, minute: components.minute)
+            }
+        }
+    }
+    
+    override init(frame: CGRect) {
+        clockFace = ClockFaceLayer()
+        super.init(frame: frame)
+        layer.addSublayer(clockFace)
+    }
+
+    required init(coder aDecoder: NSCoder) {
+        clockFace = ClockFaceLayer()
+        super.init(coder: aDecoder)
+        layer.addSublayer(clockFace)
+    }
+}
+</pre></table></code></div></div><p>如果你没有耐心看完的话也没有关系，简单来说就是 <code class="language-plaintext highlighter-rouge">ClockFaceView</code> 在被初始化时会向自己添加一个 <code class="language-plaintext highlighter-rouge">ClockFaceLayer</code>，用来显示分针和时针。通过设置 <code class="language-plaintext highlighter-rouge">time</code> 属性我们可以更新时钟的位置。因为提供了 <code class="language-plaintext highlighter-rouge">initWithCoder:</code>，因此我们是可以直接从 IB 里加载这个 view 的。方法就是最普通的类型指定，并让 app 在加载时初始化对应的类型：在新建的 Single View Application 的 Storyboard 中添加一个 <code class="language-plaintext highlighter-rouge">UIView</code> 控件，然后设置好约束，并且将 Class 设置为 <code class="language-plaintext highlighter-rouge">ClockFaceView</code>：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2014/ibdesign-1.png" alt="" /></p><p>运行应用，可以看到 <code class="language-plaintext highlighter-rouge">ClockFaceView</code> 被正确地初始化了，指针指向默认的 12 点整。通过为这个 view 建立 outlet 或者用其他 (比如 tag 的方式，虽然我不太喜欢这么做，但是我见过不少人这么弄) 方法找到这个 <code class="language-plaintext highlighter-rouge">ClockFaceView</code> 并设置时间的话，我们可以正确地改变其时针和分针的指向：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre>// ViewController.swift
+class ViewController: UIViewController {
+
+    @IBOutlet weak var clockFaceView: ClockFaceView!
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        // Do any additional setup after loading the view, typically from a nib.
+
+        clockFaceView.time = NSDate()
+    }
+}
+</pre></table></code></div></div><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2014/ibdesign-2.png" alt="" /></p><h3 id="ibdesignableib-中自定义-view-的渲染">IBDesignable，IB 中自定义 view 的渲染</h3><p>把大象装进冰箱有三个步骤，而让 IB 显示自定义 view 居然只有一个步骤！</p><p>只要我们在 <code class="language-plaintext highlighter-rouge">class ClockFaceView : UIView</code> 这个类型定义上面加上一个 <code class="language-plaintext highlighter-rouge">@IBDesignable</code> 的标记，就完成了！</p><p>在进行更改并等待编译和 IB 自动识别后，我们就可以在 IB 中原来一块白色的地方看到初始化后的时钟了：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2014/ibdesign-4.png" alt="" /></p><p>如你所想，这个标记的作用是告诉 IB 如果遇到对应的 <code class="language-plaintext highlighter-rouge">UIView</code> 子类的话，可以对其进行渲染。深入一些来说，IB 将寻找你的子类中的 <code class="language-plaintext highlighter-rouge">-initWithFrame:</code> 方法，并给入当前自定义 view 的 frame 对其进行调用。需要注意的是，在使用 IB 初始化 view 时，被调用的是 <code class="language-plaintext highlighter-rouge">-initWithCoder:</code> 而非 frame 版本，所以说在想要实现自定义 view 在 IB 中的预览的话，我们至少必须实现这两个版本的初始化方法。不过好消息是，如果我们只添加了 <code class="language-plaintext highlighter-rouge">@IBDesignable</code>，而忘了实现 <code class="language-plaintext highlighter-rouge">-initWithFrame:</code> 的话，在 IB 渲染 view 时会给我们抛出大大的错误，所以因为遗漏而花大量时间在查找哪里出了问题这种事情应该不太可能发生。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2014/ibdesign-3.png" alt="" /></p><h3 id="仅设计时的配置">仅设计时的配置</h3><p>现在在 IB 中我们显示的时钟只能默认地指向 0 点 0 分，这是因为在设计的时候，我们并没有机会去设定这个 view 的 <code class="language-plaintext highlighter-rouge">time</code> 属性，所以时针和分针都停留在了初始的位置上。在 Xcode 6 中可以在 <code class="language-plaintext highlighter-rouge">@IBDesignable</code> 标记的 <code class="language-plaintext highlighter-rouge">UIView</code> 子类中添加一个 <code class="language-plaintext highlighter-rouge">prepareForInterfaceBuilder</code> 方法。每次在 IB 即将把这个自定义的 view 渲染到画布之前会调用这个方法进行最后的配置。比如我们想在 IB 中这个时钟的 view 上显示当前时间的话，可以在 <code class="language-plaintext highlighter-rouge">ClockFaceView</code> 中加入这个方法：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre>class ClockFaceView : UIView {
+    //...
+
+    override func prepareForInterfaceBuilder() {
+        time = NSDate()
+    }
+
+    //...
+}
+</pre></table></code></div></div><p>保存并切换到 IB，静待自动编译和执行，可以看到类似下面的结果：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2014/ibdesign-5.png" alt="" /></p><p>挺好的…现在我们的 IB 不仅被用来设计界面了，还兼备了看时间的功能 - 虽然这个时钟并不是实时的，只有在切换编辑器界面到 IB 或者是修改了相关文件时才会进行刷新。</p><p>另外虽然这篇文章没有涉及，但是需要一提的是，如果你想要在 <code class="language-plaintext highlighter-rouge">prepareForInterfaceBuilder</code> 里加载图片的话，需要弄清楚 bundle 的概念。IB 使用的 bundle 和 app 运行时的 <code class="language-plaintext highlighter-rouge">mainBundle</code> 不是一个概念，我们需要在设计时的 IB 的 bundle 可以通过在自定义的 view 自身的 bundle 中进行查找并使用。比如想要加载一张名为 <code class="language-plaintext highlighter-rouge">image.png</code> 的图片的话：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre>let bundle = NSBundle(forClass: self.dynamicType)
+if let fileName = bundle.pathForResource("image", ofType: "png") {
+    if let image = UIImage(contentsOfFile: fileName) {
+        // 在此处可以使用 image
+    }
+}
+</pre></table></code></div></div><p>在使用 IB 中的方法读取资源时一定要注意运行环境不同这一点。</p><h3 id="用-ibinspectable-在-ib-中调整属性">用 IBInspectable 在 IB 中调整属性</h3><p>IBDesignable 的 view 的另一个很方便的地方是我们可以向 Inspector 中添加自定义的内容了。通过这样做，就可以直接在 IB 中对 view 进行一些编辑和配置。以前对于自定义 view，我们通常只能通过用类似 <code class="language-plaintext highlighter-rouge">IBOutlet</code> 的方式在代码中进行设置，或者是配置 Runtime Attribute 来进行，而现在我们有能力直接通过像给一个 <code class="language-plaintext highlighter-rouge">UILabel</code> 设定字符串或者给 <code class="language-plaintext highlighter-rouge">UIImageView</code> 设定图片这样的方式来设置自定义 view 的部分属性了，这也使得在 IB 中的自定义 view 的易用性和完整性得到了极大增强。</p><p>使用方法也非常简单，只需要在某个属性前加上 <code class="language-plaintext highlighter-rouge">@IBInspectable</code> 标记即可。比如我们可以在 <code class="language-plaintext highlighter-rouge">ClockFaceView</code> 中加入以下代码：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre>class ClockFaceView : UIView {
+    //...
+
+    @IBInspectable
+    var color: UIColor? {
+        didSet {
+            refreshColor()
+        }
+    }
+    
+    private func refreshColor() {
+        if let realColor = color {
+            clockFace.refreshColor(realColor)
+        }
+    }
+
+    //...
+}
+</pre></table></code></div></div><p>然后在 <code class="language-plaintext highlighter-rouge">ClockFaceLayer</code> 中加入对应的 <code class="language-plaintext highlighter-rouge">refreshColor</code> 方法：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre>class ClockFaceLayer : CAShapeLayer {
+    //...
+
+    func refreshColor(color: UIColor) {
+        hourHand.fillColor = color.CGColor
+        minuteHand.fillColor = color.CGColor
+        strokeColor = color.CGColor
+    }
+
+    //...
+}
+</pre></table></code></div></div><p>我们对 <code class="language-plaintext highlighter-rouge">ClockFaceView</code> 中的 <code class="language-plaintext highlighter-rouge">color</code> 属性添加了 <code class="language-plaintext highlighter-rouge">@IBInspectable</code>，在保存和编译后，这会在 IB 中对应的 view 的 Attribute Inspector 中添加一个颜色选取的属性：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2014/ibdesign-6.png" alt="" /></p><p>当我们在 IB 中设置这个属性的时候，对应的 <code class="language-plaintext highlighter-rouge">didSet</code> 将会被执行，通过 <code class="language-plaintext highlighter-rouge">refreshColor</code> 方法就可以直接改变 IB 中这个 view 的时针和分针的颜色了。</p><p>注意这个改变并不像 <code class="language-plaintext highlighter-rouge">prepareForInterfaceBuilder</code> 那样仅发生在设计时，我们直接运行代码，会看到运行时的颜色也是发生了改变的。其实 <code class="language-plaintext highlighter-rouge">@IBInspectable</code> 并没有做什么太神奇的事情，我们如果查看 IB 中这个 view 的 Identity Inspector 的话会看到刚才所设定的颜色值被作为了 Runtime Attribute 被使用了。其实手动直接在 Runtime Attributes 中设定颜色也有同样的效果，因此 <code class="language-plaintext highlighter-rouge">@IBInspectable</code> 唯一做的事情就是在 IB 面板上为我们提供了一个很方便地修改属性的入口，别没有其他太多神奇之处。</p><p>这个原理同时也决定了 <code class="language-plaintext highlighter-rouge">@IBInspectable</code> 是有一定限制的，即只有能够在 Runtime Attributes 中指定的类型才能够被标记后显示在 IB 中，这些类型包括 <code class="language-plaintext highlighter-rouge">Boolean</code>，<code class="language-plaintext highlighter-rouge">Number</code>，<code class="language-plaintext highlighter-rouge">String</code>，<code class="language-plaintext highlighter-rouge">Ponit</code>，<code class="language-plaintext highlighter-rouge">Size</code>，<code class="language-plaintext highlighter-rouge">Rect</code>，<code class="language-plaintext highlighter-rouge">Range</code>，<code class="language-plaintext highlighter-rouge">Color</code> 和 <code class="language-plaintext highlighter-rouge">Image</code>。像是如果想要把类似 <code class="language-plaintext highlighter-rouge">time</code> 这样的属性标记为 <code class="language-plaintext highlighter-rouge">@IBInspectable</code> 的话，在 IB 中还是无法显示的，因为 Xcode 并没有准备 <code class="language-plaintext highlighter-rouge">NSDate</code> 类型。不过其实通过 KVC 进行动态设定这种事情在原理上是没有问题的，界面的支持应该也可以通过 <a href="http://onevcat.com/2013/02/xcode-plugin/">Xcode 插件</a>进行扩展，感觉上并不是一件特别困难的事情，有兴趣的同学不妨尝试，应该挺有意思 (当然也有可能会是个坑)。</p><h3 id="自定义渲染-view-的调试">自定义渲染 view 的调试</h3><p>对于简单的自定义 view 来说，实时显示和属性设定什么的并不是一件很难的事情。但是对于那些比较复杂的 view，如果我们遇到某些渲染上的问题的话，如果只能靠猜的话，就未免太可怜了。幸好，Apple 为 view 在 IB 中的渲染的调试也提供了相应的方法。在 view 的源代码中设置好断点，然后切到 IB，点选中我们的自定义的 view 后，我们就可以使用菜单里的 Editor -&gt; Debug Selected Views 来让 IB 对这个自定义 view 进行渲染。如果触发了代码中的断点，那我们的代码就会被暂停在断点处，lldb 也会就位听我们调遣。一切都感觉良好，不是么？</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2014/ibdesign-7.png" alt="" /></p><h2 id="总结">总结</h2><p>Xcode 6 中的很多 key feature 都是基于或者重度依赖 Interface Builder 的。比如 Size Classes，比如 xib 的启动画面，再比如本篇文章中说到的自定义 view 渲染等等。在 iOS 或者 Mac 开发中，IB 现在处于一个比以往任何时候都重要的时期，使用 IB 和这些方便的特性进行开发已经从可选项变为了必须项。很难想象没有 IB 的话要怎么才能使用这些工具，更进一步地说，很难想象没有 IB 的话开发者需要浪费多少时间在本应该迅速完成的工作中。</p><p>如果你还在使用代码来构建 UI 的话，现在也许是你最后的放下代码，拿起 IB 武装自己的机会了。一开始可能会有迷惑，会不习惯，会觉着被拽出了舒适区浑身无力。但是一旦适应以后，你不仅能够收获最新的技能和工具，也有机会站在一个全新的高度，来审视 app 中界面开发的种种，并从中找到乐趣。</p><p>P.S. 如果你不知道要从哪里入手，推荐可以从 raywenderlich 家的这篇 <a href="http://www.raywenderlich.com/50317/beginning-auto-layout-tutorial-in-ios-7-part-1">AutoLayout 教程</a>开始你的 IB 之旅。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/wwdc/'>WWDC</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/wwdc/" class="post-tag no-text-decoration" >wwdc</a> <a href="/tags/storyboard/" class="post-tag no-text-decoration" >storyboard</a> <a href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/" class="post-tag no-text-decoration" >开发者体验</a> <a href="/tags/xcode/" class="post-tag no-text-decoration" >xcode</a> <a href="/tags/ui/" class="post-tag no-text-decoration" >ui</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=WWDC 2014 Session笔记 - 可视化开发，IB 的新时代 - OneV's Den&url=https://onevcat.com/2014/10/ib-customize-view/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=WWDC 2014 Session笔记 - 可视化开发，IB 的新时代 - OneV's Den&u=https://onevcat.com/2014/10/ib-customize-view/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=WWDC 2014 Session笔记 - 可视化开发，IB 的新时代 - OneV's Den&url=https://onevcat.com/2014/10/ib-customize-view/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=WWDC 2014 Session笔记 - 可视化开发，IB 的新时代 - OneV's Den&url=https://onevcat.com/2014/10/ib-customize-view/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2013/12/code-vs-xib-vs-storyboard/"><div class="card-body"> <span class="timeago small" > 2013-12-31 <i class="unloaded">2013-12-31T01:02:21+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>代码手写UI，xib和StoryBoard间的博弈，以及Interface Builder的一些小技巧</h3><div class="text-muted small"><p> 最近接触了几个刚入门的iOS学习者，他们之中存在一个普遍和困惑和疑问，就是应该如何制作UI界面。iOS应用是非常重视用户体验的，可以说绝大多数的应用成功与否与交互设计以及UI是否漂亮易用有着非常大的关系。而随着iOS开发发展至今，可以说在UI制作上大家逐渐分化为了三种主要流派：使用代码手写UI及布局；使用单个xib文件组织viewController或者view；使用StoryBoard来通...</p></div></div></a></div><div class="card"> <a href="/2017/04/storyboard-argue/"><div class="card-body"> <span class="timeago small" > 2017-04-27 <i class="unloaded">2017-04-27T10:45:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>再看关于 Storyboard 的一些争论</h3><div class="text-muted small"><p> 从 iOS 5 的时代 Apple 推出 Storyboard (以下简称 SB) 后，关于使用这种方式构建 UI 的争论就在 Cocoa 开发者社区里一直发生着。我在 2013 年写过一篇关于代码手写 UI，xib 和 SB 之间的取舍的文章。在四五年后的今天，SB 得到了多次进化，大家也积攒了很多关于使用 SB 进行开发的经验，我们不妨再回头看看当初的忧虑，并结合 SB 开发的现状，来提...</p></div></div></a></div><div class="card"> <a href="/2014/07/ios-ui-unique/"><div class="card-body"> <span class="timeago small" > 2014-07-29 <i class="unloaded">2014-07-29T10:54:18+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>WWDC 2014 Session笔记 - iOS界面开发的大一统</h3><div class="text-muted small"><p> 本文是我的 WWDC 2014 笔记 中的一篇，涉及的 Session 有 What’s New in Cocoa Touch Building Adaptive Apps with UIKit What’s New in Interface Builder View Controller Advancements in iOS 8 A Look Inside P...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2014/09/bye-kayac/" class="btn btn-outline-primary"><p>偷得浮生半月闲</p></a> <a href="/2014/11/watch-kit/" class="btn btn-outline-primary"><p>Apple WatchKit 初探</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

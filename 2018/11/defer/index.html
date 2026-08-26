@@ -1,0 +1,203 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="关于 Swift defer 的正确使用" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="其实这篇文章的缘起是由于在对 Kingfisher 做重构的时候，因为自己对 defer 的理解不够准确，导致了一个 bug。所以想藉由这篇文章探索一下 defer 这个关键字的一些 edge case。" /><meta property="og:description" content="其实这篇文章的缘起是由于在对 Kingfisher 做重构的时候，因为自己对 defer 的理解不够准确，导致了一个 bug。所以想藉由这篇文章探索一下 defer 这个关键字的一些 edge case。" /><link rel="canonical" href="https://onevcat.com/2018/11/defer/" /><meta property="og:url" content="https://onevcat.com/2018/11/defer/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2018-11-16T10:38:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="关于 Swift defer 的正确使用" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"其实这篇文章的缘起是由于在对 Kingfisher 做重构的时候，因为自己对 defer 的理解不够准确，导致了一个 bug。所以想藉由这篇文章探索一下 defer 这个关键字的一些 edge case。","url":"https://onevcat.com/2018/11/defer/","@type":"BlogPosting","headline":"关于 Swift defer 的正确使用","dateModified":"2018-11-16T10:38:00+09:00","datePublished":"2018-11-16T10:38:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2018/11/defer/"},"@context":"https://schema.org"}</script><title>关于 Swift defer 的正确使用 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>关于 Swift defer 的正确使用</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>关于 Swift defer 的正确使用</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Fri, Nov 16, 2018, 10:38 AM +0900" > 2018-11-16 <i class="unloaded">2018-11-16T10:38:00+09:00</i> </span></div><div> 最后更新: <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Thu, Oct 22, 2020, 5:03 PM +0900" > 2020-10-22 <i class="unloaded">2020-10-22T17:03:49+09:00</i> </span></div></div><div class="post-content"><p>其实这篇文章的缘起是由于在对 <a href="https://github.com/onevcat/Kingfisher/">Kingfisher</a> 做重构的时候，因为自己对 <code class="language-plaintext highlighter-rouge">defer</code> 的理解不够准确，导致了一个 bug。所以想藉由这篇文章探索一下 <code class="language-plaintext highlighter-rouge">defer</code> 这个关键字的一些 edge case。</p><h3 id="典型用法">典型用法</h3><p>Swift 里的 <code class="language-plaintext highlighter-rouge">defer</code> 大家应该都很熟悉了，<code class="language-plaintext highlighter-rouge">defer</code> 所声明的 block 会在当前代码执行退出后被调用。正因为它提供了一种延时调用的方式，所以一般会被用来做资源释放或者销毁，这在某个函数有多个返回出口的时候特别有用。比如下面的通过 <code class="language-plaintext highlighter-rouge">FileHandle</code> 打开文件进行操作的方法：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">operateOnFile</span><span class="p">(</span><span class="nv">descriptor</span><span class="p">:</span> <span class="kt">Int32</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">fileHandle</span> <span class="o">=</span> <span class="kt">FileHandle</span><span class="p">(</span><span class="nv">fileDescriptor</span><span class="p">:</span> <span class="n">descriptor</span><span class="p">)</span>
+    
+    <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="n">fileHandle</span><span class="o">.</span><span class="nf">readDataToEndOfFile</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="cm">/* onlyRead */</span> <span class="p">{</span>
+        <span class="n">fileHandle</span><span class="o">.</span><span class="nf">closeFile</span><span class="p">()</span>
+        <span class="k">return</span>
+    <span class="p">}</span>
+    
+    <span class="k">let</span> <span class="nv">shouldWrite</span> <span class="o">=</span> <span class="cm">/* 是否需要写文件 */</span>
+    <span class="k">guard</span> <span class="n">shouldWrite</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="n">fileHandle</span><span class="o">.</span><span class="nf">closeFile</span><span class="p">()</span>
+        <span class="k">return</span>
+    <span class="p">}</span>
+    
+    <span class="n">fileHandle</span><span class="o">.</span><span class="nf">seekToEndOfFile</span><span class="p">()</span>
+    <span class="n">fileHandle</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="n">someData</span><span class="p">)</span>
+    <span class="n">fileHandle</span><span class="o">.</span><span class="nf">closeFile</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>我们在不同的地方都需要调用 <code class="language-plaintext highlighter-rouge">fileHandle.closeFile()</code> 来关闭文件，这里更好的做法是用 <code class="language-plaintext highlighter-rouge">defer</code> 来统一处理。这不仅可以让我们就近在资源申请的地方就声明释放，也减少了未来添加代码时忘记释放资源的可能性：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">operateOnFile</span><span class="p">(</span><span class="nv">descriptor</span><span class="p">:</span> <span class="kt">Int32</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">fileHandle</span> <span class="o">=</span> <span class="kt">FileHandle</span><span class="p">(</span><span class="nv">fileDescriptor</span><span class="p">:</span> <span class="n">descriptor</span><span class="p">)</span>
+    <span class="k">defer</span> <span class="p">{</span> <span class="n">fileHandle</span><span class="o">.</span><span class="nf">closeFile</span><span class="p">()</span> <span class="p">}</span>
+    <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="n">fileHandle</span><span class="o">.</span><span class="nf">readDataToEndOfFile</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="cm">/* onlyRead */</span> <span class="p">{</span> <span class="k">return</span> <span class="p">}</span>
+    
+    <span class="k">let</span> <span class="nv">shouldWrite</span> <span class="o">=</span> <span class="cm">/* 是否需要写文件 */</span>
+    <span class="k">guard</span> <span class="n">shouldWrite</span> <span class="k">else</span> <span class="p">{</span> <span class="k">return</span> <span class="p">}</span>
+    
+    <span class="n">fileHandle</span><span class="o">.</span><span class="nf">seekToEndOfFile</span><span class="p">()</span>
+    <span class="n">fileHandle</span><span class="o">.</span><span class="nf">write</span><span class="p">(</span><span class="n">someData</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h3 id="defer-的作用域"><code class="language-plaintext highlighter-rouge">defer</code> 的作用域</h3><p>在做 Kingfisher 重构时，对线程安全的保证我选择使用了 <code class="language-plaintext highlighter-rouge">NSLock</code> 来完成。简单说，会有一些类似这样的方法：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">lock</span> <span class="o">=</span> <span class="kt">NSLock</span><span class="p">()</span>
+<span class="k">let</span> <span class="nv">tasks</span><span class="p">:</span> <span class="p">[</span><span class="kt">ID</span><span class="p">:</span> <span class="kt">Task</span><span class="p">]</span> <span class="o">=</span> <span class="p">[:]</span>
+
+<span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="n">_</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">ID</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">lock</span><span class="o">.</span><span class="nf">lock</span><span class="p">()</span>
+    <span class="k">defer</span> <span class="p">{</span> <span class="n">lock</span><span class="o">.</span><span class="nf">unlock</span><span class="p">()</span> <span class="p">}</span>
+    <span class="n">tasks</span><span class="p">[</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>对于 <code class="language-plaintext highlighter-rouge">tasks</code> 的操作可能发生在不同线程中，用 <code class="language-plaintext highlighter-rouge">lock()</code> 来获取锁，并保证当前线程独占，然后在操作完成后使用 <code class="language-plaintext highlighter-rouge">unlock()</code> 释放资源。这是很典型的 <code class="language-plaintext highlighter-rouge">defer</code> 的使用方式。</p><p>但是后来出现了一种情况，即调用 <code class="language-plaintext highlighter-rouge">remove</code> 方法之前，我们在同一线程的 caller 中获取过这个锁了，比如：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">doSomethingThenRemove</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">lock</span><span class="o">.</span><span class="nf">lock</span><span class="p">()</span>
+    <span class="k">defer</span> <span class="p">{</span> <span class="n">lock</span><span class="o">.</span><span class="nf">unlock</span><span class="p">()</span> <span class="p">}</span>
+    
+    <span class="c1">// 操作 `tasks`</span>
+    <span class="c1">// ...</span>
+    
+    <span class="c1">// 最后，移除 `task`</span>
+    <span class="nf">remove</span><span class="p">(</span><span class="mi">123</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这样做显然在 <code class="language-plaintext highlighter-rouge">remove</code> 中造成了死锁 (deadlock)：<code class="language-plaintext highlighter-rouge">remove</code> 里的 <code class="language-plaintext highlighter-rouge">lock()</code> 在等待 <code class="language-plaintext highlighter-rouge">doSomethingThenRemove</code> 中做 <code class="language-plaintext highlighter-rouge">unlock()</code> 操作，而这个 <code class="language-plaintext highlighter-rouge">unlock</code> 被 <code class="language-plaintext highlighter-rouge">remove</code> 阻塞了，永远不可能达到。</p><p>解决的方法大概有三种：</p><ol><li>换用 <code class="language-plaintext highlighter-rouge">NSRecursiveLock</code>：<a href="https://developer.apple.com/documentation/foundation/nsrecursivelock"><code class="language-plaintext highlighter-rouge">NSRecursiveLock</code></a> 可以在同一个线程获取多次，而不造成死锁的问题。<li>在调用 <code class="language-plaintext highlighter-rouge">remove</code> 之前先 <code class="language-plaintext highlighter-rouge">unlock</code>。<li>为 <code class="language-plaintext highlighter-rouge">remove</code> 传入按照条件，避免在其中加锁。</ol><p>1 和 2 都会造成额外的性能损失，虽然在一般情况下这样的加锁性能微乎其微，但是使用方案 3 似乎也并不很麻烦。于是我很开心地把 <code class="language-plaintext highlighter-rouge">remove</code> 改成了这样：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="n">_</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">ID</span><span class="p">,</span> <span class="nv">acquireLock</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="n">acquireLock</span> <span class="p">{</span>
+        <span class="n">lock</span><span class="o">.</span><span class="nf">lock</span><span class="p">()</span>
+        <span class="k">defer</span> <span class="p">{</span> <span class="n">lock</span><span class="o">.</span><span class="nf">unlock</span><span class="p">()</span> <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="n">tasks</span><span class="p">[</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>很好，现在调用 <code class="language-plaintext highlighter-rouge">remove(123, acquireLock: false)</code> 不再会死锁了。但是很快我发现，在 <code class="language-plaintext highlighter-rouge">acquireLock</code> 为 <code class="language-plaintext highlighter-rouge">true</code> 的时候锁也失效了。再仔细阅读 Swift Programming Language 关于 <code class="language-plaintext highlighter-rouge">defer</code> 的描述：</p><blockquote><p>A <code class="language-plaintext highlighter-rouge">defer</code> statement is used for executing code just before transferring program control outside of <strong>the scope that the defer statement appears in</strong>.</p></blockquote><p>所以，上面的代码其实相当于：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">remove</span><span class="p">(</span><span class="n">_</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">ID</span><span class="p">,</span> <span class="nv">acquireLock</span><span class="p">:</span> <span class="kt">Bool</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="n">acquireLock</span> <span class="p">{</span>
+        <span class="n">lock</span><span class="o">.</span><span class="nf">lock</span><span class="p">()</span>
+        <span class="n">lock</span><span class="o">.</span><span class="nf">unlock</span><span class="p">()</span>
+    <span class="p">}</span>
+    <span class="n">tasks</span><span class="p">[</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>GG 斯密达…</p><p>以前很单纯地认为 <code class="language-plaintext highlighter-rouge">defer</code> 是在函数退出的时候调用，并没有注意其实是<strong>当前 scope 退出的时候</strong>调用这个事实，造成了这个错误。在 <code class="language-plaintext highlighter-rouge">if</code>，<code class="language-plaintext highlighter-rouge">guard</code>，<code class="language-plaintext highlighter-rouge">for</code>，<code class="language-plaintext highlighter-rouge">try</code> 这些语句中使用 <code class="language-plaintext highlighter-rouge">defer</code> 时，应该要特别注意这一点。</p><h3 id="defer-和闭包"><code class="language-plaintext highlighter-rouge">defer</code> 和闭包</h3><p>另一个比较有意思的事实是，虽然 <code class="language-plaintext highlighter-rouge">defer</code> 后面跟了一个闭包，但是它更多地像是一个语法糖，和我们所熟知的闭包特性不一样，并不会持有里面的值。比如：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">number</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">defer</span> <span class="p">{</span> <span class="nf">print</span><span class="p">(</span><span class="s">"Statement 2: </span><span class="se">\(</span><span class="n">number</span><span class="se">)</span><span class="s">"</span><span class="p">)</span> <span class="p">}</span>
+    <span class="n">number</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Statement 1: </span><span class="se">\(</span><span class="n">number</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>将会输出：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+</pre><td class="rouge-code"><pre>Statement 1: 100
+Statement 2: 100
+</pre></table></code></div></div><p>在 <code class="language-plaintext highlighter-rouge">defer</code> 中如果要依赖某个变量值时，需要自行进行复制：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">number</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">var</span> <span class="nv">closureNumber</span> <span class="o">=</span> <span class="n">number</span>
+    <span class="k">defer</span> <span class="p">{</span> <span class="nf">print</span><span class="p">(</span><span class="s">"Statement 2: </span><span class="se">\(</span><span class="n">closureNumber</span><span class="se">)</span><span class="s">"</span><span class="p">)</span> <span class="p">}</span>
+    <span class="n">number</span> <span class="o">=</span> <span class="mi">100</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Statement 1: </span><span class="se">\(</span><span class="n">number</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// Statement 1: 100</span>
+<span class="c1">// Statement 2: 1</span>
+</pre></table></code></div></div><h3 id="defer-的执行时机"><code class="language-plaintext highlighter-rouge">defer</code> 的执行时机</h3><p><code class="language-plaintext highlighter-rouge">defer</code> 的执行时机紧接在离开作用域之后，但是是在其他语句之前。这个特性为 <code class="language-plaintext highlighter-rouge">defer</code> 带来了一些很“微妙”的使用方式。比如从 <code class="language-plaintext highlighter-rouge">0</code> 开始的自增：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="kt">Foo</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">num</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Int</span> <span class="p">{</span>
+        <span class="k">defer</span> <span class="p">{</span> <span class="n">num</span> <span class="o">+=</span> <span class="mi">1</span> <span class="p">}</span>
+        <span class="k">return</span> <span class="n">num</span>
+    <span class="p">}</span>
+    
+    <span class="c1">// 没有 `defer` 的话我们可能要这么写</span>
+    <span class="c1">// func foo() -&gt; Int {</span>
+    <span class="c1">//    num += 1</span>
+    <span class="c1">//    return num - 1</span>
+    <span class="c1">// }</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">f</span> <span class="o">=</span> <span class="kt">Foo</span><span class="p">()</span>
+<span class="n">f</span><span class="o">.</span><span class="nf">foo</span><span class="p">()</span> <span class="c1">// 0</span>
+<span class="n">f</span><span class="o">.</span><span class="nf">foo</span><span class="p">()</span> <span class="c1">// 1</span>
+<span class="n">f</span><span class="o">.</span><span class="n">num</span>   <span class="c1">// 2</span>
+</pre></table></code></div></div><p>输出结果 <code class="language-plaintext highlighter-rouge">foo()</code> 返回了 <code class="language-plaintext highlighter-rouge">+1</code> 之前的 <code class="language-plaintext highlighter-rouge">num</code>，而 <code class="language-plaintext highlighter-rouge">f.num</code> 则是 <code class="language-plaintext highlighter-rouge">defer</code> 中经过 <code class="language-plaintext highlighter-rouge">+1</code> 之后的结果。不使用 <code class="language-plaintext highlighter-rouge">defer</code> 的话，我们其实很难达到这种“在返回后进行操作”的效果。</p><p>虽然很特殊，<strong>但是强烈不建议在 <code class="language-plaintext highlighter-rouge">defer</code> 中执行这类 side effect</strong>。</p><blockquote><p>This means that a <code class="language-plaintext highlighter-rouge">defer</code> statement can be used, for example, to perform manual resource management such as closing file descriptors, and to perform actions that need to happen even if an error is thrown.</p></blockquote><p>从语言设计上来说，<code class="language-plaintext highlighter-rouge">defer</code> 的目的就是进行资源清理和避免重复的返回前需要执行的代码，而不是用来以取巧地实现某些功能。这样做只会让代码可读性降低。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/" class="post-tag no-text-decoration" >最佳实践</a> <a href="/tags/%E5%9D%91/" class="post-tag no-text-decoration" >坑</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=关于 Swift defer 的正确使用 - OneV's Den&url=https://onevcat.com/2018/11/defer/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=关于 Swift defer 的正确使用 - OneV's Den&u=https://onevcat.com/2018/11/defer/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=关于 Swift defer 的正确使用 - OneV's Den&url=https://onevcat.com/2018/11/defer/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=关于 Swift defer 的正确使用 - OneV's Den&url=https://onevcat.com/2018/11/defer/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2016/02/swift-performance/"><div class="card-body"> <span class="timeago small" > 2016-02-25 <i class="unloaded">2016-02-25T11:32:24+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Swift 性能探索和优化分析</h3><div class="text-muted small"><p> 本文首发在 CSDN《程序员》杂志，订阅地址 http://dingyue.programmer.com.cn/。 Apple 在推出 Swift 时就将其冠以先进，安全和高效的新一代编程语言之名。前两点在 Swift 的语法和语言特性中已经表现得淋漓尽致：像是尾随闭包，枚举关联值，可选值和强制的类型安全等都是 Swift 显而易见的优点。但是对于高效一点，就没有那么明显了。在 201...</p></div></div></a></div><div class="card"> <a href="/2016/03/swift-throws/"><div class="card-body"> <span class="timeago small" > 2016-03-29 <i class="unloaded">2016-03-29T15:37:24+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Swift 2 throws 全解析 - 从原理到实践</h3><div class="text-muted small"><p> 本文最初于 2015 年 12 月发布在 IBM developerWorks 中国网站发表，其网址是 http://www.ibm.com/developerworks/cn/mobile/mo-cn-swift/index.html。如需转载请保留此行声明。 Swift 2 错误处理简介 throws 关键字和异常处理机制是 Swift 2 中新加入的重要特性。Apple 希望通过在...</p></div></div></a></div><div class="card"> <a href="/2017/10/swift-error-category/"><div class="card-body"> <span class="timeago small" > 2017-10-17 <i class="unloaded">2017-10-17T12:15:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>关于 Swift Error 的分类</h3><div class="text-muted small"><p> 在去年我应 IBM 编辑的邀请写过一篇关于 Swift 2 中 throws 的文章。现在回头看，Swift 2 其实是 Swift 语言发展的一个挺重要的节点：如果说 Swift 1 是一个更偏向于验证阶段的产品的话，Swift 2 中加入的特性为这门语言的基石进行了补足。在那篇文章里我们主要深入探索了新的 throw 关键字背后的事情，而同一时期其实 Swift 官方有过一次关于错误处理...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2018/10/swift-result-error/" class="btn btn-outline-primary"><p>Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt;</p></a> <a href="/2018/11/tools-i-am-using/" class="btn btn-outline-primary"><p>我所使用的工具们</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

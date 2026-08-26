@@ -1,0 +1,455 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="Swift 并发初步" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="本文是我的新书《Swift 异步和并发》中第一章内容，主要从概览的方向上介绍了 Swift 5.5 中引入的 Swift 并发特性的使用方法。如果你对学习 Swift 并发有兴趣，也许可以作为参考读物。" /><meta property="og:description" content="本文是我的新书《Swift 异步和并发》中第一章内容，主要从概览的方向上介绍了 Swift 5.5 中引入的 Swift 并发特性的使用方法。如果你对学习 Swift 并发有兴趣，也许可以作为参考读物。" /><link rel="canonical" href="https://onevcat.com/2021/07/swift-concurrency/" /><meta property="og:url" content="https://onevcat.com/2021/07/swift-concurrency/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2021-07-01T11:00:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Swift 并发初步" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"本文是我的新书《Swift 异步和并发》中第一章内容，主要从概览的方向上介绍了 Swift 5.5 中引入的 Swift 并发特性的使用方法。如果你对学习 Swift 并发有兴趣，也许可以作为参考读物。","url":"https://onevcat.com/2021/07/swift-concurrency/","@type":"BlogPosting","headline":"Swift 并发初步","dateModified":"2021-07-01T11:00:00+09:00","datePublished":"2021-07-01T11:00:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2021/07/swift-concurrency/"},"@context":"https://schema.org"}</script><title>Swift 并发初步 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>Swift 并发初步</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>Swift 并发初步</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Thu, Jul 1, 2021, 11:00 AM +0900" > 2021-07-01 <i class="unloaded">2021-07-01T11:00:00+09:00</i> </span></div><div> 最后更新: <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Fri, Apr 7, 2023, 11:22 AM +0900" > 2023-04-07 <i class="unloaded">2023-04-07T11:22:49+09:00</i> </span></div></div><div class="post-content"><blockquote><p>本文是我的新书<a href="https://objccn.io/products/async-swift">《Swift 异步和并发》</a>中第一章内容，主要从概览的方向上介绍了 Swift 5.5 中引入的 Swift 并发特性的使用方法。如果你对学习 Swift 并发有兴趣，也许可以作为参考读物。</p></blockquote><blockquote><p>你可以在这里找到本文中的<a href="/assets/samples/async-swift-chapter02.zip">参考代码</a>。在本文写作的 Xcode 13 beta 2 环境下，你需要额外安装<a href="https://swift.org/download/#swift-55-development">最新的 Swift 5.5 toolchain</a> 来运行这些代码。</p></blockquote><p>虽然可能你已经跃跃欲试，想要创建第一个 Swift 的并发程序，但是“名不正则言不顺”。在实际进入代码之前，作为全书开头，我还是想先对几个重要的相关概念进行说明。这样在今后本书中，当我们提起 Swift 异步和并发时，对具体它指代了什么内容，能够取得统一的认识。本章后半部分，我们会实际着手写一些 Swift 并发代码，来描述整套体系的基本构成和工作流程。</p><h2 id="一些基本概念">一些基本概念</h2><h3 id="同步和异步">同步和异步</h3><p>在我们说到线程的执行方式时，同步 (synchronous) 和异步 (asynchronous) 是这个话题中最基本的一组概念。<strong>同步操作</strong>意味着在操作完成之前，运行这个操作的线程都将被占用，直到函数最终被抛出或者返回。Swift 5.5 之前，所有的函数都是同步函数，我们简单地使用 <code class="language-plaintext highlighter-rouge">func</code> 关键字来声明这样一个同步函数：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="k">var</span> <span class="nv">results</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="kd">func</span> <span class="nf">addAppending</span><span class="p">(</span><span class="n">_</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">String</span><span class="p">,</span> <span class="n">to</span> <span class="nv">string</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">results</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="nf">appending</span><span class="p">(</span><span class="n">string</span><span class="p">))</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">addAppending</code> 是一个同步函数，在它返回之前，运行它的线程将无法执行其他操作，或者说它不能被用来运行其他函数，必须等待当前函数执行完成后这个线程才能做其他事情。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/sync-func.png" alt="" /></p><p>在 iOS 开发中，我们使用的 UI 开发框架，也就是 UIKit 或者 SwiftUI，不是线程安全的：对用户输入的处理和 UI 的绘制，必须在与主线程绑定的 main runloop 中进行。假设我们希望用户界面以每秒 60 帧的速率运行，那么主线程中每两次绘制之间，所能允许的处理时间最多只有 16 毫秒 (1 / 60s)。当主线程中要同步处理的其他操作耗时很少时 (比如我们的 <code class="language-plaintext highlighter-rouge">addAppending</code>，可能耗时只有几十纳秒)，这不会造成什么问题。但是，如果这个同步操作耗时过长的话，主线程将被阻塞。它不能接受用户输入，也无法向 GPU 提交请求去绘制新的 UI，这将导致用户界面掉帧甚至卡死。这种“长耗时”的操作，其实是很常见的：比如从网络请求中获取数据，从磁盘加载一个大文件，或者进行某些非常复杂的加解密运算等。</p><p>下面的 <code class="language-plaintext highlighter-rouge">loadSignature</code> 从某个网络 URL 读取字符串：如果这个操作发生在主线程，且耗时超过 16ms (这是很可能发生的，因为通过握手协议建立网络连接，以及接收数据，都是一系列复杂操作)，那么主线程将无法处理其他任何操作，UI 将不会刷新。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="c1">// 从网络读取一个字符串</span>
+<span class="kd">func</span> <span class="nf">loadSignature</span><span class="p">()</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">String</span><span class="p">?</span> <span class="p">{</span>
+  <span class="c1">// someURL 是远程 URL，比如 https://example.com</span>
+  <span class="k">let</span> <span class="nv">data</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">Data</span><span class="p">(</span><span class="nv">contentsOf</span><span class="p">:</span> <span class="n">someURL</span><span class="p">)</span>
+  <span class="k">return</span> <span class="kt">String</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">encoding</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/sync-func-block-ui.png" alt="" /></p><p><code class="language-plaintext highlighter-rouge">loadSignature</code> 最终的耗时超过 16 ms，对 UI 的刷新或操作的处理不得不被延后。在用户观感上，将表现为掉帧或者整个界面卡住。这是客户端开发中绝对需要避免的问题之一。</p><p>Swift 5.5 之前，要解决这个问题，最常见的做法是将耗时的同步操作转换为<strong>异步操作</strong>：把实际长时间执行的任务放到另外的线程 (或者叫做后台线程) 运行，然后在操作结束时提供运行在主线程的回调，以供 UI 操作之用：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadSignature</span><span class="p">(</span>
+  <span class="n">_</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">String</span><span class="p">?,</span> <span class="kt">Error</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+<span class="p">)</span>
+<span class="p">{</span>
+  <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">()</span><span class="o">.</span><span class="k">async</span> <span class="p">{</span>
+    <span class="k">do</span> <span class="p">{</span>
+      <span class="k">let</span> <span class="nv">d</span> <span class="o">=</span> <span class="k">try</span> <span class="kt">Data</span><span class="p">(</span><span class="nv">contentsOf</span><span class="p">:</span> <span class="n">someURL</span><span class="p">)</span>
+      <span class="kt">DispatchQueue</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="k">async</span> <span class="p">{</span>
+        <span class="nf">completion</span><span class="p">(</span><span class="kt">String</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">d</span><span class="p">,</span> <span class="nv">encoding</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">),</span> <span class="kc">nil</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span> <span class="k">catch</span> <span class="p">{</span>
+      <span class="kt">DispatchQueue</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="k">async</span> <span class="p">{</span>
+        <span class="nf">completion</span><span class="p">(</span><span class="kc">nil</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/sync-func-dispatch.png" alt="" /></p><p><code class="language-plaintext highlighter-rouge">DispatchQueue.global</code> 负责将任务添加到全局后台派发队列。在底层，<a href="https://en.wikipedia.org/wiki/Grand_Central_Dispatch">GCD 库</a> (Grand Central Dispatch) 会进行线程调度，为实际耗时繁重的 <code class="language-plaintext highlighter-rouge">Data.init(contentsOf:)</code> 分配合适的线程。耗时任务在主线程外进行处理，完成后再由 <code class="language-plaintext highlighter-rouge">DispatchQueue.main</code> 派发回主线程，并按照结果调用 <code class="language-plaintext highlighter-rouge">completion</code> 回调方法。这样一来，主线程不再承担耗时任务，UI 刷新和用户事件处理可以得到保障。</p><p>异步操作虽然可以避免卡顿，但是使用起来存在不少问题，最主要包括：</p><ul><li>错误处理隐藏在回调函数的参数中，无法用 <code class="language-plaintext highlighter-rouge">throw</code> 的方式明确地告知并强制调用侧去进行错误处理。<li>对回调函数的调用没有编译器保证，开发者可能会忘记调用 <code class="language-plaintext highlighter-rouge">completion</code>，或者多次调用 <code class="language-plaintext highlighter-rouge">completion</code>。<li>通过 <code class="language-plaintext highlighter-rouge">DispatchQueue</code> 进行线程调度很快会使代码复杂化。特别是如果线程调度的操作被隐藏在被调用的方法中的时候，不查看源码的话，在 (调用侧的) 回调函数中，几乎无法确定代码当前运行的线程状态。<li>对于正在执行的任务，没有很好的取消机制。</ul><p>除此之外，还有其他一些没有列举的问题。它们都可能成为我们程序中潜在 bug 的温床，在之后关于异步函数的章节里，我们会再回顾这个例子，并仔细探讨这些问题的细节。</p><p>需要进行说明的是，虽然我们将运行在后台线程加载数据的行为称为<strong>异步操作</strong>，但是接受回调函数作为参数的 <code class="language-plaintext highlighter-rouge">loadSignature(_:)</code> 方法，其本身依然是一个<strong>同步函数</strong>。这个方法在返回前仍旧会占据主线程，只不过它现在的执行时间非常短，UI 相关的操作不再受影响。</p><p>Swift 5.5 之前，Swift 语言中并没有真正异步函数的概念，我们稍后会看到使用 <code class="language-plaintext highlighter-rouge">async</code> 修饰的异步函数是如何简化上面的代码的。</p><h3 id="串行和并行">串行和并行</h3><p>另外一组重要的概念是串行和并行。对于通过同步方法执行的同步操作来说，这些操作一定是以串行方式在同一线程中发生的。“做完一件事，然后再进行下一件事”，是最常见的、也是我们人类最容易理解的代码执行方式：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="k">if</span> <span class="k">let</span> <span class="nv">signature</span> <span class="o">=</span> <span class="k">try</span> <span class="nf">loadSignature</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nf">addAppending</span><span class="p">(</span><span class="n">signature</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="s">"some data"</span><span class="p">)</span>
+<span class="p">}</span>
+<span class="nf">print</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">loadSignature</code>，<code class="language-plaintext highlighter-rouge">addAppending</code> 和 <code class="language-plaintext highlighter-rouge">print</code> 被顺次调用，它们在同一线程中按严格的先后顺序发生。这种执行方式，我们将它称为<strong>串行 (serial)</strong>。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/serial-sync.png" alt="" /></p><p><strong>同步方法执行的同步操作</strong>，是串行的充分但非必要条件。异步操作也可能会以串行方式执行。假设除了 <code class="language-plaintext highlighter-rouge">loadSignature(_:)</code> 以外，我们还有一个从数据库里读取一系列数据的函数，它使用类似的方法，把具体工作放到其他线程异步执行：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadFromDatabase</span><span class="p">(</span>
+  <span class="n">_</span> <span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">([</span><span class="kt">String</span><span class="p">]?,</span> <span class="kt">Error</span><span class="p">?)</span> <span class="o">-&gt;</span> <span class="kt">Void</span>
+<span class="p">)</span>
+<span class="p">{</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>如果我们先从数据库中读取数据，在完成后再使用 <code class="language-plaintext highlighter-rouge">loadSignature</code> 从网络获取签名，最后将签名附加到每一条数据库中取出的字符串上，可以这么写：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre><span class="n">loadFromDatabase</span> <span class="p">{</span> <span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="k">in</span>
+  <span class="k">if</span> <span class="k">let</span> <span class="nv">strings</span> <span class="o">=</span> <span class="n">strings</span> <span class="p">{</span>
+    <span class="n">loadSignature</span> <span class="p">{</span> <span class="n">signature</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+      <span class="k">if</span> <span class="k">let</span> <span class="nv">signature</span> <span class="o">=</span> <span class="n">signature</span> <span class="p">{</span>
+        <span class="n">strings</span><span class="o">.</span><span class="n">forEach</span> <span class="p">{</span> 
+                <span class="n">strings</span><span class="o">.</span><span class="n">forEach</span> <span class="p">{</span> 
+        <span class="n">strings</span><span class="o">.</span><span class="n">forEach</span> <span class="p">{</span> 
+          <span class="nf">addAppending</span><span class="p">(</span><span class="n">signature</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="nv">$0</span><span class="p">)</span>
+        <span class="p">}</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Error"</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Error."</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>虽然这些操作是<strong>异步</strong>的，但是它们 (从数据库读取 <code class="language-plaintext highlighter-rouge">[String]</code>，从网络下载签名，最后将签名添加到每条数据中) 依然是<strong>串行</strong>的，加载签名必定发生在读取数据库完成之后，而最后的 <code class="language-plaintext highlighter-rouge">addAppending</code> 也必然发生在 <code class="language-plaintext highlighter-rouge">loadSignature</code> 之后：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/serial-async.png" alt="" /></p><blockquote><p>虽然图中把 <code class="language-plaintext highlighter-rouge">loadFromDatabase</code> 和 <code class="language-plaintext highlighter-rouge">loadSignature</code> 画在了同一个线程里，但事实上它们有可能是在不同线程执行的。不过在上面代码的情况下，它们的先后次序依然是严格不变的。</p></blockquote><p>事实上，虽然最后的 <code class="language-plaintext highlighter-rouge">addAppending</code> 任务同时需要原始数据和签名才能进行，但 <code class="language-plaintext highlighter-rouge">loadFromDatabase</code> 和 <code class="language-plaintext highlighter-rouge">loadSignature</code> 之间其实并没有依赖关系。如果它们能够一起执行的话，我们的程序有很大机率能变得更快。这时候，我们会需要更多的线程，来同时执行两个操作：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="c1">// loadFromDatabase { (strings, error) in</span>
+<span class="c1">//     ...</span>
+<span class="c1">//     loadSignature { signature, error in {</span>
+<span class="c1">//     ...</span>
+
+<span class="c1">// 可以将串行调用替换为：</span>
+
+<span class="n">loadFromDatabase</span> <span class="p">{</span> <span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="k">in</span>
+    <span class="c1">//...</span>
+<span class="p">}</span>
+
+<span class="n">loadSignature</span> <span class="p">{</span> <span class="n">signature</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+    <span class="c1">//...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>为了确保在 <code class="language-plaintext highlighter-rouge">addAppending</code> 执行时，从数据库加载的内容和从网络下载的签名都已经准备好，我们需要某种手段来确保这些数据的可用性。在 GCD 中，通常可以使用 <code class="language-plaintext highlighter-rouge">DispatchGroup</code> 或者 <code class="language-plaintext highlighter-rouge">DispatchSemaphore</code> 来实现这一点。但是我们并不是一本探讨 GCD 的书籍，所以这部分内容就略过了。</p></blockquote><p>两个 <code class="language-plaintext highlighter-rouge">load</code> 方法同时开始工作，理论上资源充足的话 (足够的 CPU，网络带宽等)，现在它们所消耗的时间会小于串行时的两者之和：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/parallel-async.png" alt="" /></p><p>这时候，<code class="language-plaintext highlighter-rouge">loadFromDatabase</code> 和 <code class="language-plaintext highlighter-rouge">loadSignature</code> 这两个异步操作，在不同的线程中同时执行。对于这种拥有多套资源同时执行的方式，我们就将它称为<strong>并行 (parallel)</strong>。</p><h3 id="swift-并发是什么">Swift 并发是什么</h3><p>在有了这些基本概念后，最后可以谈谈关于并发 (concurrency) 这个名词了。在计算机科学中，并发指的是多个计算同时执行的特性。并发计算中涉及的<strong>同时执行</strong>，主要是若干个操作的开始和结束时间之间存在重叠。它并不关心具体的执行方式：我们可以把同一个线程中的多个操作交替运行 (这需要这类操作能够暂时被置于暂停状态) 叫做并发，这几个操作将会是分时运行的；我们也可以把在不同处理器核心中运行的任务叫做并发，此时这些任务必定是并行的。</p><p>而当 Apple 在定义“Swift 并发”是什么的时候，和上面这个经典的计算机科学中的定义实质上没有太多不同。Swift 官方文档给出了这样的解释：</p><blockquote><p>Swift 提供内建的支持，让开发者能以结构化的方式书写异步和并行的代码，… 并发这个术语，指的是异步和并行这一常见组合。</p></blockquote><p>所以在提到 Swift 并发时，它指的就是<strong>异步和并行代码的组合</strong>。这在语义上，其实是传统并发的一个子集：它限制了实现并发的手段就是异步代码，这个限定降低了我们理解并发的难度。在本书中，如果没有特别说明，我们在提到 Swift 并发时，指的都是“异步和并行代码的组合”这个简化版的意义，或者专指 Swift 5.5 中引入的这一套处理并发的语法和框架。</p><p>除了定义方式稍有不同之外，Swift 并发和其他编程语言在处理同样问题时所面临的挑战几乎一样。从戴克斯特拉 (Edsger W. Dijkstra) 提出信号量 (semaphore) 的概念起，到东尼・霍尔爵士 (Tony Hoare) 使用 <a href="https://zh.wikipedia.org/wiki/交談循序程式">CSP</a> 描述和尝试解决<a href="https://zh.wikipedia.org/wiki/哲学家就餐问题">哲学家就餐问题</a>，再到 actor 模型或者通道模型 (channel model) 的提出，并发编程最大的困难，以及这些工具所要解决的问题大致上只有两个：</p><ol><li>如何确保不同运算运行步骤之间的交互或通信可以按照正确的顺序执行<li>如何确保运算资源在不同运算之间被安全地共享、访问和传递</ol><p>第一个问题负责并发的逻辑正确，第二个问题负责并发的内存安全。在以前，开发者在使用 GCD 编写并发代码时往往需要很多经验，否则难以正确处理上述问题。Swift 5.5 设计了<strong>异步函数</strong>的书写方法，在此基础上，利用<strong>结构化并发</strong>确保运算步骤的交互和通信正确，利用 <strong>actor 模型</strong>确保共享的计算资源能在隔离的情况下被正确访问和操作。它们组合在一起，提供了一系列工具让开发者能简单地编写出稳定高效的并发代码。我们接下来，会浅显地对这几部分内容进行瞥视，并在后面对各个话题展开探究。</p><blockquote><p>戴克斯特拉还发表了著名的《GOTO 语句有害论》(Go To Statement Considered Harmful)，并和霍尔爵士一同推动了结构化编程的发展。霍尔爵士在稍后也提出了对 null 的反对，最终促成了现代语言中普遍采用的 <code class="language-plaintext highlighter-rouge">Optional</code> (或者叫别的名称，比如 <code class="language-plaintext highlighter-rouge">Maybe</code> 或 null safety 等) 设计。如果没有他们，也许我们今天在编写代码时还在处理无尽的 goto 和 null 检查，会要辛苦很多。</p></blockquote><h2 id="异步函数">异步函数</h2><p>为了更容易和优雅地解决上面两个问题，Swift 需要在语言层面引入新的工具：第一步就是添加异步函数的概念。在函数声明的返回箭头前面，加上 <code class="language-plaintext highlighter-rouge">async</code> 关键字，就可以把一个函数声明为异步函数：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadSignature</span><span class="p">()</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">String</span> <span class="p">{</span>
+  <span class="nf">fatalError</span><span class="p">(</span><span class="s">"暂未实现"</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>异步函数的 <code class="language-plaintext highlighter-rouge">async</code> 关键字会帮助编译器确保两件事情：</p><ol><li>它允许我们在函数体内部使用 <code class="language-plaintext highlighter-rouge">await</code> 关键字；<li>它要求其他人在调用这个函数时，使用 <code class="language-plaintext highlighter-rouge">await</code> 关键字。</ol><p>这和与它处于类似位置的 <code class="language-plaintext highlighter-rouge">throws</code> 关键字有点相似。在使用 <code class="language-plaintext highlighter-rouge">throws</code> 时，它允许我们在函数内部使用 <code class="language-plaintext highlighter-rouge">throw</code> 抛出错误，并要求调用者使用 <code class="language-plaintext highlighter-rouge">try</code> 来处理可能的抛出。<code class="language-plaintext highlighter-rouge">async</code> 也扮演了这样一个角色，它要求在特定情况下对当前函数进行标记，这是对于开发者的一种明确的提示，表明这个函数有一些特别的性质：<code class="language-plaintext highlighter-rouge">try/throw</code> 代表了函数可以被抛出，而 <code class="language-plaintext highlighter-rouge">await</code> 则代表了函数在此处可能会<strong>放弃当前线程</strong>，它是程序的<strong>潜在暂停点</strong>。</p><p>放弃线程的能力，意味着异步方法可以被“暂停”，这个线程可以被用来执行其他代码。如果这个线程是主线程的话，那么界面将不会卡顿。被 <code class="language-plaintext highlighter-rouge">await</code> 的语句将被底层机制分配到其他合适的线程，在执行完成后，之前的“暂停”将结束，异步方法从刚才的 <code class="language-plaintext highlighter-rouge">await</code> 语句后开始，继续向下执行。</p><p>关于异步函数的设计和更多深入内容，我们会在随后的相关章节展开。在这里，我们先来看看一个简单的异步函数的使用。Foundation 框架中已经为我们提供了很多异步函数，比如使用 <code class="language-plaintext highlighter-rouge">URLSession</code> 从某个 <code class="language-plaintext highlighter-rouge">URL</code> 加载数据，现在也有异步版本了。在由 <code class="language-plaintext highlighter-rouge">async</code> 标记的异步函数中，我们可以调用其他异步函数：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadSignature</span><span class="p">()</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">String</span><span class="p">?</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="p">(</span><span class="nv">data</span><span class="p">,</span> <span class="nv">_</span><span class="p">)</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="kt">URLSession</span><span class="o">.</span><span class="n">shared</span><span class="o">.</span><span class="nf">data</span><span class="p">(</span><span class="nv">from</span><span class="p">:</span> <span class="n">someURL</span><span class="p">)</span>
+  <span class="k">return</span> <span class="kt">String</span><span class="p">(</span><span class="nv">data</span><span class="p">:</span> <span class="n">data</span><span class="p">,</span> <span class="nv">encoding</span><span class="p">:</span> <span class="o">.</span><span class="n">utf8</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>这些 Foundation，或者 AppKit 或 UIKit 中的异步函数，有一部分是重写和新添加的，但更多的情况是由相应的 Objective-C 接口转换而来。满足一定条件的 Objective-C 函数，可以直接转换为 Swift 的异步函数，非常方便。在后一章我们也会具体谈到。</p></blockquote><p>如果我们把 <code class="language-plaintext highlighter-rouge">loadFromDatabase</code> 也写成异步函数的形式。那么，在上面串行部分，原本的嵌套式的异步操作代码：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre><span class="n">loadFromDatabase</span> <span class="p">{</span> <span class="p">(</span><span class="n">strings</span><span class="p">,</span> <span class="n">error</span><span class="p">)</span> <span class="k">in</span>
+  <span class="k">if</span> <span class="k">let</span> <span class="nv">strings</span> <span class="o">=</span> <span class="n">strings</span> <span class="p">{</span>
+    <span class="n">loadSignature</span> <span class="p">{</span> <span class="n">signature</span><span class="p">,</span> <span class="n">error</span> <span class="k">in</span>
+      <span class="k">if</span> <span class="k">let</span> <span class="nv">signature</span> <span class="o">=</span> <span class="n">signature</span> <span class="p">{</span>
+        <span class="n">strings</span><span class="o">.</span><span class="n">forEach</span> <span class="p">{</span> 
+                <span class="n">strings</span><span class="o">.</span><span class="n">forEach</span> <span class="p">{</span> 
+        <span class="n">strings</span><span class="o">.</span><span class="n">forEach</span> <span class="p">{</span> 
+          <span class="nf">addAppending</span><span class="p">(</span><span class="n">signature</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="nv">$0</span><span class="p">)</span>
+        <span class="p">}</span>
+      <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Error"</span><span class="p">)</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Error."</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>就可以非常简单地写成这样的形式：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">strings</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="nf">loadFromDatabase</span><span class="p">()</span>
+<span class="k">if</span> <span class="k">let</span> <span class="nv">signature</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="nf">loadSignature</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">strings</span><span class="o">.</span><span class="n">forEach</span> <span class="p">{</span> 
+    <span class="nf">addAppending</span><span class="p">(</span><span class="n">signature</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="nv">$0</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+  <span class="k">throw</span> <span class="kt">NoSignatureError</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>不用多说，单从代码行数就可以一眼看清优劣了。异步函数极大简化了异步操作的写法，它避免了内嵌的回调，将异步操作按照顺序写成了类似“同步执行”的方法。另外，这种写法允许我们使用 try/throw 的组合对错误进行处理，编译器会对所有的返回路径给出保证，而不必像回调那样时刻检查是不是所有的路径都进行了处理。</p><h2 id="结构化并发">结构化并发</h2><p>对于同步函数来说，线程决定了它的执行环境。而对于异步函数，则由任务 (Task) 决定执行环境。Swift 提供了一系列 <code class="language-plaintext highlighter-rouge">Task</code> 相关 API 来让开发者创建、组织、检查和取消任务。这些 API 围绕着 <code class="language-plaintext highlighter-rouge">Task</code> 这一核心类型，为每一组并发任务构建出一棵结构化的任务树：</p><ul><li>一个任务具有它自己的优先级和取消标识，它可以拥有若干个子任务并在其中执行异步函数。<li>当一个父任务被取消时，这个父任务的取消标识将被设置，并向下传递到所有的子任务中去。<li>无论是正常完成还是抛出错误，子任务会将结果向上报告给父任务，在所有子任务完成之前 (不论是正常结束还是抛出)，父任务是不会完成的。</ul><p>这些特性看上去和 <a href="https://developer.apple.com/documentation/foundation/operation"><code class="language-plaintext highlighter-rouge">Operation</code> 类</a> 有一些相似，不过 <code class="language-plaintext highlighter-rouge">Task</code> 直接利用异步函数的语法，可以用更简洁的方式进行表达。而 <code class="language-plaintext highlighter-rouge">Operation</code> 则需要依靠子类或者闭包。</p><p>在调用异步函数时，需要在它前面添加 <code class="language-plaintext highlighter-rouge">await</code> 关键字；而另一方面，只有在异步函数中，我们才能使用 <code class="language-plaintext highlighter-rouge">await</code> 关键字。那么问题在于，第一个异步函数执行的上下文，或者说任务树的根节点，是怎么来的？</p><p>简单地使用 <code class="language-plaintext highlighter-rouge">Task.init</code> 就可以让我们获取一个任务执行的上下文环境，它接受一个 <code class="language-plaintext highlighter-rouge">async</code> 标记的闭包：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Task</span><span class="o">&lt;</span><span class="kt">Success</span><span class="p">,</span> <span class="kt">Failure</span><span class="o">&gt;</span> <span class="k">where</span> <span class="kt">Failure</span> <span class="p">:</span> <span class="kt">Error</span> <span class="p">{</span>
+  <span class="nf">init</span><span class="p">(</span>
+    <span class="nv">priority</span><span class="p">:</span> <span class="kt">TaskPriority</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span> 
+        <span class="nv">priority</span><span class="p">:</span> <span class="kt">TaskPriority</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span> 
+    <span class="nv">priority</span><span class="p">:</span> <span class="kt">TaskPriority</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span><span class="p">,</span> 
+    <span class="nv">operation</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="kd">@Sendable</span> <span class="p">()</span> <span class="k">async</span> <span class="k">throws</span> <span class="o">-&gt;</span> <span class="kt">Success</span>
+  <span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>它继承当前任务上下文的优先级等特性，创建一个新的任务树根节点，我们可以在其中使用异步函数：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre><td class="rouge-code"><pre><span class="k">var</span> <span class="nv">results</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="kd">func</span> <span class="nf">someSyncMethod</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">Task</span> <span class="p">{</span>
+    <span class="k">try</span> <span class="k">await</span> <span class="nf">processFromScratch</span><span class="p">()</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Done: </span><span class="se">\(</span><span class="n">results</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">processFromScratch</span><span class="p">()</span> <span class="k">async</span> <span class="k">throws</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">strings</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="nf">loadFromDatabase</span><span class="p">()</span>
+  <span class="k">if</span> <span class="k">let</span> <span class="nv">signature</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="nf">loadSignature</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">strings</span><span class="o">.</span><span class="n">forEach</span> <span class="p">{</span>
+      <span class="n">results</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="nv">$0</span><span class="o">.</span><span class="nf">appending</span><span class="p">(</span><span class="n">signature</span><span class="p">))</span>
+    <span class="p">}</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="kt">NoSignatureError</span><span class="p">()</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>注意，在 <code class="language-plaintext highlighter-rouge">processFromScratch</code> 中的处理依然是串行的：对 <code class="language-plaintext highlighter-rouge">loadFromDatabase</code> 的 <code class="language-plaintext highlighter-rouge">await</code> 将使这个异步函数在此暂停，直到实际操作结束，接下来才会执行 <code class="language-plaintext highlighter-rouge">loadSignature</code>：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/task-serial.png" alt="" /></p><p>我们当然会希望这两个操作可以同时进行。在两者都准备好后，再调用 <code class="language-plaintext highlighter-rouge">appending</code> 来实际将签名附加到数据上。这需要任务以结构化的方式进行组织。使用 <code class="language-plaintext highlighter-rouge">async let</code> 绑定可以做到这一点：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">processFromScratch</span><span class="p">()</span> <span class="k">async</span> <span class="k">throws</span> <span class="p">{</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">loadStrings</span> <span class="o">=</span> <span class="nf">loadFromDatabase</span><span class="p">()</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">loadSignature</span> <span class="o">=</span> <span class="nf">loadSignature</span><span class="p">()</span>
+
+  <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+  <span class="k">let</span> <span class="nv">strings</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="n">loadStrings</span>
+  <span class="k">if</span> <span class="k">let</span> <span class="nv">signature</span> <span class="o">=</span> <span class="k">try</span> <span class="k">await</span> <span class="n">loadSignature</span> <span class="p">{</span>
+      <span class="n">strings</span><span class="o">.</span><span class="n">forEach</span> <span class="p">{</span>
+        <span class="nf">addAppending</span><span class="p">(</span><span class="n">signature</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="nv">$0</span><span class="p">)</span>
+      <span class="p">}</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="k">throw</span> <span class="kt">NoSignatureError</span><span class="p">()</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">async let</code> 被称为<strong>异步绑定</strong>，它在当前 Task 上下文中创建新的子任务，并将它用作被绑定的异步函数 (也就是 <code class="language-plaintext highlighter-rouge">async let</code> 右侧的表达式) 的运行环境。和 <code class="language-plaintext highlighter-rouge">Task.init</code> 新建一个任务根节点不同，<code class="language-plaintext highlighter-rouge">async let</code> 所创建的子任务是任务树上的叶子节点。被异步绑定的操作会立即开始执行，即使在 <code class="language-plaintext highlighter-rouge">await</code> 之前执行就已经完成，其结果依然可以等到 <code class="language-plaintext highlighter-rouge">await</code> 语句时再进行求值。在上面的例子中，<code class="language-plaintext highlighter-rouge">loadFromDatabase</code> 和 <code class="language-plaintext highlighter-rouge">loadSignature</code> 将被并发执行。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/task-parallel.png" alt="" /></p><p>相对于 GCD 调度的并发，基于任务的结构化并发在控制并发行为上具有得天独厚的优势。为了展示这一优势，我们可以尝试把事情再弄复杂一点。上面的 <code class="language-plaintext highlighter-rouge">processFromScratch</code> 完成了从本地加载数据，从网络获取签名，最后再将签名附加到每一条数据上这一系列操作。假设我们以前可能就做过类似的事情，并且在服务器上已经存储了所有结果，于是我们有机会在进行本地运算的同时，去尝试直接加载这些结果作为“优化路径”，避免重复的本地计算。类似地，可以用一个异步函数来表示“从网络直接加载结果”的操作：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadResultRemotely</span><span class="p">()</span> <span class="k">async</span> <span class="k">throws</span> <span class="p">{</span>
+  <span class="c1">// 模拟网络加载的耗时</span>
+  <span class="k">await</span> <span class="kt">Task</span><span class="o">.</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="kt">NSEC_PER_SEC</span><span class="p">)</span>
+  <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="s">"data1^sig"</span><span class="p">,</span> <span class="s">"data2^sig"</span><span class="p">,</span> <span class="s">"data3^sig"</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>除了 <code class="language-plaintext highlighter-rouge">async let</code> 外，另一种创建结构化并发的方式，是使用任务组 (Task group)。比如，我们希望在执行 <code class="language-plaintext highlighter-rouge">loadResultRemotely</code> 的同时，让 <code class="language-plaintext highlighter-rouge">processFromScratch</code> 一起运行，可以用 <code class="language-plaintext highlighter-rouge">withThrowingTaskGroup</code> 将两个操作写在同一个 task group 中：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">someSyncMethod</span><span class="p">()</span> <span class="p">{</span>
+  <span class="kt">Task</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nf">withThrowingTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Void</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+      <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+        <span class="k">try</span> <span class="k">await</span> <span class="k">self</span><span class="o">.</span><span class="nf">loadResultRemotely</span><span class="p">()</span>
+      <span class="p">}</span>
+      <span class="n">group</span><span class="o">.</span><span class="nf">addTask</span><span class="p">(</span><span class="nv">priority</span><span class="p">:</span> <span class="o">.</span><span class="n">low</span><span class="p">)</span> <span class="p">{</span>
+        <span class="k">try</span> <span class="k">await</span> <span class="k">self</span><span class="o">.</span><span class="nf">processFromScratch</span><span class="p">()</span>
+      <span class="p">}</span>    
+    <span class="p">}</span>          
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Done: </span><span class="se">\(</span><span class="n">results</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><blockquote><p>对于 <code class="language-plaintext highlighter-rouge">processFromScratch</code>，我们为它特别指定了 <code class="language-plaintext highlighter-rouge">.low</code> 的优先级，这会导致该任务在另一个低优先级线程中被调度。我们一会儿会看到这一点带来的影响。</p></blockquote><p><code class="language-plaintext highlighter-rouge">withThrowingTaskGroup</code> 和它的非抛出版本 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 提供了另一种创建结构化并发的组织方式。当在运行时才知道任务数量时，或是我们需要为不同的子任务设置不同优先级时，我们将只能选择使用 Task Group。在其他大部分情况下，<code class="language-plaintext highlighter-rouge">async let</code> 和 task group 可以混用甚至互相替代：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/task-parallel-group.png" alt="" /></p><p>闭包中的 <code class="language-plaintext highlighter-rouge">group</code> 满足 <code class="language-plaintext highlighter-rouge">AsyncSequence</code> 协议，它让我们可以使用 <code class="language-plaintext highlighter-rouge">for await</code> 的方式用类似同步循环的写法来访问异步操作的结果。另外，通过调用 group 的 <code class="language-plaintext highlighter-rouge">cancelAll</code>，我们可以在适当的情况下将任务标记为取消。比如在 <code class="language-plaintext highlighter-rouge">loadResultRemotely</code> 很快返回时，我们可以取消掉正在进行的 <code class="language-plaintext highlighter-rouge">processFromScratch</code>，以节省计算资源。关于异步序列和任务取消这些话题，我们会在稍后专门的章节中继续探讨。</p><h2 id="actor-模型和数据隔离">actor 模型和数据隔离</h2><p>在 <code class="language-plaintext highlighter-rouge">processFromScratch</code> 里，我们先将 <code class="language-plaintext highlighter-rouge">results</code> 设置为 <code class="language-plaintext highlighter-rouge">[]</code>，然后再处理每条数据，并将结果添加到 <code class="language-plaintext highlighter-rouge">results</code> 里：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">processFromScratch</span><span class="p">()</span> <span class="k">async</span> <span class="k">throws</span> <span class="p">{</span>
+  <span class="c1">// ...</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">strings</span><span class="o">.</span><span class="n">forEach</span> <span class="p">{</span>
+      <span class="nf">addAppending</span><span class="p">(</span><span class="n">signature</span><span class="p">,</span> <span class="nv">to</span><span class="p">:</span> <span class="nv">$0</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在作为示例的 <code class="language-plaintext highlighter-rouge">loadResultRemotely</code> 里，我们现在则是直接把结果赋值给了 <code class="language-plaintext highlighter-rouge">results</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">loadResultRemotely</span><span class="p">()</span> <span class="k">async</span> <span class="k">throws</span> <span class="p">{</span>
+  <span class="k">await</span> <span class="kt">Task</span><span class="o">.</span><span class="nf">sleep</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="kt">NSEC_PER_SEC</span><span class="p">)</span>
+  <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="s">"data1^sig"</span><span class="p">,</span> <span class="s">"data2^sig"</span><span class="p">,</span> <span class="s">"data3^sig"</span><span class="p">]</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>因此，一般来说我们会认为，不论 <code class="language-plaintext highlighter-rouge">processFromScratch</code> 和 <code class="language-plaintext highlighter-rouge">loadResultRemotely</code> 执行的先后顺序如何，我们总是应该得到唯一确定的 <code class="language-plaintext highlighter-rouge">results</code>，也就是数据 <code class="language-plaintext highlighter-rouge">["data1^sig", "data2^sig", "data3^sig"]</code>。但事实上，如果我们对 <code class="language-plaintext highlighter-rouge">loadResultRemotely</code> 的 <code class="language-plaintext highlighter-rouge">Task.sleep</code> 时长进行一些调整，让它和 <code class="language-plaintext highlighter-rouge">processFromScratch</code> 所耗费的时间相仿，就可能会看到出乎意料的结果。在正确输出三个元素的情况外，有时候它会输出六个元素：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="c1">// 有机率输出：</span>
+<span class="kt">Done</span><span class="p">:</span> <span class="p">[</span><span class="s">"data1^sig"</span><span class="p">,</span> <span class="s">"data2^sig"</span><span class="p">,</span> <span class="s">"data3^sig"</span><span class="p">,</span> 
+<span class="s">"data1^sig"</span><span class="p">,</span> <span class="s">"data2^sig"</span><span class="p">,</span> <span class="s">"data3^sig"</span><span class="p">]</span>
+</pre></table></code></div></div><p>我们在 <code class="language-plaintext highlighter-rouge">addTask</code> 时为两个任务指定了不同的优先级，因此它们中的代码将运行在不同的调度线程上。两个异步操作在不同线程同时访问了 <code class="language-plaintext highlighter-rouge">results</code>，造成了数据竞争。在上面这个结果中，我们可以将它解释为 <code class="language-plaintext highlighter-rouge">processFromScratch</code> 先将 <code class="language-plaintext highlighter-rouge">results</code> 设为了空数列，紧接着 <code class="language-plaintext highlighter-rouge">loadResultRemotely</code> 完成，将它设为正确的结果，然后 <code class="language-plaintext highlighter-rouge">processFromScratch</code> 中的 <code class="language-plaintext highlighter-rouge">forEach</code> 把计算得出的三个签名再添加进去。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/data-racing.png" alt="" /></p><p>这大概率并不是我们想要的结果。不过幸运的是两个操作现在并没有真正“同时”地去更改 <code class="language-plaintext highlighter-rouge">results</code> 的内存，它们依然有先后顺序，因此只是最后的数据有些奇怪。</p><p><code class="language-plaintext highlighter-rouge">processFromScratch</code> 和 <code class="language-plaintext highlighter-rouge">loadResultRemotely</code> 在不同的任务环境中对变量 <code class="language-plaintext highlighter-rouge">results</code> 进行了操作。由于这两个操作是并发执行的，所以也可能出现一种更糟糕的情况：它们对 <code class="language-plaintext highlighter-rouge">results</code> 的操作同时发生。如果 <code class="language-plaintext highlighter-rouge">results</code> 的底层存储被多个操作同时更改的话，我们会得到一个运行时错误。作为示例 (虽然没有太多实际意义)，通过增加 <code class="language-plaintext highlighter-rouge">someSyncMethod</code> 的运行次数就可以很容易地让程序崩溃：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="k">for</span> <span class="n">_</span> <span class="k">in</span> <span class="mi">0</span> <span class="o">..&lt;</span> <span class="mi">10000</span> <span class="p">{</span>
+  <span class="nf">someSyncMethod</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// 运行时崩溃。一个典型的内存错误</span>
+<span class="c1">// Thread 10: EXC_BAD_ACCESS (code=1, address=0x55a8fdbc060c)</span>
+</pre></table></code></div></div><p>为了确保资源 (在这个例子里，是 <code class="language-plaintext highlighter-rouge">results</code> 指向的内存) 在不同运算之间被安全地共享和访问，以前通常的做法是将相关的代码放入一个串行的 dispatch queue 中，然后以同步的方式把对资源的访问派发到队列中去执行，这样我们可以避免多个线程同时对资源进行访问。按照这个思路可以进行一些重构，将 <code class="language-plaintext highlighter-rouge">results</code> 放到新的 <code class="language-plaintext highlighter-rouge">Holder</code> 类型中，并使用私有的 <code class="language-plaintext highlighter-rouge">DispatchQueue</code> 将它保护起来：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="kt">Holder</span> <span class="p">{</span>
+    <span class="kd">private</span> <span class="k">let</span> <span class="nv">queue</span> <span class="o">=</span> <span class="kt">DispatchQueue</span><span class="p">(</span><span class="nv">label</span><span class="p">:</span> <span class="s">"resultholder.queue"</span><span class="p">)</span>
+    <span class="kd">private</span> <span class="k">var</span> <span class="nv">results</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="kd">func</span> <span class="nf">getResults</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span> <span class="p">{</span>
+        <span class="n">queue</span><span class="o">.</span><span class="n">sync</span> <span class="p">{</span> <span class="n">results</span> <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="kd">func</span> <span class="nf">setResults</span><span class="p">(</span><span class="n">_</span> <span class="nv">results</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">])</span> <span class="p">{</span>
+        <span class="n">queue</span><span class="o">.</span><span class="n">sync</span> <span class="p">{</span> <span class="k">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">results</span> <span class="p">}</span>
+    <span class="p">}</span>
+    
+    <span class="kd">func</span> <span class="nf">append</span><span class="p">(</span><span class="n">_</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">queue</span><span class="o">.</span><span class="n">sync</span> <span class="p">{</span> <span class="k">self</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>接下来，将原来代码中使用到 <code class="language-plaintext highlighter-rouge">results: [String]</code> 的地方替换为 <code class="language-plaintext highlighter-rouge">Holder</code>，并使用暴露出的方法将原来对 <code class="language-plaintext highlighter-rouge">results</code> 的直接操作进行替换，可以解决运行时崩溃的问题。</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="c1">// var results: [String] = []</span>
+<span class="k">var</span> <span class="nv">holder</span> <span class="o">=</span> <span class="kt">Holder</span><span class="p">()</span>
+
+<span class="c1">// ...</span>
+<span class="c1">// results = []</span>
+<span class="n">holder</span><span class="o">.</span><span class="nf">setResults</span><span class="p">([])</span>
+
+<span class="c1">// results.append(data.appending(signature))</span>
+<span class="n">holder</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="nf">appending</span><span class="p">(</span><span class="n">signature</span><span class="p">))</span>
+
+<span class="c1">// print("Done: \(results)")</span>
+<span class="nf">print</span><span class="p">(</span><span class="s">"Done: </span><span class="se">\(</span><span class="n">holder</span><span class="o">.</span><span class="nf">getResults</span><span class="p">()</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+</pre></table></code></div></div><p>在使用 GCD 进行并发操作时，这种模式非常常见。但是它存在一些难以忽视的问题：</p><ol><li>大量且易错的模板代码：凡是涉及 <code class="language-plaintext highlighter-rouge">results</code> 的操作，都需要使用 <code class="language-plaintext highlighter-rouge">queue.sync</code> 包围起来，但是编译器并没有给我们任何保证。在某些时候忘了使用队列，编译器也不会进行任何提示，这种情况下内存依然存在危险。当有更多资源需要保护时，代码复杂度也将爆炸式上升。<li>小心死锁：在一个 <code class="language-plaintext highlighter-rouge">queue.sync</code> 中调用另一个 <code class="language-plaintext highlighter-rouge">queue.sync</code> 的方法，会造成线程死锁。在代码简单的时候，这很容易避免，但是随着复杂度增加，想要理解当前代码运行是由哪一个队列派发的，它又运行在哪一个线程上，往往会伴随着严重的困难。必须精心设计，避免重复派发。</ol><p>在一定程度上，我们可以用 <code class="language-plaintext highlighter-rouge">async</code> 替代 <code class="language-plaintext highlighter-rouge">sync</code> 派发来缓解死锁的问题；或者放弃队列，转而使用锁 (比如 <code class="language-plaintext highlighter-rouge">NSLock</code> 或者 <code class="language-plaintext highlighter-rouge">NSRecursiveLock</code>)。不过不论如何做，都需要开发者对线程调度和这种基于共享内存的数据模型有深刻理解，否则非常容易写出很多坑。</p><p>Swift 并发引入了一种在业界已经被多次证明有效的新的数据共享模型，<strong>actor 模型</strong> (参与者模型)，来解决这些问题。虽然有些偏失，但最简单的理解，可以认为 actor 就是一个“封装了私有队列”的 class。将上面 <code class="language-plaintext highlighter-rouge">Holder</code> 中 <code class="language-plaintext highlighter-rouge">class</code> 改为 <code class="language-plaintext highlighter-rouge">actor</code>，并把 <code class="language-plaintext highlighter-rouge">queue</code> 的相关部分去掉，我们就可以得到一个 actor 类型。这个类型的特性和 <code class="language-plaintext highlighter-rouge">class</code> 很相似，它拥有引用语义，在它上面定义属性和方法的方式和普通的 <code class="language-plaintext highlighter-rouge">class</code> 没有什么不同：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">actor</span> <span class="kt">Holder</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">results</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+  <span class="kd">func</span> <span class="nf">setResults</span><span class="p">(</span><span class="n">_</span> <span class="nv">results</span><span class="p">:</span> <span class="p">[</span><span class="kt">String</span><span class="p">])</span> <span class="p">{</span>
+    <span class="k">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">results</span>
+  <span class="p">}</span>
+    
+  <span class="kd">func</span> <span class="nf">append</span><span class="p">(</span><span class="n">_</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">String</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">results</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>对比由私有队列保护的“手动挡”的 class，这个“自动档”的 actor 实现显然简洁得多。actor 内部会提供一个隔离域：在 actor 内部对自身存储属性或其他方法的访问，比如在 <code class="language-plaintext highlighter-rouge">append(_:)</code> 函数中使用 <code class="language-plaintext highlighter-rouge">results</code> 时，可以不加任何限制，这些代码都会被自动隔离在被封装的“私有队列”里。但是从外部对 actor 的成员进行访问时，编译器会要求切换到 actor 的隔离域，以确保数据安全。在这个要求发生时，当前执行的程序可能会发生暂停。编译器将自动把要跨隔离域的函数转换为异步函数，并要求我们使用 <code class="language-plaintext highlighter-rouge">await</code> 来进行调用。</p><blockquote><p>虽然实际底层实现中，actor 并非持有一个私有队列，但是现在，你可以就这样简单理解。在本书后面的部分我们会做更深入的探索。</p></blockquote><p>当我们把 <code class="language-plaintext highlighter-rouge">Holder</code> 从 <code class="language-plaintext highlighter-rouge">class</code> 转换为 <code class="language-plaintext highlighter-rouge">actor</code> 后，原来对 <code class="language-plaintext highlighter-rouge">holder</code> 的调用也需要更新。简单来说，在访问相关成员时，添加 <code class="language-plaintext highlighter-rouge">await</code> 即可：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="c1">// holder.setResults([])</span>
+<span class="k">await</span> <span class="n">holder</span><span class="o">.</span><span class="nf">setResults</span><span class="p">([])</span>
+
+<span class="c1">// holder.append(data.appending(signature))</span>
+<span class="k">await</span> <span class="n">holder</span><span class="o">.</span><span class="nf">append</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="nf">appending</span><span class="p">(</span><span class="n">signature</span><span class="p">))</span>
+
+<span class="c1">// print("Done: \(holder.getResults())")</span>
+<span class="nf">print</span><span class="p">(</span><span class="s">"Done: </span><span class="se">\(</span><span class="k">await</span> <span class="n">holder</span><span class="o">.</span><span class="n">results</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+</pre></table></code></div></div><p>现在，在并发环境中访问 <code class="language-plaintext highlighter-rouge">holder</code> 不再会造成崩溃了。不过，即时使用 <code class="language-plaintext highlighter-rouge">Holder</code>，不论是基于 <code class="language-plaintext highlighter-rouge">DispatchQueue</code> 还是 <code class="language-plaintext highlighter-rouge">actor</code>，上面代码所得到的结果中依然可能会存在多于三个元素的情况。这是在预期内的：数据隔离只解决同时访问的造成的内存问题 (在 Swift 中，这种不安全行为大多数情况下表现为程序崩溃)。而这里的数据正确性关系到 actor 的<strong>可重入</strong> (reentrancy)。要正确理解可重入，我们必须先对异步函数的特性有更多了解，因此我们会在之后的章节里再谈到这个话题。</p><p>另外，<code class="language-plaintext highlighter-rouge">actor</code> 类型现在还并没有提供指定具体运行方式的手段。虽然我们可以使用 <code class="language-plaintext highlighter-rouge">@MainActor</code> 来确保 UI 线程的隔离，但是对于一般的 actor，我们还无法指定隔离代码应该以怎样的方式运行在哪一个线程。我们之后也还会看到包括全局 actor、非隔离标记 (nonisolated) 和 actor 的数据模型等内容。</p><h2 id="小结">小结</h2><p>我想本章应该已经有足够多的内容了。我们从最基本的概念开始，展示了使用 GCD 或者其他一些“原始”手段来处理并发程序时可能面临的困难，并在此基础上介绍了 Swift 并发中处理和解决这些问题的方式。</p><p>Swift 并发虽然涉及的概念很多，但是各种的模块边界是清晰的：</p><ul><li>异步函数：提供语法工具，使用更简洁和高效的方式，表达异步行为。<li>结构化并发：提供并发的运行环境，负责正确的函数调度、取消和执行顺序以及任务的生命周期。<li>actor 模型：提供封装良好的数据隔离，确保并发代码的安全。</ul><p>熟悉这些边界，有助于我们清晰地理解 Swift 并发各个部分的设计意图，从而让我们手中的工具可以被运用在正确的地方。作为概览，在本章中读者应该已经看到如何使用 Swift 并发的工具书写并发代码了。本书接下来的部分，将会对每个模块做更加深入的探讨，以求将更多隐藏在宏观概念下的细节暴露出来。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" class="post-tag no-text-decoration" >编程语言</a> <a href="/tags/%E5%B9%B6%E5%8F%91/" class="post-tag no-text-decoration" >并发</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Swift 并发初步 - OneV's Den&url=https://onevcat.com/2021/07/swift-concurrency/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Swift 并发初步 - OneV's Den&u=https://onevcat.com/2021/07/swift-concurrency/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=Swift 并发初步 - OneV's Den&url=https://onevcat.com/2021/07/swift-concurrency/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=Swift 并发初步 - OneV's Den&url=https://onevcat.com/2021/07/swift-concurrency/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2021/09/structured-concurrency/"><div class="card-body"> <span class="timeago small" > 2021-09-29 <i class="unloaded">2021-09-29T09:50:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Swift 结构化并发</h3><div class="text-muted small"><p> 本文是我的新书《Swift 异步和并发》中的部分内容，介绍了关于 Swift 中结构化并发的相关概念。如果你对学习 Swift 并发的其他话题有兴趣，也许这本书可以作为参考读物。 async/await 所引入的异步函数的简单写法，可以在暂停点时放弃线程，这是构建高并发系统所不可或缺的。但是异步函数本身，其实并没有解决并发编程的问题。结构化并发 (structured concur...</p></div></div></a></div><div class="card"> <a href="/2014/06/my-opinion-about-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-03 <i class="unloaded">2014-06-03T12:05:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>关于 Swift 的一点初步看法</h3><div class="text-muted small"><p> 虽然四点半就起床去排队等入场，结果还是只能坐在了蛮后面的位置看着大屏幕参加了今年的 Keynote。其实今年 OS X 和 iOS 的更新亮点都不少，但是显然风头和光芒都让横空出世的 Swift 给抢走了。这部分内容因为不是 NDA，所以可以提前说一说。 Swift 是 Apple 自创的一门专门为 Cocoa 和 CocoaTouch 设计的语言，意在用来替代 objc。早上发布的时候有...</p></div></div></a></div><div class="card"> <a href="/2014/06/walk-in-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-07 <i class="unloaded">2014-06-07T18:23:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>行走于 Swift 的世界中</h3><div class="text-muted small"><p> 2014 年 7 月 13 日更新：根据 beta 3 的情况修正了文中过时的部分 从周一 Swift 正式公布，到现在周五，这几天其实基本一直在关注和摸索 Swift 了。对于一门新语言来说，开荒阶段的探索自然是激动人心的，但是很多时候资料的缺失和细节的隐藏也让人着实苦恼。这一周，特别是最近几天的感受是，Swift 并不像我上一篇表达自己初步看法的文章里所说的那样，相对于 obj...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2021/04/magicmirror/" class="btn btn-outline-primary"><p>用树莓派打造一个超薄魔镜的简单教程</p></a> <a href="/2021/09/structured-concurrency/" class="btn btn-outline-primary"><p>Swift 结构化并发</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

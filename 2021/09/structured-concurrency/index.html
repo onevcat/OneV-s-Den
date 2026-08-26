@@ -1,0 +1,879 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="Swift 结构化并发" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="本文是我的新书《Swift 异步和并发》中的部分内容，介绍了关于 Swift 中结构化并发的相关概念。如果你对学习 Swift 并发的其他话题有兴趣，也许这本书可以作为参考读物。" /><meta property="og:description" content="本文是我的新书《Swift 异步和并发》中的部分内容，介绍了关于 Swift 中结构化并发的相关概念。如果你对学习 Swift 并发的其他话题有兴趣，也许这本书可以作为参考读物。" /><link rel="canonical" href="https://onevcat.com/2021/09/structured-concurrency/" /><meta property="og:url" content="https://onevcat.com/2021/09/structured-concurrency/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2021-09-29T09:50:00+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="Swift 结构化并发" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"本文是我的新书《Swift 异步和并发》中的部分内容，介绍了关于 Swift 中结构化并发的相关概念。如果你对学习 Swift 并发的其他话题有兴趣，也许这本书可以作为参考读物。","url":"https://onevcat.com/2021/09/structured-concurrency/","@type":"BlogPosting","headline":"Swift 结构化并发","dateModified":"2021-09-29T09:50:00+09:00","datePublished":"2021-09-29T09:50:00+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2021/09/structured-concurrency/"},"@context":"https://schema.org"}</script><title>Swift 结构化并发 | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>Swift 结构化并发</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>Swift 结构化并发</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Wed, Sep 29, 2021, 9:50 AM +0900" > 2021-09-29 <i class="unloaded">2021-09-29T09:50:00+09:00</i> </span></div><div> 最后更新: <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Thu, Dec 9, 2021, 4:54 PM +0900" > 2021-12-09 <i class="unloaded">2021-12-09T16:54:33+09:00</i> </span></div></div><div class="post-content"><blockquote><p>本文是我的新书<a href="https://objccn.io/products/async-swift">《Swift 异步和并发》</a>中的部分内容，介绍了关于 Swift 中结构化并发的相关概念。如果你对学习 Swift 并发的其他话题有兴趣，也许这本书可以作为参考读物。</p></blockquote><p><code class="language-plaintext highlighter-rouge">async/await</code> 所引入的异步函数的简单写法，可以在暂停点时放弃线程，这是构建高并发系统所不可或缺的。但是异步函数本身，其实并没有解决并发编程的问题。结构化并发 (structured concurrency) 将用一个高效可预测的模型，来实现优雅的异步代码的并发。</p><h2 id="什么是结构化">什么是结构化</h2><p>“结构化” (structured) 这个词天生充满了美好的寓意：一切有条不紊、充满合理的逻辑和准则。但是结构化并不是天然的：在计算机编程的发展早期，所使用的汇编语言，甚至到 Fortran 和 Cobol 中，为了更加契合计算机运行的实际方式，只有“顺序执行”和“跳转”这两种基本控制流。使用无条件的跳转 (goto 语句) 可能会让代码运行杂乱无状。在戴克斯特拉的《GOTO 语句有害论》之后，关于是否应该使用结构化编程的争论持续了一段时间。在今天这个时间点上，我们已经可以看到，结构化编程取得了全面胜利：大部分的现代编程语言已经不再支持 <code class="language-plaintext highlighter-rouge">goto</code> 语句，或者是将它限制在了极其严苛的条件之下。而基于条件判断 (<code class="language-plaintext highlighter-rouge">if</code>)，循环 (<code class="language-plaintext highlighter-rouge">for</code>/<code class="language-plaintext highlighter-rouge">while</code>) 和方法调用的结构化编程控制流已经是绝对的主流。</p><p>不过当话题来到并发编程时，我们似乎看到了当年非结构化编程的影子。也许我们正处在与当年 <code class="language-plaintext highlighter-rouge">goto</code> 语句式微的同样的历史时期，也许我们马上会见证一种更为先进的编程范式成为主流。在深入到具体的 Swift 结构化并发模型之前，我们先来看看更一般的结构化编程和结构化并发之间的关系。</p><h3 id="goto-语句">goto 语句</h3><p>goto 语句是非结构化的，它允许控制流无条件地跳转到某个标签。虽然现在看来 goto 语句已经彻底失败，完全不得人心，但是受限于编程语言的发展，goto 语句在当时是有其生存土壤的。在还没有发明代码块的概念 (也就是 <code class="language-plaintext highlighter-rouge">{ ... }</code>) 之前，基于顺序执行和跳转的控制流，不仅是最简单的天然选择，也完美契合 CPU 执行指令的方式。顺序执行的语句非常简单，它总可以找到明确的执行入口和出口，但是跳转语句就不一定了：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/goto.png" alt="" /></p><p>程序开发的初期，控制流的设计更多地选择了贴近实际执行的方式，这也是 goto 语句被大量使用的主要原因。不过 goto 的缺点也是相当明显的：不加限制的跳转，会导致代码的可读性急剧下降。如果程序中存在 <code class="language-plaintext highlighter-rouge">goto</code>，那么就可能在<strong>任何时候跳转到任何部分</strong>，这样一来，程序就并不是黑匣子了：程序的抽象被破坏，你所调用的方法并不一定会把控制权还给你。另外，多次来回跳转，往往最后会变成<a href="https://zh.wikipedia.org/wiki/面条式代码">面条代码</a>，在调试程序时，这会是每个程序员的噩梦。</p><h4 id="结构化编程">结构化编程</h4><p>在代码块的概念出现后，一些基本的封装带来了新的控制流方式，包括我们今天最常使用的条件语句、循环语句以及函数调用。由它们所构成的编程范式，即是我们所熟悉的结构化编程：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/control-flow.png" alt="" /></p><p>实际上，这些控制流也可以使用 <code class="language-plaintext highlighter-rouge">goto</code> 语句来实现，而且一开始人们也认为这些新控制流仅只是 <code class="language-plaintext highlighter-rouge">goto</code> 的语法糖。不过相比于 <code class="language-plaintext highlighter-rouge">goto</code>，新控制流们拥有一个非常显著的特点：控制流从顶部入口开始，然后某些事情发生，最后控制流都在底部结束。除非死循环，否则从入口进入的代码最终一定会执行达到出口。</p><p>这不仅让代码的思维模型变得更简单，也为编译器在低层级进行优化提供了可能。如果代码作用域里没有 <code class="language-plaintext highlighter-rouge">goto</code>，那么在出口处，我们就可以确定在代码块中申请的本地资源肯定不会再被需要。这一点对于回收资源 (比如在 <code class="language-plaintext highlighter-rouge">defer</code> 中关闭文件、切断网络，甚至是自动释放内存等) 是至关重要的。</p><p>完全禁止使用 <code class="language-plaintext highlighter-rouge">goto</code> 语句已经成为了大部分现代编程语言的选择。即使有少部分语言还支持 <code class="language-plaintext highlighter-rouge">goto</code>，它们也大都遵循高德纳 (Donald Ervin Knuth) 所提出的前进分支和后退分支不得交叉的<a href="https://pic.plover.com/knuth-GOTO.pdf">理论</a>。像是 <code class="language-plaintext highlighter-rouge">break</code>，<code class="language-plaintext highlighter-rouge">continue</code> 和提前 <code class="language-plaintext highlighter-rouge">return</code> 这样的控制流，依然遵循着结构化的基本原则：代码拥有单一的入口和出口。事实上我们今天用现代编程语言所写的程序，绝大部分都是结构化的了。当今，结构化编程的习惯已经深入人心，对程序员们来说，使用结构化编程来组织代码，早已如同呼吸一般自然。</p><h3 id="非结构化的并发">非结构化的并发</h3><p>不过，程序的结构化并不意味着并发也是结构化的。相反，Swift 现存的并发模型面临的问题，恰恰和当年 <code class="language-plaintext highlighter-rouge">goto</code> 的情况类似。Swift 当前的并发手段，最常见的要属使用 <code class="language-plaintext highlighter-rouge">Dispatch</code> 库将任务派发，并通过回调函数获取结果：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kt">Bool</span> <span class="p">{</span>
+  <span class="nf">bar</span><span class="p">(</span><span class="nv">completion</span><span class="p">:</span> <span class="p">{</span> <span class="nf">print</span><span class="p">(</span><span class="nv">$0</span><span class="p">)</span> <span class="p">})</span>
+  <span class="nf">baz</span><span class="p">(</span><span class="nv">completion</span><span class="p">:</span> <span class="p">{</span> <span class="nf">print</span><span class="p">(</span><span class="nv">$0</span><span class="p">)</span> <span class="p">})</span>
+
+  <span class="k">return</span> <span class="kc">true</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">bar</span><span class="p">(</span><span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">()</span><span class="o">.</span><span class="k">async</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="nf">completion</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">baz</span><span class="p">(</span><span class="nv">completion</span><span class="p">:</span> <span class="kd">@escaping</span> <span class="p">(</span><span class="kt">Int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">Void</span><span class="p">)</span> <span class="p">{</span>
+  <span class="kt">DispatchQueue</span><span class="o">.</span><span class="nf">global</span><span class="p">()</span><span class="o">.</span><span class="k">async</span> <span class="p">{</span>
+    <span class="c1">// ...</span>
+    <span class="nf">completion</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">bar</code> 和 <code class="language-plaintext highlighter-rouge">baz</code> 通过派发，以非阻塞的方式运行任务，并通过 <code class="language-plaintext highlighter-rouge">completion</code> 汇报结果。对于调用者的 <code class="language-plaintext highlighter-rouge">foo</code> 来说，它作为一段程序，本身是结构化的：在调用 <code class="language-plaintext highlighter-rouge">bar</code> 和 <code class="language-plaintext highlighter-rouge">baz</code> 后，程序的控制权，至少是当前线程的控制权，会回到 <code class="language-plaintext highlighter-rouge">foo</code> 中。最终控制流将到达 <code class="language-plaintext highlighter-rouge">foo</code> 的函数块的出口位置。但是，如果我们将视野扩展一些，就会发现在并发角度来看，这个控制流存在很大隐患：在 <code class="language-plaintext highlighter-rouge">bar</code> 和 <code class="language-plaintext highlighter-rouge">baz</code> 中的派发和回调，事实就是一种函数间无条件的“跳转”行为。<code class="language-plaintext highlighter-rouge">bar</code> 和 <code class="language-plaintext highlighter-rouge">baz</code> 虽然会立即将控制流交还给 <code class="language-plaintext highlighter-rouge">foo</code>，但是并发执行的行为会同时发生。这些被派发的并发操作在运行时中，并不知道自己是从哪里来的，这些调用不存在于，也不能存在于当前的调用栈上。它们在自己的线程中拥有调用栈，生命周期也和 <code class="language-plaintext highlighter-rouge">foo</code> 函数的作用域无关：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/unstructured-concurrency.png" alt="" /></p><p>在 <code class="language-plaintext highlighter-rouge">foo</code> 到达出口时，由 <code class="language-plaintext highlighter-rouge">foo</code> 初始化的派发任务可能并没有完成。在派发后，实际上从入口开始的单个控制流将被一分为二：其中一个正常地到达程序出口，而另一个则通过派发跳转，最终“不知所踪”。即使在一段时间后，派发出去的操作通过回调函数回到闭包中，但是它并没有关于原来调用者的信息 (比如调用栈等)，这只不过是一次孤独的跳转。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/callback-goto.png" alt="" /></p><p>除了使代码的控制流变得非常复杂以外，这样的非结构化并发还带来了另一个致命的后果：由于和调用者拥有不同的调用栈，因此它们并不知道调用者是谁，所以无法以抛出的方式向上传递错误。在基于回调的 API 中，一般将 <code class="language-plaintext highlighter-rouge">Error</code> 作为回调函数的参数传递。慵懒的开发者们总会有意无意忽视掉这种错误，Swift 5.0 中加入的 <code class="language-plaintext highlighter-rouge">Result</code> 缓解了这一现象。但是在未来某个未知的上下文中处理“突如其来”的错误，即便对于顶级开发者来说，也不是一件轻而易举的事情。</p><p>结构化并发理论认为，这种通过派发所进行的并行，藉由时间或者线程上的错位，实际上实现了任意的跳转。它只是 goto 语句的“高级”一些的形式，在本质上并没有不同，回调和闭包语法只是让它丑陋的面貌得到了一定程度遮掩。</p><blockquote><p>除了回调和闭包，我们也有另外的一些传统并发手段，比如协议和代理模式或者 <code class="language-plaintext highlighter-rouge">Future</code> 和 <code class="language-plaintext highlighter-rouge">Promise</code> 等，但是它们实际上和回调并没有什么区别，在并发模型上带来的“随意跳转”是等价的。</p></blockquote><h3 id="结构化并发">结构化并发</h3><p>并发程序是很难写好的，想正确地设计一个复杂并发更是难上加难。不过，你有没有怀疑过，这可能并不是我们智商上有什么问题，而是我们所使用的工具并不那么趁手如意？并发难写的原因，也许只是和当年 <code class="language-plaintext highlighter-rouge">goto</code> 一样，是我们没有发明合适的理论。</p><p><code class="language-plaintext highlighter-rouge">goto</code> 最大的问题，在于它破坏了抽象层：当我们封装一个方法并进行调用时，我们所做的事情是相信这个方法会为我们完成它所声称的事情，把它看作一个黑盒。但是如果存在 <code class="language-plaintext highlighter-rouge">goto</code>，这个抽象假设就不再有效。你必须仔细深入到黑盒里面，去研究它的跳转方式：因为黑盒并不一定会乖乖把控制权还给你，而是会把调用控制流引到其他任意地方去。</p><p>非结构化的并发面临类似的问题：一旦我们的并发框架中允许使用派发回调模式，那么我们在调用任意一个函数时，我们都会存在这样的担忧：</p><ul><li>这个函数会不会产生一个后台任务？<li>这个函数虽然返回了，但是它所产生的后台任务可能还在运行，它什么时候会结束，它结束后会产生怎么样的行为？<li>作为调用者，我应该在哪里、以怎样的方式处理回调？<li>我需要保持这个函数用到的资源吗？后台任务会自动去持有这些资源吗？我需要自己去释放它们吗？<li>后台任务是否可以被管理，比如想要取消的话应该怎么做？<li>派发出去的任务会不会再去派发别的任务？别的这些任务会被正确管理吗？如果取消了这个派发出去的任务，那些被二次派发的任务也会被正确取消吗？</ul><p>这些答案并没有通用的约定，也没有编译器或运行时的保证。你很可能需要深入到每个函数的实现去寻找答案，或者只能依赖于那些脆弱且容易过时的文档 (前提还得有人写文档！) 然后不断自行猜测。和 <code class="language-plaintext highlighter-rouge">goto</code> 一样，派发回调破坏了并发的黑盒。它让我们所希冀和依赖的抽象大厦轰然坍塌，让我们原本可以用来在并发程序的天空中自由翱翔的双翼霎时折断。</p><p>结构化并发并没有很长的历史，它的基本概念由 Martin Sústrik 在 2016 年<a href="https://250bpm.com/blog:71/index.html">首次提出</a>，之后 Nathaniel Smith 用一篇<a href="https://vorpus.org/blog/notes-on-structured-concurrency-or-go-statement-considered-harmful/">《Go 语句有害论》</a>笔记“致敬”了当年对 <code class="language-plaintext highlighter-rouge">goto</code> 的批评，并从更高层阐明了结构化并发的做法，同时给出了一个 Python 库来证明和实践这些概念。我相信 Swift 团队在设计并发模型时，或多或少也参考了这些讨论，并吸收了相关经验。就算不是唯一，Swift 现在也是少数几个在原生层面上将结构化并发加入到标准库的语言之一。</p><p>那么，到底什么是结构化并发？</p><p>如果要用一句话概括，那就是即使进行并发操作，也要保证控制流路径的单一入口和单一出口。程序可以产生多个控制流来实现并发，但是所有的并发路径在出口时都应该处于完成 (或取消) 状态，并合并到一起。</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/structured-concurrency.png" alt="" /></p><p>这种将并发路径统合的做法，带来的一个非常明显的好处：它让抽象层重新有效。<code class="language-plaintext highlighter-rouge">foo</code> 现在是严格“自包含”的：在 <code class="language-plaintext highlighter-rouge">foo</code> 中产生的额外控制流路径，都将在 <code class="language-plaintext highlighter-rouge">foo</code> 中收束。这个方法现在回到了黑盒状态，在结构化并发的语境下，我们可以确信代码不会跳转到结构外，控制流最终会回到掌握之中。</p><p>为了将并发路径合并，程序需要具有暂停等待其他部分的能力。异步函数恰恰满足了这个条件：使用异步函数来获取暂停主控制流的能力，函数可以执行其他的异步并发操作并等待它们完成，最后主控制流和并发控制流统合后，从单一出口返回给调用者。这也是我们在之前就将异步函数称为结构化并发基础的原因。</p><h2 id="基于-task-的结构化并发模型">基于 Task 的结构化并发模型</h2><p>在 Swift 并发编程中，结构化并发需要依赖异步函数，而异步函数又必须运行在某个任务上下文中，因此可以说，想要进行结构化并发，必须具有任务上下文。实际上，Swift 结构化并发就是以任务为基本要素进行组织的。</p><h3 id="当前任务状态">当前任务状态</h3><p>Swift 并发编程把异步操作抽象为任务，在任意的异步函数中，我们总可是使用 <code class="language-plaintext highlighter-rouge">withUnsafeCurrentTask</code> 来获取和检查当前任务：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre><td class="rouge-code"><pre><span class="k">override</span> <span class="kd">func</span> <span class="nf">viewDidLoad</span><span class="p">()</span> <span class="p">{</span>
+  <span class="k">super</span><span class="o">.</span><span class="nf">viewDidLoad</span><span class="p">()</span>    
+  <span class="n">withUnsafeCurrentTask</span> <span class="p">{</span> <span class="n">task</span> <span class="k">in</span>
+    <span class="c1">// 1</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">task</span> <span class="k">as</span> <span class="kt">Any</span><span class="p">)</span>  <span class="c1">// =&gt; nil</span>
+  <span class="p">}</span>
+  <span class="kt">Task</span> <span class="p">{</span>
+    <span class="c1">// 2</span>
+    <span class="k">await</span> <span class="nf">foo</span><span class="p">()</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="n">withUnsafeCurrentTask</span> <span class="p">{</span> <span class="n">task</span> <span class="k">in</span>
+    <span class="c1">// 3</span>
+    <span class="k">if</span> <span class="k">let</span> <span class="nv">task</span> <span class="o">=</span> <span class="n">task</span> <span class="p">{</span>
+      <span class="c1">// 4</span>
+      <span class="nf">print</span><span class="p">(</span><span class="s">"Cancelled: </span><span class="se">\(</span><span class="n">task</span><span class="o">.</span><span class="n">isCancelled</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+      <span class="c1">// =&gt; Cancelled: false</span>
+
+      <span class="nf">print</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">priority</span><span class="p">)</span>
+      <span class="c1">// TaskPriority(rawValue: 33)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+      <span class="nf">print</span><span class="p">(</span><span class="s">"No task"</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><ol><li><code class="language-plaintext highlighter-rouge">withUnsafeCurrentTask</code> 本身不是异步函数，你也可以在普通的同步函数中使用它。如果当前的函数并没有运行在任何任务上下文环境中，也就是说，到 <code class="language-plaintext highlighter-rouge">withUnsafeCurrentTask</code> 为止的调用链中如果没有异步函数的话，这里得到的 <code class="language-plaintext highlighter-rouge">task</code> 会是 <code class="language-plaintext highlighter-rouge">nil</code>。<li>使用 <code class="language-plaintext highlighter-rouge">Task</code> 的初始化方法，可以得到一个新的任务环境。在上一章中我们已经看到过几种开始任务的方式了。<li>对于 <code class="language-plaintext highlighter-rouge">foo</code> 的调用，发生在上一步的 <code class="language-plaintext highlighter-rouge">Task</code> 闭包作用范围中，它的运行环境就是这个新创建的 <code class="language-plaintext highlighter-rouge">Task</code>。<li>对于获取到的 <code class="language-plaintext highlighter-rouge">task</code>，可以访问它的 <code class="language-plaintext highlighter-rouge">isCancelled</code> 和 <code class="language-plaintext highlighter-rouge">priority</code> 属性检查它是否已经被取消以及当前的优先级。我们甚至可以调用 <code class="language-plaintext highlighter-rouge">cancel()</code> 来取消这个任务。</ol><p>要注意任务的存在与否和函数本身是不是异步函数并没有必然关系，这是显然的：同步函数也可以在任务上下文中被调用。比如下面的 <code class="language-plaintext highlighter-rouge">syncFunc</code> 中，<code class="language-plaintext highlighter-rouge">withUnsafeCurrentTask</code> 也会给回一个有效任务：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">foo</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="n">withUnsafeCurrentTask</span> <span class="p">{</span> <span class="n">task</span> <span class="k">in</span>
+    <span class="c1">// ...</span>
+  <span class="p">}</span>
+  <span class="nf">syncFunc</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">syncFunc</span><span class="p">()</span> <span class="p">{</span>
+  <span class="n">withUnsafeCurrentTask</span> <span class="p">{</span> <span class="n">task</span> <span class="k">in</span>
+    <span class="nf">print</span><span class="p">(</span><span class="n">task</span> <span class="k">as</span> <span class="kt">Any</span><span class="p">)</span>
+    <span class="c1">// =&gt; Optional(</span>
+    <span class="c1">//      UnsafeCurrentTask(_task: (Opaque Value))</span>
+    <span class="c1">//    )</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>使用 <code class="language-plaintext highlighter-rouge">withUnsafeCurrentTask</code> 获取到的任务实际上是一个 <code class="language-plaintext highlighter-rouge">UnsafeCurrentTask</code> 值。和 Swift 中其他的 <code class="language-plaintext highlighter-rouge">Unsafe</code> 系 API 类似，Swift 仅保证它在 <code class="language-plaintext highlighter-rouge">withUnsafeCurrentTask</code> 的闭包中有效。你不能存储这个值，也不能在闭包之外调用或访问它的属性和方法，那会导致未定义的行为。</p><p>因为检查当前任务的状态相对是比较常用的操作，Swift 为此准备了一个“简便方法”：使用 <code class="language-plaintext highlighter-rouge">Task</code> 的静态属性来获取当前状态，比如：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Task</span> <span class="k">where</span> <span class="kt">Success</span> <span class="o">==</span> <span class="kt">Never</span><span class="p">,</span> <span class="kt">Failure</span> <span class="o">==</span> <span class="kt">Never</span> <span class="p">{</span>
+  <span class="kd">static</span> <span class="k">var</span> <span class="nv">isCancelled</span><span class="p">:</span> <span class="kt">Bool</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+  <span class="kd">static</span> <span class="k">var</span> <span class="nv">currentPriority</span><span class="p">:</span> <span class="kt">TaskPriority</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>虽然被定义为 <code class="language-plaintext highlighter-rouge">static var</code>，但是它们<strong>并不表示</strong>针对所有 <code class="language-plaintext highlighter-rouge">Task</code> 类型通用的某个全局属性，而是表示当前任务的情况。因为一个异步函数的运行环境必须有且仅会有一个任务上下文，所以使用 <code class="language-plaintext highlighter-rouge">static</code> 变量来表示这唯一一个任务的特性，是可以理解的。相比于每次去获取 <code class="language-plaintext highlighter-rouge">UnsafeCurrentTask</code>，这种写法更加简单。比如，我们可以在不同的任务上下文中使用 <code class="language-plaintext highlighter-rouge">Task.isCancelled</code> 检查任务的取消情况：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre><span class="kt">Task</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">t1</span> <span class="o">=</span> <span class="kt">Task</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"t1: </span><span class="se">\(</span><span class="kt">Task</span><span class="o">.</span><span class="n">isCancelled</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="k">let</span> <span class="nv">t2</span> <span class="o">=</span> <span class="kt">Task</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"t2: </span><span class="se">\(</span><span class="kt">Task</span><span class="o">.</span><span class="n">isCancelled</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="n">t1</span><span class="o">.</span><span class="nf">cancel</span><span class="p">()</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"t: </span><span class="se">\(</span><span class="kt">Task</span><span class="o">.</span><span class="n">isCancelled</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">// 输出：</span>
+<span class="c1">// t: false</span>
+<span class="c1">// t1: true</span>
+<span class="c1">// t2: false</span>
+</pre></table></code></div></div><h3 id="任务层级">任务层级</h3><p>上例中虽然 <code class="language-plaintext highlighter-rouge">t1</code> 和 <code class="language-plaintext highlighter-rouge">t2</code> 是在外层 <code class="language-plaintext highlighter-rouge">Task</code> 中再新生成并进行并发的，但是它们之间没有从属关系，并不是结构化的。这一点从 <code class="language-plaintext highlighter-rouge">t: false</code> 先于其他输出就可以看出，<code class="language-plaintext highlighter-rouge">t1</code> 和 <code class="language-plaintext highlighter-rouge">t2</code> 的执行都是在外层 <code class="language-plaintext highlighter-rouge">Task</code> 闭包结束后才进行的，它们<strong>逃逸</strong>出去了，这和结构化并发的收束规定不符。</p><p>想要创建结构化的并发任务，就需要让内层的 <code class="language-plaintext highlighter-rouge">t1</code> 和 <code class="language-plaintext highlighter-rouge">t2</code> 与外层 <code class="language-plaintext highlighter-rouge">Task</code> 具有某种从属关系。你可以已经猜到了，外层任务作为根节点，内层任务作为叶子节点，就可以使用树的数据结构，来描述各个任务的从属关系，并进而构建结构化的并发了。这个层级关系，和 UI 开发时的 View 层级关系十分相似。</p><p>通过用树的方式组织任务层级，我们可以获取下面这些有用特性：</p><ul><li>一个任务具有它自己的优先级和取消标识，它可以拥有若干个子任务 (叶子节点) 并在其中执行异步函数。<li>当一个父任务被取消时，这个父任务的取消标识将被设置，并向下传递到所有的子任务中去。<li>无论是正常完成还是抛出错误，子任务会将结果向上报告给父任务，在所有子任务正常完成或者抛出之前，父任务是不会被完成的。</ul><p>当任务的根节点退出时，我们通过等待所有的子节点，来保证并发任务都已经退出。树形结构允许我们在某个子节点扩展出更多的二层子节点，来组织更复杂的任务。这个子节点也许要遵守同样的规则，等待它的二层子节点们完成后，它自身才能完成。这样一来，在这棵树上的所有任务就都结构化了。</p><p>在 Swift 并发中，在任务树上创建一个叶子节点，有两种方法：通过任务组 (task group) 或是通过 <code class="language-plaintext highlighter-rouge">async let</code> 的异步绑定语法。我们来看看两者的一些异同。</p><h3 id="任务组">任务组</h3><h4 id="典型应用">典型应用</h4><p>在任务运行上下文中，或者更具体来说，在某个异步函数中，我们可以通过 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 为当前的任务添加一组结构化的并发子任务：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">TaskGroupSample</span> <span class="p">{</span>
+  <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Start"</span><span class="p">)</span>
+    <span class="c1">// 1</span>
+    <span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+      <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span> <span class="o">..&lt;</span> <span class="mi">3</span> <span class="p">{</span>
+        <span class="c1">// 2</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+          <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="nf">print</span><span class="p">(</span><span class="s">"Task added"</span><span class="p">)</span>
+
+      <span class="c1">// 4</span>
+      <span class="k">for</span> <span class="k">await</span> <span class="n">result</span> <span class="k">in</span> <span class="n">group</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Get result: </span><span class="se">\(</span><span class="n">result</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+      <span class="p">}</span>
+      <span class="c1">// 5</span>
+      <span class="nf">print</span><span class="p">(</span><span class="s">"Task ended"</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="nf">print</span><span class="p">(</span><span class="s">"End"</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="kd">private</span> <span class="kd">func</span> <span class="nf">work</span><span class="p">(</span><span class="n">_</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Int</span><span class="p">)</span> <span class="k">async</span> <span class="o">-&gt;</span> <span class="kt">Int</span> <span class="p">{</span>
+    <span class="c1">// 3</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Start work </span><span class="se">\(</span><span class="n">value</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="k">await</span> <span class="kt">Task</span><span class="o">.</span><span class="nf">sleep</span><span class="p">(</span><span class="kt">UInt64</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">*</span> <span class="kt">NSEC_PER_SEC</span><span class="p">)</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Work </span><span class="se">\(</span><span class="n">value</span><span class="se">)</span><span class="s"> done"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>解释一下上面注释中的数字标注。使用 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 可以开启一个新的任务组，它的完整的函数签名是：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="n">withTaskGroup</span><span class="o">&lt;</span><span class="kt">ChildTaskResult</span><span class="p">,</span> <span class="kt">GroupResult</span><span class="o">&gt;</span><span class="p">(</span>
+  <span class="n">of</span> <span class="nv">childTaskResultType</span><span class="p">:</span> <span class="kt">ChildTaskResult</span><span class="o">.</span><span class="k">Type</span><span class="p">,</span> 
+  <span class="n">returning</span> <span class="nv">returnType</span><span class="p">:</span> <span class="kt">GroupResult</span><span class="o">.</span><span class="k">Type</span> <span class="o">=</span> <span class="kt">GroupResult</span><span class="o">.</span><span class="k">self</span><span class="p">,</span>
+  <span class="nv">body</span><span class="p">:</span> <span class="p">(</span><span class="k">inout</span> <span class="kt">TaskGroup</span><span class="o">&lt;</span><span class="kt">ChildTaskResult</span><span class="o">&gt;</span><span class="p">)</span> <span class="k">async</span> <span class="o">-&gt;</span> <span class="kt">GroupResult</span>
+<span class="p">)</span> <span class="k">async</span> <span class="o">-&gt;</span> <span class="kt">GroupResult</span>
+</pre></table></code></div></div><ol><li>这个签名看起来十分复杂，有点吓人，我们来解释一下。<code class="language-plaintext highlighter-rouge">childTaskResultType</code> 正如其名，我们需要指定子任务们的返回类型。同一个任务组中的子任务只能拥有同样的返回类型，这是为了让 <code class="language-plaintext highlighter-rouge">TaskGroup</code> 的 API 更加易用，让它可以满足带有强类型的 <code class="language-plaintext highlighter-rouge">AsyncSequence</code> 协议所需要的假设。<code class="language-plaintext highlighter-rouge">returning</code> 定义了整个任务组的返回值类型，它拥有默认值，通过推断就可以得到，我们一般不需要理会。在 <code class="language-plaintext highlighter-rouge">body</code> 的参数中能得到一个 <code class="language-plaintext highlighter-rouge">inout</code> 修饰的 <code class="language-plaintext highlighter-rouge">TaskGroup</code>，我们可以通过使用它来向当前任务上下文添加结构化并发子任务。<li><code class="language-plaintext highlighter-rouge">addTask</code> API 把新的任务添加到当前任务中。被添加的任务会在调度器获取到可用资源后立即开始执行。在这里的例子里，<code class="language-plaintext highlighter-rouge">for...in</code> 循环中的三个任务会被立即添加到任务组里，并开始执行。<li>在实际工作开始时，我们进行了一次 <code class="language-plaintext highlighter-rouge">print</code> 输出，这让我们可以更容易地观测到事件的顺序。<li><code class="language-plaintext highlighter-rouge">group</code> 满足 <code class="language-plaintext highlighter-rouge">AsyncSequence</code>，因此我们可以使用 <code class="language-plaintext highlighter-rouge">for await</code> 的语法来获取子任务的执行结果。<code class="language-plaintext highlighter-rouge">group</code> 中的某个任务完成时，它的结果将被放到异步序列的缓冲区中。每当 <code class="language-plaintext highlighter-rouge">group</code> 的 <code class="language-plaintext highlighter-rouge">next</code> 会被调用时，如果缓冲区里有值，异步序列就将它作为下一个值给出；如果缓冲区为空，那么就等待下一个任务完成，这是异步序列的标准行为。<li><code class="language-plaintext highlighter-rouge">for await</code> 的结束意味着异步序列的 <code class="language-plaintext highlighter-rouge">next</code> 方法返回了 <code class="language-plaintext highlighter-rouge">nil</code>，此时<code class="language-plaintext highlighter-rouge">group</code> 中的子任务已经全部执行完毕了，<code class="language-plaintext highlighter-rouge">withTaskGroup</code> 的闭包也来到最后。接下来，外层的 “End” 也会被输出。整个结构化并发结束执行。</ol><p>调用上面的代码，输出结果为：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+</pre><td class="rouge-code"><pre><span class="kt">Task</span> <span class="p">{</span>
+  <span class="k">await</span> <span class="kt">TaskGroupSample</span><span class="p">()</span><span class="o">.</span><span class="nf">start</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="c1">// 输出：</span>
+<span class="c1">// Start</span>
+<span class="c1">// Task added</span>
+<span class="c1">// Start work 0</span>
+<span class="c1">// Start work 1</span>
+<span class="c1">// Start work 2</span>
+<span class="c1">// Work 0 done</span>
+<span class="c1">// Get result: 0</span>
+<span class="c1">// Work 1 done</span>
+<span class="c1">// Get result: 1</span>
+<span class="c1">// Work 2 done</span>
+<span class="c1">// Get result: 2</span>
+<span class="c1">// Task ended</span>
+<span class="c1">// End</span>
+</pre></table></code></div></div><p>由 <code class="language-plaintext highlighter-rouge">work</code> 定义的三个异步操作并发执行，它们各自运行在独自的子任务空间中。这些子任务在被添加后即刻开始执行，并最终在离开 <code class="language-plaintext highlighter-rouge">group</code> 作用域时再汇集到一起。用一个图表，我们可以看出这个结构化并发的运行方式：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/taskground-concurrency.png" alt="" /></p><h4 id="隐式等待">隐式等待</h4><p>为了获取子任务的结果，我们在上例中使用 <code class="language-plaintext highlighter-rouge">for await</code> 明确地等待 <code class="language-plaintext highlighter-rouge">group</code> 完成。这从语义上明确地满足结构化并发的要求：子任务会在控制流到达底部前结束。不过一个常见的疑问是，其实编译器并没有强制我们书写 <code class="language-plaintext highlighter-rouge">for await</code> 代码。如果我们因为某种原因，比如由于用不到这些结果，而导致忘了等待 <code class="language-plaintext highlighter-rouge">group</code>，会发生什么呢？任务组会不会因为没有等待，而导致原来的控制流不会暂停，就这样继续运行并结束？这样是不是违反了结构化并发的需要？</p><p>好消息是，即使我们没有明确 <code class="language-plaintext highlighter-rouge">await</code> 任务组，编译器在检测到结构化并发作用域结束时，会为我们自动添加上 <code class="language-plaintext highlighter-rouge">await</code> 并在等待所有任务结束后再继续控制流。比如，在上面的代码中，如果我们将 <code class="language-plaintext highlighter-rouge">for await</code> 部分删去：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span> <span class="o">..&lt;</span> <span class="mi">3</span> <span class="p">{</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+            <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Task added"</span><span class="p">)</span>
+
+    <span class="c1">// for await...</span>
+
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Task ended"</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="s">"End"</span><span class="p">)</span>
+</pre></table></code></div></div><p>输出将变为：</p><div class="language-plaintext highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre>// Start
+// Task added
+// Task ended
+// Start work 0
+// ...
+// Work 2 done
+// End
+</pre></table></code></div></div><p>虽然 “Task ended” 的输出似乎提早了，但代表整个任务组完成的 “End” 的输出依然处于最后，它一定会在子任务全部完成之后才发生。对于结构化的任务组，编译器会为在离开作用域时我们自动生成 <code class="language-plaintext highlighter-rouge">await group</code> 的代码，上面的代码其实相当于：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span> <span class="o">..&lt;</span> <span class="mi">3</span> <span class="p">{</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+      <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"Task added"</span><span class="p">)</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"Task ended"</span><span class="p">)</span>
+
+  <span class="c1">// 编译器自动生成的代码</span>
+  <span class="k">for</span> <span class="k">await</span> <span class="n">_</span> <span class="k">in</span> <span class="n">group</span> <span class="p">{</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="nf">print</span><span class="p">(</span><span class="s">"End"</span><span class="p">)</span>
+</pre></table></code></div></div><p>它满足结构化并发控制流的单入单出，将子任务的生命周期控制在任务组的作用域内，这也是结构化并发的最主要目的。即使我们手动 <code class="language-plaintext highlighter-rouge">await</code> 了 <code class="language-plaintext highlighter-rouge">group</code> 中的部分结果，然后退出了这个异步序列，结构化并发依然会保证在整个闭包退出前，让所有的子任务得以完成：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+</pre><td class="rouge-code"><pre><span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span> <span class="o">..&lt;</span> <span class="mi">3</span> <span class="p">{</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+      <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"Task added"</span><span class="p">)</span>
+  <span class="k">for</span> <span class="k">await</span> <span class="n">result</span> <span class="k">in</span> <span class="n">group</span> <span class="p">{</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Get result: </span><span class="se">\(</span><span class="n">result</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="c1">// 在首个子任务完成后就跳出</span>
+    <span class="k">break</span>
+  <span class="p">}</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"Task ended"</span><span class="p">)</span>
+
+  <span class="c1">// 编译器自动生成的代码</span>
+  <span class="k">await</span> <span class="n">group</span><span class="o">.</span><span class="nf">waitForAll</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><h4 id="任务组的值捕获">任务组的值捕获</h4><p>任务组中的每个子任务都拥有返回值，上面例子中 <code class="language-plaintext highlighter-rouge">work</code> 返回的 <code class="language-plaintext highlighter-rouge">Int</code> 就是子任务的返回值。当 <code class="language-plaintext highlighter-rouge">for await</code> 一个任务组时，就可以获取到每个子任务的返回值。任务组必须在所有子任务完成后才能完成，因此我们有机会“整理”所有子任务的返回结果，并为整个任务组设定一个返回值。比如把所有的 <code class="language-plaintext highlighter-rouge">work</code> 结果加起来：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">v</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+  <span class="k">var</span> <span class="nv">value</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span> <span class="o">..&lt;</span> <span class="mi">3</span> <span class="p">{</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="k">for</span> <span class="k">await</span> <span class="n">result</span> <span class="k">in</span> <span class="n">group</span> <span class="p">{</span>
+    <span class="n">value</span> <span class="o">+=</span> <span class="n">result</span>
+  <span class="p">}</span>
+  <span class="k">return</span> <span class="n">value</span>
+<span class="p">}</span>
+<span class="nf">print</span><span class="p">(</span><span class="s">"End. Result: </span><span class="se">\(</span><span class="n">v</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+</pre></table></code></div></div><p>每次 <code class="language-plaintext highlighter-rouge">work</code> 子任务完成后，结果的 <code class="language-plaintext highlighter-rouge">result</code> 都会和 <code class="language-plaintext highlighter-rouge">value</code> 累加，运行这段代码将输出结果 <code class="language-plaintext highlighter-rouge">3</code>。</p><p>一种很<strong>常见的错误</strong>，是把 <code class="language-plaintext highlighter-rouge">value += result</code> 的逻辑写到 <code class="language-plaintext highlighter-rouge">addTask</code> 中：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">v</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+  <span class="k">var</span> <span class="nv">value</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span> <span class="o">..&lt;</span> <span class="mi">3</span> <span class="p">{</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+      <span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+      <span class="n">value</span> <span class="o">+=</span> <span class="n">result</span>
+      <span class="k">return</span> <span class="n">result</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="c1">// 等待所有子任务完成</span>
+  <span class="k">await</span> <span class="n">group</span><span class="o">.</span><span class="nf">waitForAll</span><span class="p">()</span>
+  <span class="k">return</span> <span class="n">value</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这样的做法会带来一个编译错误：</p><blockquote><p>Mutation of captured var ‘value’ in concurrently-executing code</p></blockquote><p>在将代码通过 <code class="language-plaintext highlighter-rouge">addTask</code> 添加到任务组时，我们必须有清醒的认识：这些代码有可能以并发方式同时运行。编译器可以检测到这里我们在一个明显的并发上下文中改变了某个共享状态。不加限制地从并发环境中访问是危险操作，可能造成崩溃。得益于结构化并发，现在编译器可以理解任务上下文的区别，在静态检查时就发现这一点，从而从根本上避免了这里的内存风险。</p><p>更严格一些，即使只是读取这个 <code class="language-plaintext highlighter-rouge">var value</code> 值，也是不被允许的：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+  <span class="k">var</span> <span class="nv">value</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span> <span class="o">..&lt;</span> <span class="mi">3</span> <span class="p">{</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+      <span class="nf">print</span><span class="p">(</span><span class="s">"Value: </span><span class="se">\(</span><span class="n">value</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+      <span class="k">return</span> <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>将给出错误：</p><blockquote><p>Reference to captured var ‘value’ in concurrently-executing code</p></blockquote><p>和上面修改 <code class="language-plaintext highlighter-rouge">value</code> 的道理一样，由于 <code class="language-plaintext highlighter-rouge">value</code> 可能在并发操作执行的同时被外界改变，这样的访问也是不安全的。如果我们能保证 <code class="language-plaintext highlighter-rouge">value</code> 的值不会被更改的话，可以把 <code class="language-plaintext highlighter-rouge">var value</code> 的声明改为 <code class="language-plaintext highlighter-rouge">let value</code> 来避免这个错误：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+  <span class="c1">// var value = 0</span>
+  <span class="k">let</span> <span class="nv">value</span> <span class="o">=</span> <span class="mi">0</span>
+
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>或者使用 <code class="language-plaintext highlighter-rouge">[value]</code> 的语法，来捕获当前的 <code class="language-plaintext highlighter-rouge">value</code> 值。由于 <code class="language-plaintext highlighter-rouge">value</code> 是值类型的值，因此它将会遵循值语义，被复制到 <code class="language-plaintext highlighter-rouge">addTask</code> 闭包内使用。子任务闭包内的访问将不再使用闭包外的内存，从而保证安全：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+</pre><td class="rouge-code"><pre><span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+  <span class="k">var</span> <span class="nv">value</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span> <span class="o">..&lt;</span> <span class="mi">3</span> <span class="p">{</span>
+    <span class="c1">// 用 [value] 捕获当前的 value 值 0</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span> <span class="k">in</span>
+      <span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+      <span class="nf">print</span><span class="p">(</span><span class="s">"Value: </span><span class="se">\(</span><span class="n">value</span><span class="se">)</span><span class="s">"</span><span class="p">)</span> <span class="c1">// Value: 0</span>
+      <span class="k">return</span> <span class="n">result</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="c1">// 将 value 改为 100</span>
+  <span class="n">value</span> <span class="o">=</span> <span class="mi">100</span>
+
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>不过，如果我们把 <code class="language-plaintext highlighter-rouge">value</code> 再向上提到类的成员一级的话，这个静态检查将失去作用：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+</pre><td class="rouge-code"><pre><span class="c1">// 错误的代码，不要这样做</span>
+<span class="kd">class</span> <span class="kt">TaskGroupSample</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">value</span> <span class="o">=</span> <span class="mi">0</span>
+  <span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+      <span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span> <span class="o">..&lt;</span> <span class="mi">3</span> <span class="p">{</span>
+        <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+
+        <span class="c1">// 可以访问 value</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"Value: </span><span class="se">\(</span><span class="k">self</span><span class="o">.</span><span class="n">value</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+
+        <span class="c1">// 可以操作 value</span>
+        <span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="k">await</span> <span class="k">self</span><span class="o">.</span><span class="nf">work</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+        <span class="k">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+=</span> <span class="n">result</span>
+
+        <span class="k">return</span> <span class="n">result</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+
+  <span class="c1">// ...</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>在 Swift 5.5 中，虽然它可以编译 (而且使用起来，特别是在本地调试时也几乎不会有问题)，但这样的行为是<strong>错误</strong>的。和 Rust 不同，Swift 的堆内存所有权模型还无法完全区分内存的借用 (borrow) 和移动 (move)，因此这种数据竞争和内存错误，还需要开发者自行注意。</p><p>Swift 编译器并非无法检出上述错误，它只是暂时“容忍”了这种情况。包括静态检测上述错误在内的完全的编译器级别并发数据安全，是未来 Swift 版本中的目标。现在，在并发上下文中访问共享数据时，Swift 设计了 actor 类型来确保数据安全。我们在介绍后面关于 actor 的章节，以及并发底层模型和内存安全的部分后，你会对这种情况背后的原因有更深入的了解。</p><h4 id="任务组逃逸">任务组逃逸</h4><p>和 <code class="language-plaintext highlighter-rouge">withUnsafeCurrentTask</code> 中的 <code class="language-plaintext highlighter-rouge">task</code> 类似，<code class="language-plaintext highlighter-rouge">withTaskGroup</code> 闭包中的 <code class="language-plaintext highlighter-rouge">group</code> 也不应该被外部持有并在作用范围之外使用。虽然 Swift 编译器现在没有阻止我们这样做，但是在 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 闭包外使用 <code class="language-plaintext highlighter-rouge">group</code> 的话，将完全破坏结构化并发的假设：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+</pre><td class="rouge-code"><pre><span class="c1">// 错误的代码，不要这样做</span>
+<span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">g</span><span class="p">:</span> <span class="kt">TaskGroup</span><span class="o">&lt;</span><span class="kt">Int</span><span class="o">&gt;</span><span class="p">?</span> <span class="o">=</span> <span class="kc">nil</span>
+  <span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">group</span>
+    <span class="c1">//...</span>
+  <span class="p">}</span>
+  <span class="n">g</span><span class="p">?</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"End"</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>通过 <code class="language-plaintext highlighter-rouge">g?.addTask</code> 添加的任务有可能在 <code class="language-plaintext highlighter-rouge">start</code> 完成后继续运行，这回到了非结构并发的老路；但它也可能让整个任务组进入到难以预测的状态，这将摧毁程序的执行假设。<code class="language-plaintext highlighter-rouge">TaskGroup</code> 实际上<strong>并不是</strong>用来存储 <code class="language-plaintext highlighter-rouge">Task</code> 的容器，它也不提供组织任务时需要的树形数据结构，这个类型仅仅只是作为对底层接口的包装，提供了创建任务节点的方法。要注意，在闭包作用范围外添加任务的行为是未定义的，随着 Swift 的升级，今后有可能直接产生运行时的崩溃。虽然现在并没有提供任何语言特性来确保 <code class="language-plaintext highlighter-rouge">group</code> 不被复制出去，但是我们绝对应该避免这种反模式的做法。</p><h3 id="async-let-异步绑定">async let 异步绑定</h3><p>除了任务组以外，<code class="language-plaintext highlighter-rouge">async let</code> 是另一种创建结构化并发子任务的方式。<code class="language-plaintext highlighter-rouge">withTaskGroup</code> 提供了一种非常“正规”的创建结构化并发的方式：它明确地描绘了结构化任务的作用返回，确保在闭包内部生成的每个子任务都在 <code class="language-plaintext highlighter-rouge">group</code> 结束时被 <code class="language-plaintext highlighter-rouge">await</code>。通过对 <code class="language-plaintext highlighter-rouge">group</code> 这个异步序列进行迭代，我们可以按照异步任务完成的顺序对结果进行处理。只要遵守一定的使用约定，就可以保证并发结构化的正确工作并从中受益。</p><p>但是，这些优点有时候也正是 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 不足：每次我们想要使用 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 时，往往都需要遵循同样的模板，包括创建任务组、定义和添加子任务、使用 <code class="language-plaintext highlighter-rouge">await</code> 等待完成等，这些都是模板代码。而且对于所有子任务的返回值必须是同样类型的要求，也让灵活性下降或者要求更多的额外实现 (比如将各个任务的返回值用新类型封装等)。<code class="language-plaintext highlighter-rouge">withTaskGroup</code> 的核心在于，生成子任务并将它的返回值 (或者错误) 向上汇报给父任务，然后父任务将各个子任务的结果汇总起来，最终结束当前的结构化并发作用域。这种数据流模式十分常见，如果能让它简单一些，会大幅简化我们使用结构化并发的难度。<code class="language-plaintext highlighter-rouge">async let</code> 的语法正是为了简化结构化并发的使用而诞生的。</p><p>在 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 的例子中的代码，使用 <code class="language-plaintext highlighter-rouge">async let</code> 可以改写为下面的形式：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"Start"</span><span class="p">)</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">v0</span> <span class="o">=</span> <span class="nf">work</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">v1</span> <span class="o">=</span> <span class="nf">work</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">v2</span> <span class="o">=</span> <span class="nf">work</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"Task added"</span><span class="p">)</span>
+
+  <span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">v0</span> <span class="o">+</span> <span class="n">v1</span> <span class="o">+</span> <span class="n">v2</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"Task ended"</span><span class="p">)</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"End. Result: </span><span class="se">\(</span><span class="n">result</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">async let</code> 和 <code class="language-plaintext highlighter-rouge">let</code> 类似，它定义一个本地常量，并通过等号右侧的表达式来初始化这个常量。区别在于，这个初始化表达式必须是一个异步函数的调用，通过将这个异步函数“绑定”到常量值上，Swift 会创建一个并发执行的子任务，并在其中执行该异步函数。<code class="language-plaintext highlighter-rouge">async let</code> 赋值后，子任务会立即开始执行。如果想要获取执行的结果 (也就是子任务的返回值)，可以对赋值的常量使用 <code class="language-plaintext highlighter-rouge">await</code> 等待它的完成。</p><p>在上例中，我们使用了单一 <code class="language-plaintext highlighter-rouge">await</code> 来等待 <code class="language-plaintext highlighter-rouge">v0</code>、<code class="language-plaintext highlighter-rouge">v1</code> 和 <code class="language-plaintext highlighter-rouge">v2</code> 完成。和 <code class="language-plaintext highlighter-rouge">try</code> 一样，对于有多个表达式都需要暂停等待的情况，我们只需要使用一个 <code class="language-plaintext highlighter-rouge">await</code> 就可以了。当然，如果我们愿意，也可以把三个表达式分开来写：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">result0</span> <span class="o">=</span> <span class="k">await</span> <span class="n">v0</span>
+<span class="k">let</span> <span class="nv">result1</span> <span class="o">=</span> <span class="k">await</span> <span class="n">v1</span>
+<span class="k">let</span> <span class="nv">result2</span> <span class="o">=</span> <span class="k">await</span> <span class="n">v2</span>
+
+<span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="n">result0</span> <span class="o">+</span> <span class="n">result1</span> <span class="o">+</span> <span class="n">result2</span>
+</pre></table></code></div></div><p>需要特别强调，虽然这里我们顺次进行了 <code class="language-plaintext highlighter-rouge">await</code>，看起来好像是在等 <code class="language-plaintext highlighter-rouge">v0</code> 求值完毕后，再开始 <code class="language-plaintext highlighter-rouge">v1</code> 的暂停；然后在 <code class="language-plaintext highlighter-rouge">v1</code> 求值后再开始 <code class="language-plaintext highlighter-rouge">v2</code>。但是实际上，在 <code class="language-plaintext highlighter-rouge">async let</code> 时，这些子任务就一同开始以并发的方式进行了。在例子中，完成 <code class="language-plaintext highlighter-rouge">work(n)</code> 的耗时为 <code class="language-plaintext highlighter-rouge">n</code> 秒，所以上面的写法将在第 0 秒，第 1 秒和第 2 秒分别得出 <code class="language-plaintext highlighter-rouge">v0</code>，<code class="language-plaintext highlighter-rouge">v1</code> 和 <code class="language-plaintext highlighter-rouge">v2</code> 的值，<strong>而不是</strong>在第 0 秒，第 1 秒和第 3 秒 (1 秒 + 2 秒) 后才得到对应值。</p><p>由此衍生的另一个疑问是，如果我们修改 <code class="language-plaintext highlighter-rouge">await</code> 的顺序，会发生什么呢？比如下面的代码是否会带来不同的时序：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">result1</span> <span class="o">=</span> <span class="k">await</span> <span class="n">v1</span>
+<span class="k">let</span> <span class="nv">result2</span> <span class="o">=</span> <span class="k">await</span> <span class="n">v2</span>
+<span class="k">let</span> <span class="nv">result0</span> <span class="o">=</span> <span class="k">await</span> <span class="n">v0</span>
+
+<span class="k">let</span> <span class="nv">result</span> <span class="o">=</span> <span class="n">result0</span> <span class="o">+</span> <span class="n">result1</span> <span class="o">+</span> <span class="n">result2</span>
+</pre></table></code></div></div><p>如果是考察每个子任务实际完成的时序，那么答案是没有变化：在 <code class="language-plaintext highlighter-rouge">async let</code> 创建子任务时，这个任务就开始执行了，因此 <code class="language-plaintext highlighter-rouge">v0</code>、<code class="language-plaintext highlighter-rouge">v1</code> 和 <code class="language-plaintext highlighter-rouge">v2</code> 真正执行的耗时，依旧是 0 秒，1 秒和 2 秒。但是，使用 <code class="language-plaintext highlighter-rouge">await</code> 最终获取 <code class="language-plaintext highlighter-rouge">v0</code> 值的时刻，是严格排在获取 <code class="language-plaintext highlighter-rouge">v2</code> 值之后的：当 <code class="language-plaintext highlighter-rouge">v0</code> 任务完成后，它的结果将被暂存在它自身的续体栈上，等待执行上下文通过 <code class="language-plaintext highlighter-rouge">await</code> 切换到自己时，才会把结果返回。也就是说在上例中，通过 <code class="language-plaintext highlighter-rouge">async let</code> 把任务绑定并开始执行后，<code class="language-plaintext highlighter-rouge">await v1</code> 会在 1 秒后完成；再经过 1 秒时间，<code class="language-plaintext highlighter-rouge">await v2</code> 完成；然后紧接着，<code class="language-plaintext highlighter-rouge">await v0</code> 会把 2 秒之前就已经完成的结果立即返回给 <code class="language-plaintext highlighter-rouge">result0</code>：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/async-let-concurrency.png" alt="" /></p><p>这个例子中虽然最终的时序上会和之前有细微不同，但是这并没有违反结构化并发的规定。而且在绝大多数场景下，这也不会影响并发的结果和逻辑。不论是前面提到的任务组，还是 <code class="language-plaintext highlighter-rouge">async let</code>，它们所生成的子任务都是结构化的。不过，它们还有些许差别，我们马上就会谈到这个话题。</p><h4 id="隐式取消">隐式取消</h4><p>在使用 <code class="language-plaintext highlighter-rouge">async let</code> 时，编译器也没有强制我们书写类似 <code class="language-plaintext highlighter-rouge">await v0</code> 这样的等待语句。有了 <code class="language-plaintext highlighter-rouge">TaskGroup</code> 中的经验以及 Swift 里“默认安全”的行为规范，我们不难猜测出，对于没有 <code class="language-plaintext highlighter-rouge">await</code> 的异步绑定，编译器也帮我们做了某些“手脚”，以保证单进单出的结构化并发依然成立。</p><p>如果没有 <code class="language-plaintext highlighter-rouge">await</code>，那么 Swift 并发会在被绑定的常量离开作用域时，隐式地将绑定的子任务取消掉，然后进行 <code class="language-plaintext highlighter-rouge">await</code>。也就是说，对于这样的代码：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">v0</span> <span class="o">=</span> <span class="nf">work</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+  <span class="nf">print</span><span class="p">(</span><span class="s">"End"</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>它等效于：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">v0</span> <span class="o">=</span> <span class="nf">work</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+  <span class="nf">print</span><span class="p">(</span><span class="s">"End"</span><span class="p">)</span>
+
+  <span class="c1">// 下面是编译器自动生成的伪代码</span>
+  <span class="c1">// 注意和 Task group 的不同</span>
+
+  <span class="c1">// v0 绑定的任务被取消</span>
+  <span class="c1">// 伪代码，实际上绑定中并没有 `task` 这个属性</span>
+  <span class="n">v0</span><span class="o">.</span><span class="n">task</span><span class="o">.</span><span class="nf">cancel</span><span class="p">()</span>
+  <span class="c1">// 隐式 await，满足结构化并发</span>
+  <span class="n">_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">v0</span>    
+<span class="p">}</span>
+</pre></table></code></div></div><p>和 <code class="language-plaintext highlighter-rouge">TaskGroup</code> API 的不同之处在于，被绑定的任务将先被取消，然后才进行 <code class="language-plaintext highlighter-rouge">await</code>。这给了我们额外的机会去清理或者中止那些没有被使用的任务。不过，这种“隐藏行为”在异步函数可以抛出的时候，可能会造成很多的困惑。我们现在还没有涉及到任务的取消行为，以及如何正确处理取消。这是一个相对复杂且单独的话题，我们会在下一章中集中解释这里的细节。现在，你只需要记住，和 <code class="language-plaintext highlighter-rouge">TaskGroup</code> 一样，就算没有 <code class="language-plaintext highlighter-rouge">await</code>，<code class="language-plaintext highlighter-rouge">async let</code> <strong>依然满足结构化并发要求</strong>这一结论就可以了。</p><h4 id="对比任务组">对比任务组</h4><p>既然同样是为了书写结构化并发的程序，<code class="language-plaintext highlighter-rouge">async let</code> 经常会用来和任务组作比较。在语义上，两者所表达的范式是很类似的，因此也会有人认为 <code class="language-plaintext highlighter-rouge">async let</code> 只是任务组 API 的语法糖：因为任务组 API 的使用太过于繁琐了，而异步绑定毕竟在语法上要简洁很多。</p><p>但实际上它们之间是有差异的。<code class="language-plaintext highlighter-rouge">async let</code> 不能动态地表达任务的数量，能够生成的子任务数量在编译时必须是已经确定好的。比如，对于一个输入的数组，我们可以通过 <code class="language-plaintext highlighter-rouge">TaskGroup</code> 开始对应数量的子任务，但是我们却无法用 <code class="language-plaintext highlighter-rouge">async let</code> 改写这段代码：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">startAll</span><span class="p">(</span><span class="n">_</span> <span class="nv">items</span><span class="p">:</span> <span class="p">[</span><span class="kt">Int</span><span class="p">])</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="k">in</span> <span class="n">items</span> <span class="p">{</span>
+      <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span> <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">for</span> <span class="k">await</span> <span class="n">value</span> <span class="k">in</span> <span class="n">group</span> <span class="p">{</span>
+      <span class="nf">print</span><span class="p">(</span><span class="s">"Value: </span><span class="se">\(</span><span class="n">value</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>除了上面那些只能使用某一种方式创建的结构化并发任务外，对于可以互换的情况，任务组 API 和异步绑定 API 的区别在于提供了两种不同风格的编程方式。一个大致的使用原则是，如果我们需要比较“严肃”地界定结构化并发的起始，那么用任务组的闭包将它限制起来，并发的结构会显得更加清晰；而如果我们只是想要快速地并发开始少数几个任务，并减少其他模板代码的干扰，那么使用 <code class="language-plaintext highlighter-rouge">async let</code> 进行异步绑定，会让代码更简洁易读。</p><h3 id="结构化并发的组合">结构化并发的组合</h3><p>在只使用一次 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 或者一组 <code class="language-plaintext highlighter-rouge">async let</code> 的单一层级的维度上，我们可能很难看出结构化并发的优势，因为这时对于任务的调度还处于可控状态：我们完全可以使用传统的技术，通过添加一些信号量，来“手动”控制保证并发任务最终可以合并到一起。但是，随着系统逐渐复杂，可能会面临在一些并发的子任务中再次进行任务并发的需求。也就是，形成多个层级的子任务系统。在这种情况下，想依靠原始的信号量来进行任务管理会变得异常复杂。这也是结构化并发这一抽象真正能发挥全部功效的情况。</p><p>通过嵌套使用 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 或者 <code class="language-plaintext highlighter-rouge">async let</code>，可以在一般人能够轻易理解的范围内，灵活地构建出这种多层级的并发任务。最简单的方式，是在 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 中为 <code class="language-plaintext highlighter-rouge">group</code> 添加 task 时再开启一个 <code class="language-plaintext highlighter-rouge">withTaskGroup</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="c1">// 第一层任务组</span>
+  <span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">group</span> <span class="k">in</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+
+      <span class="c1">// 第二层任务组</span>
+      <span class="k">await</span> <span class="nf">withTaskGroup</span><span class="p">(</span><span class="nv">of</span><span class="p">:</span> <span class="kt">Int</span><span class="o">.</span><span class="k">self</span><span class="p">)</span> <span class="p">{</span> <span class="n">innerGroup</span> <span class="k">in</span>
+        <span class="n">innerGroup</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+          <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="n">innerGroup</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+          <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="k">await</span> <span class="n">innerGroup</span><span class="o">.</span><span class="nf">reduce</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="p">{</span> 
+          <span class="n">result</span><span class="p">,</span> <span class="n">value</span> <span class="k">in</span>
+          <span class="n">result</span> <span class="o">+</span> <span class="n">value</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+
+    <span class="p">}</span>
+    <span class="n">group</span><span class="o">.</span><span class="n">addTask</span> <span class="p">{</span>
+      <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"End"</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2021/nested-taskgroup.png" alt="" /></p><p>对于上面使用 <code class="language-plaintext highlighter-rouge">work</code> 函数的例子来说，多加的一层 <code class="language-plaintext highlighter-rouge">innerGroup</code> 在执行时并不会造成太大区别：三个任务依然是按照结构化并发执行。不过，这种层级的划分，给了我们更精确控制并发行为的机会。在结构化并发的任务模型中，子任务会从其父任务中继承<strong>任务优先级</strong>以及<strong>任务的本地值 (task local value)</strong>；在处理任务取消时，除了父任务会将取消传递给子任务外，在子任务中的抛出也会将取消向上传递。不论是当我们需要精确地在某一组任务中设置这些行为，或者只是单纯地为了更好的可读性，这种通过嵌套得到更加细分的任务层级的方法，都会对我们的目标有所帮助。</p><blockquote><p>任务本地值指的是那些仅存在于当前任务上下文中的，由外界注入的值。我们会在后面的章节中针对这个话题展开讨论。</p></blockquote><p>相对于 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 的嵌套，使用 <code class="language-plaintext highlighter-rouge">async let</code> 会更有技巧性一些。<code class="language-plaintext highlighter-rouge">async let</code> 赋值等号右边，接受的是一个对异步函数的调用。这个异步函数可以是像 <code class="language-plaintext highlighter-rouge">work</code> 这样的具体具名的函数，也可以是一个匿名函数。比如，上面的 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 嵌套的例子，使用 <code class="language-plaintext highlighter-rouge">async let</code>，可以简单地写为：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">v02</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="k">async</span> <span class="k">let</span> <span class="nv">v0</span> <span class="o">=</span> <span class="nf">work</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">let</span> <span class="nv">v2</span> <span class="o">=</span> <span class="nf">work</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">v0</span> <span class="o">+</span> <span class="n">v2</span>
+  <span class="p">}()</span>
+
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">v1</span> <span class="o">=</span> <span class="nf">work</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="n">_</span> <span class="o">=</span> <span class="k">await</span> <span class="n">v02</span> <span class="o">+</span> <span class="n">v1</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"End"</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这里在 <code class="language-plaintext highlighter-rouge">v02</code> 等号右侧的是一个匿名的异步函数闭包调用，其中通过两个新的 <code class="language-plaintext highlighter-rouge">async let</code> 开始了嵌套的子任务。特别注意，上例中的写法和下面这样的 <code class="language-plaintext highlighter-rouge">await</code> 有本质不同：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">v02</span><span class="p">:</span> <span class="kt">Int</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="nf">work</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="p">}()</span>
+
+  <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">await work(0) + work(2)</code> 将会<strong>顺次</strong>执行 <code class="language-plaintext highlighter-rouge">work(0)</code> 和 <code class="language-plaintext highlighter-rouge">work(2)</code>，并把它们的结果相加。这时两个操作不是并发执行的，也不涉及新的子任务。</p><p>当然，我们也可以把两个嵌套的 <code class="language-plaintext highlighter-rouge">async let</code> 提取到一个署名的函数中，这样调用就会回到我们所熟悉的方式：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">v02</span> <span class="o">=</span> <span class="nf">work02</span><span class="p">()</span>
+  <span class="c1">//...</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="nf">work02</span><span class="p">()</span> <span class="k">async</span> <span class="o">-&gt;</span> <span class="kt">Int</span> <span class="p">{</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">v0</span> <span class="o">=</span> <span class="nf">work</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">v2</span> <span class="o">=</span> <span class="nf">work</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="k">return</span> <span class="k">await</span> <span class="n">v0</span> <span class="o">+</span> <span class="n">v2</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>大部分时候，把子任务的部分提取成具名的函数会更好。不过对于这个简单的例子，直接使用匿名函数，让 <code class="language-plaintext highlighter-rouge">work(0)</code>、<code class="language-plaintext highlighter-rouge">work(2)</code> 与另一个子任务中的 <code class="language-plaintext highlighter-rouge">work(1)</code> 并列起来，可能结构会更清楚。</p><p>因为 <code class="language-plaintext highlighter-rouge">withTaskGroup</code> 和 <code class="language-plaintext highlighter-rouge">async let</code> 都产生结构性并发任务，因此有时候我们也可以将它们混合起来使用。比如在 <code class="language-plaintext highlighter-rouge">async let</code> 的右侧写一个 <code class="language-plaintext highlighter-rouge">withTaskGroup</code>；或者在 <code class="language-plaintext highlighter-rouge">group.addTask</code> 中用 <code class="language-plaintext highlighter-rouge">async let</code> 绑定新的任务。不过不论如何，这种“静态”的任务生成方式，理解起来都是相对容易的：只要我们能将生成的任务层级和我们想要的任务层级对应起来，两者混用也不会有什么问题。</p><h2 id="非结构化任务">非结构化任务</h2><p><code class="language-plaintext highlighter-rouge">TaskGroup.addTask</code> 和 <code class="language-plaintext highlighter-rouge">async let</code> 是 Swift 并发中“唯二”的创建结构化并发任务的 API。它们从当前的任务运行环境中继承任务优先级等属性，为即将开始的异步操作创建新的任务环境，然后将新的任务作为子任务添加到当前任务环境中。</p><p>除此之外，我们也看到过使用 <code class="language-plaintext highlighter-rouge">Task.init</code> 和 <code class="language-plaintext highlighter-rouge">Task.detached</code> 来创建新任务，并在其中执行异步函数的方式：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="kt">Task</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="p">}</span>
+
+  <span class="kt">Task</span><span class="o">.</span><span class="n">detached</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="nf">print</span><span class="p">(</span><span class="s">"End"</span><span class="p">)</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这类任务具有最高的灵活性，它们可以在任何地方被创建。它们生成一棵新的任务树，并位于顶层，不属于任何其他任务的子任务，生命周期不和其他作用域绑定，当然也没有结构化并发的特性。对比三者，可以看出它们之间明显的不同：</p><ul><li><code class="language-plaintext highlighter-rouge">TaskGroup.addTask</code> 和 <code class="language-plaintext highlighter-rouge">async let</code> - 创建结构化的子任务，继承优先级和本地值。<li><code class="language-plaintext highlighter-rouge">Task.init</code> - 创建非结构化的任务根节点，从当前任务中继承运行环境：比如 actor 隔离域，优先级和本地值等。<li><code class="language-plaintext highlighter-rouge">Task.detached</code> - 创建非结构化的任务根节点，不从当前任务中继承优先级和本地值等运行环境，完全新的游离任务环境。</ul><p>有一种迷思认为，我们在新建根节点任务时，应该尽量使用 <code class="language-plaintext highlighter-rouge">Task.init</code> 而避免选用生成一个完全“游离任务”的 <code class="language-plaintext highlighter-rouge">Task.detached</code>。其实这并不全然正确，有时候我们希望从当前任务环境中继承一些事实，但也有时候我们确实想要一个“干净”的任务环境。比如 <code class="language-plaintext highlighter-rouge">@main</code> 标记的异步程序入口和 SwiftUI <code class="language-plaintext highlighter-rouge">task</code> 修饰符，都使用的是 <code class="language-plaintext highlighter-rouge">Task.detached</code>。具体是不是有可能从当前任务环境中继承属性，或者应不应该继承这些属性，需要具体问题具体分析。</p><p>创建非结构化任务时，我们可以得到一个具体的 <code class="language-plaintext highlighter-rouge">Task</code> 值，它充当了这个新建任务的标识。从 <code class="language-plaintext highlighter-rouge">Task.init</code> 或 <code class="language-plaintext highlighter-rouge">Task.detached</code> 的闭包中返回的值，将作为整个 <code class="language-plaintext highlighter-rouge">Task</code> 运行结束后的值。使用 <code class="language-plaintext highlighter-rouge">Task.value</code> 这个异步只读属性，我们可以获取到整个 <code class="language-plaintext highlighter-rouge">Task</code> 的返回值：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Task</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Success</span> <span class="p">{</span> <span class="k">get</span> <span class="k">async</span> <span class="k">throws</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// 或者当 Task 不会失败时，value 也不会 throw：</span>
+<span class="kd">extension</span> <span class="kt">Task</span> <span class="k">where</span> <span class="kt">Failure</span> <span class="o">==</span> <span class="kt">Never</span> <span class="p">{</span>
+  <span class="k">var</span> <span class="nv">value</span><span class="p">:</span> <span class="kt">Success</span> <span class="p">{</span> <span class="k">get</span> <span class="k">async</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>想要访问这个值，和其他任意异步属性一样，需要使用 <code class="language-plaintext highlighter-rouge">await</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">t1</span> <span class="o">=</span> <span class="kt">Task</span> <span class="p">{</span> <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">}</span>
+  <span class="k">let</span> <span class="nv">t2</span> <span class="o">=</span> <span class="kt">Task</span><span class="o">.</span><span class="n">detached</span> <span class="p">{</span> <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">}</span>
+
+  <span class="k">let</span> <span class="nv">v1</span> <span class="o">=</span> <span class="k">await</span> <span class="n">t1</span><span class="o">.</span><span class="n">value</span>
+  <span class="k">let</span> <span class="nv">v2</span> <span class="o">=</span> <span class="k">await</span> <span class="n">t2</span><span class="o">.</span><span class="n">value</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>一旦创建任务，其中的异步任务就会被马上提交并执行。所以上面的代码依然是并发的：<code class="language-plaintext highlighter-rouge">t1</code> 和 <code class="language-plaintext highlighter-rouge">t2</code> 之间没有暂停，将同时执行，<code class="language-plaintext highlighter-rouge">t1</code> 任务在 1 秒后完成，而 <code class="language-plaintext highlighter-rouge">t2</code> 在两秒后完成。<code class="language-plaintext highlighter-rouge">await t1.value</code> 和 <code class="language-plaintext highlighter-rouge">await t2.value</code> 的顺序并不影响最终的执行耗时，即使是我们先 <code class="language-plaintext highlighter-rouge">await</code> 了 <code class="language-plaintext highlighter-rouge">t2</code>，<code class="language-plaintext highlighter-rouge">t1</code> 的预先计算的结果也会被暂存起来，并在它被 <code class="language-plaintext highlighter-rouge">await</code> 的时候给出。</p><p>用 <code class="language-plaintext highlighter-rouge">Task.init</code> 或 <code class="language-plaintext highlighter-rouge">Task.detached</code> 明确创建的 <code class="language-plaintext highlighter-rouge">Task</code>，是没有结构化并发特性的。<code class="language-plaintext highlighter-rouge">Task</code> 值超过作用域并不会导致自动取消或是 <code class="language-plaintext highlighter-rouge">await</code> 行为。想要取消一个这样的 <code class="language-plaintext highlighter-rouge">Task</code>，必须持有返回的 <code class="language-plaintext highlighter-rouge">Task</code> 值并明确调用 <code class="language-plaintext highlighter-rouge">cancel</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">t1</span> <span class="o">=</span> <span class="kt">Task</span> <span class="p">{</span> <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="p">}</span>
+
+<span class="c1">// 稍后</span>
+<span class="n">t1</span><span class="o">.</span><span class="nf">cancel</span><span class="p">()</span>
+</pre></table></code></div></div><p>这种非结构化并发中，外层的 <code class="language-plaintext highlighter-rouge">Task</code> 的取消，并不会传递到内层 <code class="language-plaintext highlighter-rouge">Task</code>。或者，更准确来说，这样的两个 <code class="language-plaintext highlighter-rouge">Task</code> 并没有任何从属关系，它们都是顶层任务：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">outer</span> <span class="o">=</span> <span class="kt">Task</span> <span class="p">{</span>
+  <span class="k">let</span> <span class="nv">innner</span> <span class="o">=</span> <span class="kt">Task</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+  <span class="p">}</span>
+  <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="n">outer</span><span class="o">.</span><span class="nf">cancel</span><span class="p">()</span>
+
+<span class="n">outer</span><span class="o">.</span><span class="n">isCancelled</span> <span class="c1">// true</span>
+<span class="n">inner</span><span class="o">.</span><span class="n">isCancelled</span> <span class="c1">// false</span>
+</pre></table></code></div></div><p>单是这样的多个 <code class="language-plaintext highlighter-rouge">Task</code>，看起来还很简单。但是考虑到 <code class="language-plaintext highlighter-rouge">Task.value</code> 其实也是一种异步函数，如果我们将结构化并发和非结构化的任务组合起来使用的话，事情马上就会变得复杂起来。比如下面这个“简单”的例子，它在 <code class="language-plaintext highlighter-rouge">async let</code> 右侧开启新的 <code class="language-plaintext highlighter-rouge">Task</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+</pre><td class="rouge-code"><pre><span class="kd">func</span> <span class="nf">start</span><span class="p">()</span> <span class="k">async</span> <span class="p">{</span>
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">t1</span> <span class="o">=</span> <span class="kt">Task</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Cancelled: </span><span class="se">\(</span><span class="kt">Task</span><span class="o">.</span><span class="n">isCancelled</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+  <span class="p">}</span><span class="o">.</span><span class="n">value</span>
+
+  <span class="k">async</span> <span class="k">let</span> <span class="nv">t2</span> <span class="o">=</span> <span class="kt">Task</span><span class="o">.</span><span class="n">detached</span> <span class="p">{</span>
+    <span class="k">await</span> <span class="nf">work</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+    <span class="nf">print</span><span class="p">(</span><span class="s">"Cancelled: </span><span class="se">\(</span><span class="kt">Task</span><span class="o">.</span><span class="n">isCancelled</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+  <span class="p">}</span><span class="o">.</span><span class="n">value</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p><code class="language-plaintext highlighter-rouge">t1</code> 和 <code class="language-plaintext highlighter-rouge">t2</code> 确实是结构化的，但是它们开启的新任务，却并非如此：虽然 <code class="language-plaintext highlighter-rouge">t1</code> 和 <code class="language-plaintext highlighter-rouge">t2</code> 在超出 <code class="language-plaintext highlighter-rouge">start</code> 作用域时，由于没有 <code class="language-plaintext highlighter-rouge">await</code>，这两个绑定都将被取消，但这个取消并不能传递到非结构化的 <code class="language-plaintext highlighter-rouge">Task</code> 中，所以两个 <code class="language-plaintext highlighter-rouge">isCancelled</code> 都将输出 <code class="language-plaintext highlighter-rouge">false</code>。</p><p>除非有特别的理由，我们希望某个任务独立于结构化并发的生命周期，否则我们应该尽量避免在结构化并发的上下文中使用非结构化任务。这可以让结构化的任务树保持简单，而不是随意地产生不受管理的新树。</p><blockquote><p>不过确实也有一些情况我们会倾向于选择非结构化的并发，比如一些并不影响异步系统中其他部分的非关键操作。像是下载文件后将它写入缓存就是一个好例子：在下载完成后我们就可以马上结束“下载”这个核心的异步行为，并在开始缓存的同时，就将文件返回给调用者了。写入缓存作为“顺带”操作，不应该作为结构化任务的一员。此时使用独立任务会更合适。</p></blockquote><h2 id="小结">小结</h2><p>历史已经证明了，完全放弃 <code class="language-plaintext highlighter-rouge">goto</code> 语句，使用结构化编程，有利于我们理解和写出正确控制流的程序。而随着计算机的发展和程序设计的演进，现在我们来到了另一个重要的时间节点：我们是否应该完全使用结构化并发，而舍弃掉原有的非结构化并发模型呢？现在有这个趋势，但是大家也都还保留了原来的并发模型。即使要完全转变，可能也还需要一些时间。</p><p>Swift 是当前少数几个在语言和标准库层面对结构化并发进行支持的语言之一。得益于 Swift 语言默认安全的特性，只要我们遵循一些简单的规定 (比如不在闭包外传递和持有 task group 等)，就可以写出正确、安全和非常易于理解的结构化并发代码。这为简化并发复杂度提供了有效的工具。<code class="language-plaintext highlighter-rouge">withTaskGroup</code> 和 <code class="language-plaintext highlighter-rouge">async let</code> 在创建结构化并发上是等效的，但是它们并非可以完全互相代替。两者有各自最适用的情景，在超出作用域的隐式行为细节上也略有不同。切实理解这些不同，可以帮助我们在面对任务时选取最合适的工具。</p><p>本章中我们只讨论了结构化并发的完成特性：父任务在子任务全部完成之前，是不会完成的。对于结构化并发来说，这只是其中一部分内容，对于另一个大的话题，任务取消，本章中鲜有涉及。在下一章里，我们会仔细探讨任务取消的相关话题，这会让我们对结构化并发在简化并发编程模型中所带来的优势，有更加深刻的理解。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/" class="post-tag no-text-decoration" >编程语言</a> <a href="/tags/%E5%B9%B6%E5%8F%91/" class="post-tag no-text-decoration" >并发</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=Swift 结构化并发 - OneV's Den&url=https://onevcat.com/2021/09/structured-concurrency/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=Swift 结构化并发 - OneV's Den&u=https://onevcat.com/2021/09/structured-concurrency/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=Swift 结构化并发 - OneV's Den&url=https://onevcat.com/2021/09/structured-concurrency/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=Swift 结构化并发 - OneV's Den&url=https://onevcat.com/2021/09/structured-concurrency/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2021/07/swift-concurrency/"><div class="card-body"> <span class="timeago small" > 2021-07-01 <i class="unloaded">2021-07-01T11:00:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Swift 并发初步</h3><div class="text-muted small"><p> 本文是我的新书《Swift 异步和并发》中第一章内容，主要从概览的方向上介绍了 Swift 5.5 中引入的 Swift 并发特性的使用方法。如果你对学习 Swift 并发有兴趣，也许可以作为参考读物。 你可以在这里找到本文中的参考代码。在本文写作的 Xcode 13 beta 2 环境下，你需要额外安装最新的 Swift 5.5 toolchain 来运行这些代码。 虽...</p></div></div></a></div><div class="card"> <a href="/2014/06/my-opinion-about-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-03 <i class="unloaded">2014-06-03T12:05:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>关于 Swift 的一点初步看法</h3><div class="text-muted small"><p> 虽然四点半就起床去排队等入场，结果还是只能坐在了蛮后面的位置看着大屏幕参加了今年的 Keynote。其实今年 OS X 和 iOS 的更新亮点都不少，但是显然风头和光芒都让横空出世的 Swift 给抢走了。这部分内容因为不是 NDA，所以可以提前说一说。 Swift 是 Apple 自创的一门专门为 Cocoa 和 CocoaTouch 设计的语言，意在用来替代 objc。早上发布的时候有...</p></div></div></a></div><div class="card"> <a href="/2014/06/walk-in-swift/"><div class="card-body"> <span class="timeago small" > 2014-06-07 <i class="unloaded">2014-06-07T18:23:44+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>行走于 Swift 的世界中</h3><div class="text-muted small"><p> 2014 年 7 月 13 日更新：根据 beta 3 的情况修正了文中过时的部分 从周一 Swift 正式公布，到现在周五，这几天其实基本一直在关注和摸索 Swift 了。对于一门新语言来说，开荒阶段的探索自然是激动人心的，但是很多时候资料的缺失和细节的隐藏也让人着实苦恼。这一周，特别是最近几天的感受是，Swift 并不像我上一篇表达自己初步看法的文章里所说的那样，相对于 obj...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2021/07/swift-concurrency/" class="btn btn-outline-primary"><p>Swift 并发初步</p></a> <a href="/2021/12/tca-1/" class="btn btn-outline-primary"><p>TCA - SwiftUI 的救星？(一)</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>

@@ -1,0 +1,357 @@
+<!DOCTYPE html><html lang="zh-Hans" ><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no"><meta name="theme" content="Chirpy v2.5.1"><meta name="generator" content="Jekyll v4.4.1" /><meta property="og:title" content="面向协议编程与 Cocoa 的邂逅 (上)" /><meta name="author" content="王巍 (onevcat)" /><meta property="og:locale" content="zh_Hans" /><meta name="description" content="本文是笔者在 MDCC 16 (移动开发者大会) 上 iOS 专场中的主题演讲的文字整理。您可以在这里找到演讲使用的 Keynote，部分示例代码可以在 MDCC 2016 的官方 repo 中找到。因为全部内容比较长，所以分成了上下两个部分，本文 (上) 主要介绍了一些理论方面的内容，包括面向对象编程存在的问题，面向协议的基本概念和决策模型等，下半部分主要展示了一些笔者日常使用面向协议思想和 Cocoa 开发结合的示例代码，并对其进行了一些解说。" /><meta property="og:description" content="本文是笔者在 MDCC 16 (移动开发者大会) 上 iOS 专场中的主题演讲的文字整理。您可以在这里找到演讲使用的 Keynote，部分示例代码可以在 MDCC 2016 的官方 repo 中找到。因为全部内容比较长，所以分成了上下两个部分，本文 (上) 主要介绍了一些理论方面的内容，包括面向对象编程存在的问题，面向协议的基本概念和决策模型等，下半部分主要展示了一些笔者日常使用面向协议思想和 Cocoa 开发结合的示例代码，并对其进行了一些解说。" /><link rel="canonical" href="https://onevcat.com/2016/11/pop-cocoa-1/" /><meta property="og:url" content="https://onevcat.com/2016/11/pop-cocoa-1/" /><meta property="og:site_name" content="OneV’s Den" /><meta property="og:type" content="article" /><meta property="article:published_time" content="2016-11-29T10:22:11+09:00" /><meta name="twitter:card" content="summary" /><meta property="twitter:title" content="面向协议编程与 Cocoa 的邂逅 (上)" /><meta name="twitter:site" content="@onevcat" /><meta name="twitter:creator" content="@王巍 (onevcat)" /><meta name="google-site-verification" content="1-1ZlHoRvM0T2FqPbW2S-qLgYXN6rsn52kErlMPd_gw" /> <script type="application/ld+json"> {"author":{"@type":"Person","name":"王巍 (onevcat)"},"description":"本文是笔者在 MDCC 16 (移动开发者大会) 上 iOS 专场中的主题演讲的文字整理。您可以在这里找到演讲使用的 Keynote，部分示例代码可以在 MDCC 2016 的官方 repo 中找到。因为全部内容比较长，所以分成了上下两个部分，本文 (上) 主要介绍了一些理论方面的内容，包括面向对象编程存在的问题，面向协议的基本概念和决策模型等，下半部分主要展示了一些笔者日常使用面向协议思想和 Cocoa 开发结合的示例代码，并对其进行了一些解说。","url":"https://onevcat.com/2016/11/pop-cocoa-1/","@type":"BlogPosting","headline":"面向协议编程与 Cocoa 的邂逅 (上)","dateModified":"2016-11-29T10:22:11+09:00","datePublished":"2016-11-29T10:22:11+09:00","mainEntityOfPage":{"@type":"WebPage","@id":"https://onevcat.com/2016/11/pop-cocoa-1/"},"@context":"https://schema.org"}</script><title>面向协议编程与 Cocoa 的邂逅 (上) | OneV's Den</title><link rel="shortcut icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="icon" href="/assets/img/favicons/favicon.ico" type="image/x-icon"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon.png"><link rel="apple-touch-icon" href="/assets/img/favicons/apple-icon-precomposed.png"><link rel="apple-touch-icon" sizes="57x57" href="/assets/img/favicons/apple-icon-57x57.png"><link rel="apple-touch-icon" sizes="60x60" href="/assets/img/favicons/apple-icon-60x60.png"><link rel="apple-touch-icon" sizes="72x72" href="/assets/img/favicons/apple-icon-72x72.png"><link rel="apple-touch-icon" sizes="76x76" href="/assets/img/favicons/apple-icon-76x76.png"><link rel="apple-touch-icon" sizes="114x114" href="/assets/img/favicons/apple-icon-114x114.png"><link rel="apple-touch-icon" sizes="120x120" href="/assets/img/favicons/apple-icon-120x120.png"><link rel="apple-touch-icon" sizes="144x144" href="/assets/img/favicons/apple-icon-144x144.png"><link rel="apple-touch-icon" sizes="152x152" href="/assets/img/favicons/apple-icon-152x152.png"><link rel="apple-touch-icon" sizes="180x180" href="/assets/img/favicons/apple-icon-180x180.png"><link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicons/android-icon-192x192.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/img/favicons/favicon-32x32.png"><link rel="icon" type="image/png" sizes="96x96" href="/assets/img/favicons/favicon-96x96.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/img/favicons/favicon-16x16.png"><link rel="manifest" href="/assets/img/favicons/manifest.json"><meta name='msapplication-config' content='/assets/img/favicons/browserconfig.xml'><meta name="msapplication-TileColor" content="#ffffff"><meta name="msapplication-TileImage" content="/assets/img/favicons/ms-icon-144x144.png"><meta name="theme-color" content="#ffffff"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="cdn.jsdelivr.net"><link rel="dns-prefetch" href="cdn.jsdelivr.net"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha256-LA89z+k9fjgMKQ/kq4OO2Mrf8VltYml/VES+Rg0fh20=" crossorigin="anonymous"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@5.11.2/css/all.min.css" integrity="sha256-+N4/V/SbAFiW1MPBCXnfnP9QSN3+Keu+NlB+0ev/YKQ=" crossorigin="anonymous"><link rel="preload" as="style" href="/assets/css/post.css"><link rel="stylesheet" href="/assets/css/post.css"><link rel="preload" as="style" href="/assets/css/lib/bootstrap-toc.min.css"><link rel="stylesheet" href="/assets/css/lib/bootstrap-toc.min.css" /> <script src="https://cdn.jsdelivr.net/npm/jquery@3/dist/jquery.min.js"></script> <script defer src="https://cdn.jsdelivr.net/combine/npm/popper.js@1.15.0,npm/bootstrap@4/dist/js/bootstrap.min.js"></script> <script defer src="/assets/js/post.min.js"></script> <script async src="https://www.googletagmanager.com/gtag/js?id=G-5MVTMV6B6Y"></script> <script> window.dataLayer = window.dataLayer || []; function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config', 'G-5MVTMV6B6Y'); </script><body data-spy="scroll" data-target="#toc"><div id="sidebar" class="d-flex flex-column"><div id="nav-wrapper"><div id="profile-wrapper" class="d-flex flex-column"><div id="avatar" class="d-flex justify-content-center"> <a href="/" alt="avatar"> <img src="/assets/images/avatar.jpg" alt="avatar" onerror="this.style.display='none'"> </a></div><div class="profile-text mt-3"><div class="site-title"> <a href="/">OneV's Den</a></div><div class="site-subtitle font-italic">上善若水，人淡如菊</div></div></div><ul class="nav flex-column"><li class="nav-item d-flex justify-content-center "> <a href="/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-home ml-xl-3 mr-xl-3 unloaded"></i> <span>主页</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/categories/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-stream ml-xl-3 mr-xl-3 unloaded"></i> <span>分类</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/tags/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-tags ml-xl-3 mr-xl-3 unloaded"></i> <span>标签</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/archives/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-archive ml-xl-3 mr-xl-3 unloaded"></i> <span>归档</span> </a><li class="nav-item d-flex justify-content-center "> <a href="/tabs/about/" class="nav-link d-flex justify-content-center align-items-center w-100"> <i class="fa-fw fas fa-info ml-xl-3 mr-xl-3 unloaded"></i> <span>关于</span> </a></ul></div><div class="sidebar-bottom d-flex flex-wrap justify-content-around mt-4"> <span id="mode-toggle-wrapper"> <i class="mode-toggle fas fa-sun" dark-mode-invisible></i> <i class="mode-toggle fas fa-moon" light-mode-invisible></i> <script type="text/javascript"> class ModeToggle { static get MODE_KEY() { return "mode"; } static get DARK_MODE() { return "dark"; } static get LIGHT_MODE() { return "light"; } constructor() { if (this.mode != null) { if (this.mode == ModeToggle.DARK_MODE) { if (!this.isSysDarkPrefer) { this.setDark(); } } else { if (this.isSysDarkPrefer) { this.setLight(); } } } var self = this; /* always follow the system prefers */ this.sysDarkPrefers.addListener(function() { if (self.mode != null) { if (self.mode == ModeToggle.DARK_MODE) { if (!self.isSysDarkPrefer) { self.setDark(); } } else { if (self.isSysDarkPrefer) { self.setLight(); } } self.clearMode(); } }); } /* constructor() */ setDark() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.DARK_MODE); } setLight() { $('html').attr(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); sessionStorage.setItem(ModeToggle.MODE_KEY, ModeToggle.LIGHT_MODE); } clearMode() { $('html').removeAttr(ModeToggle.MODE_KEY); sessionStorage.removeItem(ModeToggle.MODE_KEY); } get sysDarkPrefers() { return window.matchMedia("(prefers-color-scheme: dark)"); } get isSysDarkPrefer() { return this.sysDarkPrefers.matches; } get isDarkMode() { return this.mode == ModeToggle.DARK_MODE; } get isLightMode() { return this.mode == ModeToggle.LIGHT_MODE; } get hasMode() { return this.mode != null; } get mode() { return sessionStorage.getItem(ModeToggle.MODE_KEY); } get isResolvedDarkMode() { if (this.isLightMode) { return false; } return this.isSysDarkPrefer; } updateCommentStyle() { var theme = "github-light"; if (this.isResolvedDarkMode) { theme = "photon-dark"; } let comment = document.querySelector("iframe.utterances-frame"); if (comment == null) { return; } comment.contentWindow.postMessage( { type: "set-theme", theme: theme }, "https://utteranc.es/" ); } flipMode() { if (this.hasMode) { if (this.isSysDarkPrefer) { if (this.isLightMode) { this.clearMode(); } else { this.setLight(); } } else { if (this.isDarkMode) { this.clearMode(); } else { this.setDark(); } } } else { if (this.isSysDarkPrefer) { this.setLight(); } else { this.setDark(); } } this.updateCommentStyle(); } /* flipMode() */ } /* ModeToggle */ let toggle = new ModeToggle(); $(".mode-toggle").click(function() { toggle.flipMode(); }); </script> </span> <span class="icon-border"></span> <a href="https://github.com/onevcat" aria-label="github" target="_blank" rel="noopener"> <i class="fab fa-github-alt"></i> </a> <a href="https://twitter.com/onevcat" aria-label="twitter" target="_blank" rel="noopener"> <i class="fab fa-twitter"></i> </a> <a href="https://www.weibo.com/onevcat" aria-label="" target="_blank" rel="noopener"> <i class="fab fa-weibo"></i> </a> <a href=" javascript:location.href = 'mailto:' + ['onev','onevcat.com'].join('@')" aria-label="email" > <i class="fas fa-envelope"></i> </a> <a href="/feed.xml" aria-label="rss" > <i class="fas fa-rss"></i> </a></div></div><div id="topbar-wrapper" class="row justify-content-center topbar-down"><div id="topbar" class="col-11 d-flex h-100 align-items-center justify-content-between"> <span id="breadcrumb"> <span> <a href="/"> 主页 </a> </span> <span>面向协议编程与 Cocoa 的邂逅 (上)</span> </span> <i id="sidebar-trigger" class="fas fa-bars fa-fw"></i><div id="topbar-title"> Post</div><i id="search-trigger" class="fas fa-search fa-fw"></i> <span id="search-wrapper" class="align-items-center"> <i class="fas fa-search fa-fw"></i> <input class="form-control" id="search-input" type="search" aria-label="search" placeholder="搜索..."> <i class="fa fa-times-circle fa-fw" id="search-cleaner"></i> </span> <span id="search-cancel" >Cancel</span></div></div><div id="main-wrapper"><div id="main"><div class="row"><div id="post-wrapper" class="col-12 col-lg-11 col-xl-8"><div class="post pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><h1 data-toc-skip>面向协议编程与 Cocoa 的邂逅 (上)</h1><div class="post-meta text-muted d-flex flex-column"><div> 　由 <span class="author"> 王巍 (onevcat) </span> 发布于 <span class="timeago " data-toggle="tooltip" data-placement="bottom" title="Tue, Nov 29, 2016, 10:22 AM +0900" > 2016-11-29 <i class="unloaded">2016-11-29T10:22:11+09:00</i> </span></div><div> 最后更新: <span class="timeago lastmod" data-toggle="tooltip" data-placement="bottom" title="Thu, Oct 22, 2020, 5:03 PM +0900" > 2020-10-22 <i class="unloaded">2020-10-22T17:03:49+09:00</i> </span></div></div><div class="post-content"><p>本文是笔者在 MDCC 16 (移动开发者大会) 上 iOS 专场中的主题演讲的文字整理。您可以在<a href="https://speakerdeck.com/onevcat/mian-xiang-xie-yi-bian-cheng-yu-cocoa-de-xie-hou">这里</a>找到演讲使用的 Keynote，部分示例代码可以在 MDCC 2016 的<a href="https://github.com/MDCC2016/ProtocolNetwork">官方 repo</a> 中找到。因为全部内容比较长，所以分成了上下两个部分，本文 (上) 主要介绍了一些理论方面的内容，包括面向对象编程存在的问题，面向协议的基本概念和决策模型等，<a href="/2016/12/pop-cocoa-2/">下半部分</a>主要展示了一些笔者日常使用面向协议思想和 Cocoa 开发结合的示例代码，并对其进行了一些解说。</p><h2 id="引子">引子</h2><p>面向协议编程 (Protocol Oriented Programming，以下简称 POP) 是 Apple 在 2015 年 WWDC 上提出的 Swift 的一种编程范式。相比与传统的面向对象编程 (OOP)，POP 显得更加灵活。结合 Swift 的值语义特性和 Swift 标准库的实现，这一年来大家发现了很多 POP 的应用场景。本次演讲希望能在介绍 POP 思想的基础上，引入一些日常开发中可以使用 POP 的场景，让与会来宾能够开始在日常工作中尝试 POP，并改善代码设计。</p><h2 id="起初识---什么是-swift-协议">起・初识 - 什么是 Swift 协议</h2><h3 id="protocol">Protocol</h3><p>Swift 标准库中有 50 多个复杂不一的协议，几乎所有的实际类型都是满足若干协议的。protocol 是 Swift 语言的底座，语言的其他部分正是在这个底座上组织和建立起来的。这和我们熟知的面向对象的构建方式很不一样。</p><p>一个最简单但是有实际用处的 Swift 协议定义如下：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">Greetable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+    <span class="kd">func</span> <span class="nf">greet</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这几行代码定义了一个名为 <code class="language-plaintext highlighter-rouge">Greetable</code> 的协议，其中有一个 <code class="language-plaintext highlighter-rouge">name</code> 属性的定义，以及一个 <code class="language-plaintext highlighter-rouge">greet</code> 方法的定义。</p><p>所谓协议，就是一组属性和/或方法的定义，而如果某个具体类型想要遵守一个协议，那它需要实现这个协议所定义的所有这些内容。协议实际上做的事情不过是“关于实现的约定”。</p><h3 id="面向对象">面向对象</h3><p>在深入 Swift 协议的概念之前，我想先重新让大家回顾一下面向对象。相信我们不论在教科书或者是博客等各种地方对这个名词都十分熟悉了。那么有一个很有意思，但是其实并不是每个程序员都想过的问题，面向对象的核心思想究竟是什么？</p><p>我们先来看一段面向对象的代码：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="kt">Animal</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">leg</span><span class="p">:</span> <span class="kt">Int</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">2</span> <span class="p">}</span>
+    <span class="kd">func</span> <span class="nf">eat</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"eat food."</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="kd">func</span> <span class="nf">run</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"run with </span><span class="se">\(</span><span class="n">leg</span><span class="se">)</span><span class="s"> legs"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">class</span> <span class="kt">Tiger</span><span class="p">:</span> <span class="kt">Animal</span> <span class="p">{</span>
+    <span class="k">override</span> <span class="k">var</span> <span class="nv">leg</span><span class="p">:</span> <span class="kt">Int</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">4</span> <span class="p">}</span>
+    <span class="k">override</span> <span class="kd">func</span> <span class="nf">eat</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"eat meat."</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="k">let</span> <span class="nv">tiger</span> <span class="o">=</span> <span class="kt">Tiger</span><span class="p">()</span>
+<span class="n">tiger</span><span class="o">.</span><span class="nf">eat</span><span class="p">()</span> <span class="c1">// "eat meat"</span>
+<span class="n">tiger</span><span class="o">.</span><span class="nf">run</span><span class="p">()</span> <span class="c1">// "run with 4 legs"</span>
+</pre></table></code></div></div><p>父类 <code class="language-plaintext highlighter-rouge">Animal</code> 定义了动物的 <code class="language-plaintext highlighter-rouge">leg</code> (这里应该使用虚类，但是 Swift 中没有这个概念，所以先请无视这里的 <code class="language-plaintext highlighter-rouge">return 2</code>)，以及动物的 <code class="language-plaintext highlighter-rouge">eat</code> 和 <code class="language-plaintext highlighter-rouge">run</code> 方法，并为它们提供了实现。子类的 <code class="language-plaintext highlighter-rouge">Tiger</code> 根据自身情况重写了 <code class="language-plaintext highlighter-rouge">leg</code> (4 条腿)和 <code class="language-plaintext highlighter-rouge">eat</code> (吃肉)，而对于 <code class="language-plaintext highlighter-rouge">run</code>，父类的实现已经满足需求，因此不必重写。</p><p>我们看到 <code class="language-plaintext highlighter-rouge">Tiger</code> 和 <code class="language-plaintext highlighter-rouge">Animal</code> 共享了一部分代码，这部分代码被封装到了父类中，而除了 <code class="language-plaintext highlighter-rouge">Tiger</code> 的其他的子类也能够使用 <code class="language-plaintext highlighter-rouge">Animal</code> 的这些代码。这其实就是 OOP 的核心思想 - 使用封装和继承，将一系列相关的内容放到一起。我们的前辈们为了能够对真实世界的对象进行建模，发展出了面向对象编程的概念，但是这套理念有一些缺陷。虽然我们努力用这套抽象和继承的方法进行建模，但是实际的事物往往是一系列<strong>特质的组合</strong>，而不单单是以一脉相承并逐渐扩展的方式构建的。所以最近大家越来越发现面向对象很多时候其实不能很好地对事物进行抽象，我们可能需要寻找另一种更好的方式。</p><h3 id="面向对象编程的困境">面向对象编程的困境</h3><h4 id="横切关注点">横切关注点</h4><p>我们再来看一个例子。这次让我们远离动物世界，回到 Cocoa，假设我们有一个 <code class="language-plaintext highlighter-rouge">ViewController</code>，它继承自 <code class="language-plaintext highlighter-rouge">UIViewController</code>，我们向其中添加一个 <code class="language-plaintext highlighter-rouge">myMethod</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="kt">ViewCotroller</span><span class="p">:</span> <span class="kt">UIViewController</span>
+<span class="p">{</span>
+    <span class="c1">// 继承</span>
+    <span class="c1">// view, isFirstResponder()...</span>
+    
+    <span class="c1">// 新加</span>
+    <span class="kd">func</span> <span class="nf">myMethod</span><span class="p">()</span> <span class="p">{</span>
+        
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>如果这时候我们又有一个继承自 <code class="language-plaintext highlighter-rouge">UITableViewController</code> 的 <code class="language-plaintext highlighter-rouge">AnotherViewController</code>，我们也想向其中添加同样的 <code class="language-plaintext highlighter-rouge">myMethod</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">class</span> <span class="kt">AnotherViewController</span><span class="p">:</span> <span class="kt">UITableViewController</span>
+<span class="p">{</span>
+    <span class="c1">// 继承</span>
+    <span class="c1">// tableView, isFirstResponder()...</span>
+    
+    <span class="c1">// 新加</span>
+    <span class="kd">func</span> <span class="nf">myMethod</span><span class="p">()</span> <span class="p">{</span>
+        
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>这时，我们迎来了 OOP 的第一个大困境，那就是我们很难在不同继承关系的类里共用代码。这里的问题用“行话”来说叫做“横切关注点” (Cross-Cutting Concerns)。我们的关注点 <code class="language-plaintext highlighter-rouge">myMethod</code> 位于两条继承链 (<code class="language-plaintext highlighter-rouge">UIViewController</code> -&gt; <code class="language-plaintext highlighter-rouge">ViewCotroller</code> 和 <code class="language-plaintext highlighter-rouge">UIViewController</code> -&gt; <code class="language-plaintext highlighter-rouge">UITableViewController</code> -&gt; <code class="language-plaintext highlighter-rouge">AnotherViewController</code>) 的横切面上。面向对象是一种不错的抽象方式，但是肯定不是最好的方式。它无法描述两个不同事物具有某个相同特性这一点。在这里，特性的组合要比继承更贴切事物的本质。</p><p>想要解决这个问题，我们有几个方案：</p><ul><li><p>Copy &amp; Paste</p><p>这是一个比较糟糕的解决方案，但是演讲现场还是有不少朋友选择了这个方案，特别是在工期很紧，无暇优化的情况下。这诚然可以理解，但是这也是坏代码的开头。我们应该尽量避免这种做法。</p><li><p>引入 BaseViewController</p><p>在一个继承自 <code class="language-plaintext highlighter-rouge">UIViewController</code> 的 <code class="language-plaintext highlighter-rouge">BaseViewController</code> 上添加需要共享的代码，或者干脆在 <code class="language-plaintext highlighter-rouge">UIViewController</code> 上添加 extension。看起来这是一个稍微靠谱的做法，但是如果不断这么做，会让所谓的 <code class="language-plaintext highlighter-rouge">Base</code> 很快变成垃圾堆。职责不明确，任何东西都能扔进 <code class="language-plaintext highlighter-rouge">Base</code>，你完全不知道哪些类走了 <code class="language-plaintext highlighter-rouge">Base</code>，而这个“超级类”对代码的影响也会不可预估。</p><li><p>依赖注入</p><p>通过外界传入一个带有 <code class="language-plaintext highlighter-rouge">myMethod</code> 的对象，用新的类型来提供这个功能。这是一个稍好的方式，但是引入额外的依赖关系，可能也是我们不太愿意看到的。</p><li><p>多继承</p><p>当然，Swift 是不支持多继承的。不过如果有多继承的话，我们确实可以从多个父类进行继承，并将 <code class="language-plaintext highlighter-rouge">myMethod</code> 添加到合适的地方。有一些语言选择了支持多继承 (比如 C++)，但是它会带来 OOP 中另一个著名的问题：菱形缺陷。</p></ul><h4 id="菱形缺陷">菱形缺陷</h4><p>上面的例子中，如果我们有多继承，那么 <code class="language-plaintext highlighter-rouge">ViewController</code> 和 <code class="language-plaintext highlighter-rouge">AnotherViewController</code> 的关系可能会是这样的：</p><p><img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7 " data-src="/assets/images/2016/diamond.png" alt="" /></p><p>在上面这种拓扑结构中，我们只需要在 <code class="language-plaintext highlighter-rouge">ViewController</code> 中实现 <code class="language-plaintext highlighter-rouge">myMethod</code>，在 <code class="language-plaintext highlighter-rouge">AnotherViewController</code> 中也就可以继承并使用它了。看起来很完美，我们避免了重复。但是多继承有一个无法回避的问题，就是两个父类都实现了同样的方法时，子类该怎么办？我们很难确定应该继承哪一个父类的方法。因为多继承的拓扑结构是一个菱形，所以这个问题又被叫做菱形缺陷 (Diamond Problem)。像是 C++ 这样的语言选择粗暴地将菱形缺陷的问题交给程序员处理，这无疑非常复杂，并且增加了人为错误的可能性。而绝大多数现代语言对多继承这个特性选择避而远之。</p><h4 id="动态派发安全性">动态派发安全性</h4><p>Objective-C 恰如其名，是一门典型的 OOP 语言，同时它继承了 Small Talk 的消息发送机制。这套机制十分灵活，是 OC 的基础思想，但是有时候相对危险。考虑下面的代码：</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="n">ViewController</span> <span class="o">*</span><span class="n">v1</span> <span class="o">=</span> <span class="p">...</span>
+<span class="p">[</span><span class="n">v1</span> <span class="nf">myMethod</span><span class="p">];</span>
+
+<span class="n">AnotherViewController</span> <span class="o">*</span><span class="n">v2</span> <span class="o">=</span> <span class="p">...</span>
+<span class="p">[</span><span class="n">v2</span> <span class="nf">myMethod</span><span class="p">];</span>
+
+<span class="n">NSArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">@[</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">];</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">id</span> <span class="n">obj</span> <span class="k">in</span> <span class="n">array</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">obj</span> <span class="nf">myMethod</span><span class="p">];</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>我们如果在 <code class="language-plaintext highlighter-rouge">ViewController</code> 和 <code class="language-plaintext highlighter-rouge">AnotherViewController</code> 中都实现了 <code class="language-plaintext highlighter-rouge">myMethod</code> 的话，这段代码是没有问题的。<code class="language-plaintext highlighter-rouge">myMethod</code> 将会被动态发送给 <code class="language-plaintext highlighter-rouge">array</code> 中的 <code class="language-plaintext highlighter-rouge">v1</code> 和 <code class="language-plaintext highlighter-rouge">v2</code>。但是，要是我们有一个没有实现 <code class="language-plaintext highlighter-rouge">myMethod</code> 的类型，会如何呢？</p><div class="language-objc highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="n">NSObject</span> <span class="o">*</span><span class="n">v3</span> <span class="o">=</span> <span class="p">[</span><span class="n">NSObject</span> <span class="nf">new</span><span class="p">]</span>
+<span class="c1">// v3 没有实现 `myMethod`</span>
+
+<span class="n">NSArray</span> <span class="o">*</span><span class="n">array</span> <span class="o">=</span> <span class="p">@[</span><span class="n">v1</span><span class="p">,</span> <span class="n">v2</span><span class="p">,</span> <span class="n">v3</span><span class="p">];</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">id</span> <span class="n">obj</span> <span class="k">in</span> <span class="n">array</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">[</span><span class="n">obj</span> <span class="nf">myMethod</span><span class="p">];</span>
+<span class="p">}</span>
+
+<span class="c1">// Runtime error:</span>
+<span class="c1">// unrecognized selector sent to instance blabla</span>
+</pre></table></code></div></div><p>编译依然可以通过，但是显然，程序将在运行时崩溃。Objective-C 是不安全的，编译器默认你知道某个方法确实有实现，这是消息发送的灵活性所必须付出的代价。而在 app 开发看来，用可能的崩溃来换取灵活性，显然这个代价太大了。虽然这不是 OOP 范式的问题，但它确实在 Objective-C 时代给我们带来了切肤之痛。</p><h4 id="三大困境">三大困境</h4><p>我们可以总结一下 OOP 面临的这几个问题。</p><ul><li>动态派发安全性<li>横切关注点<li>菱形缺陷</ul><p>首先，在 OC 中动态派发让我们承担了在运行时才发现错误的风险，这很有可能是发生在上线产品中的错误。其次，横切关注点让我们难以对对象进行完美的建模，代码的重用也会更加糟糕。</p><h2 id="承相知---协议扩展和面向协议编程">承・相知 - 协议扩展和面向协议编程</h2><h3 id="使用协议解决-oop-困境">使用协议解决 OOP 困境</h3><p>协议并不是什么新东西，也不是 Swift 的发明。在 Java 和 C# 里，它叫做 <code class="language-plaintext highlighter-rouge">Interface</code>。而 Swift 中的 protocol 将这个概念继承了下来，并发扬光大。让我们回到一开始定义的那个简单协议，并尝试着实现这个协议：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">Greetable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+    <span class="kd">func</span> <span class="nf">greet</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Person</span><span class="p">:</span> <span class="kt">Greetable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="kd">func</span> <span class="nf">greet</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"你好 </span><span class="se">\(</span><span class="n">name</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="kt">Person</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"Wei Wang"</span><span class="p">)</span><span class="o">.</span><span class="nf">greet</span><span class="p">()</span>
+</pre></table></code></div></div><p>实现很简单，<code class="language-plaintext highlighter-rouge">Person</code> 结构体通过实现 <code class="language-plaintext highlighter-rouge">name</code> 和 <code class="language-plaintext highlighter-rouge">greet</code> 来满足 <code class="language-plaintext highlighter-rouge">Greetable</code>。在调用时，我们就可以使用 <code class="language-plaintext highlighter-rouge">Greetable</code> 中定义的方法了。</p><h4 id="动态派发安全性-1">动态派发安全性</h4><p>除了 <code class="language-plaintext highlighter-rouge">Person</code>，其他类型也可以实现 <code class="language-plaintext highlighter-rouge">Greetable</code>，比如 <code class="language-plaintext highlighter-rouge">Cat</code>：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Cat</span><span class="p">:</span> <span class="kt">Greetable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+    <span class="kd">func</span> <span class="nf">greet</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">print</span><span class="p">(</span><span class="s">"meow~ </span><span class="se">\(</span><span class="n">name</span><span class="se">)</span><span class="s">"</span><span class="p">)</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>现在，我们就可以将协议作为标准类型，来对方法调用进行动态派发了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="k">let</span> <span class="nv">array</span><span class="p">:</span> <span class="p">[</span><span class="kt">Greetable</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+		<span class="kt">Person</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"Wei Wang"</span><span class="p">),</span> 
+		<span class="kt">Cat</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"onevcat"</span><span class="p">)]</span>
+<span class="k">for</span> <span class="n">obj</span> <span class="k">in</span> <span class="n">array</span> <span class="p">{</span>
+	<span class="n">obj</span><span class="o">.</span><span class="nf">greet</span><span class="p">()</span>
+<span class="p">}</span>
+<span class="c1">// 你好 Wei Wang</span>
+<span class="c1">// meow~ onevcat</span>
+</pre></table></code></div></div><p>对于没有实现 Greetbale 的类型，编译器将返回错误，因此不存在消息误发送的情况：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Bug</span><span class="p">:</span> <span class="kt">Greetable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span>
+<span class="p">}</span>
+
+<span class="c1">// Compiler Error: </span>
+<span class="c1">// 'Bug' does not conform to protocol 'Greetable'</span>
+<span class="c1">// protocol requires function 'greet()'</span>
+</pre></table></code></div></div><p>这样一来，动态派发安全性的问题迎刃而解。如果你保持在 Swift 的世界里，那这个你的所有代码都是安全的。</p><ul><li>✅ 动态派发安全性<li>横切关注点<li>菱形缺陷</ul><h4 id="横切关注点-1">横切关注点</h4><p>使用协议和协议扩展，我们可以很好地共享代码。回到上一节的 <code class="language-plaintext highlighter-rouge">myMethod</code> 方法，我们来看看如何使用协议来搞定它。首先，我们可以定义一个含有 <code class="language-plaintext highlighter-rouge">myMethod</code> 的协议：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">P</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">myMethod</span><span class="p">()</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>注意这个协议没有提供任何的实现。我们依然需要在实际类型遵守这个协议的时候为它提供具体的实现：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+</pre><td class="rouge-code"><pre><span class="c1">// class ViewController: UIViewController</span>
+<span class="kd">extension</span> <span class="kt">ViewController</span><span class="p">:</span> <span class="kt">P</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">myMethod</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">doWork</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">// class AnotherViewController: UITableViewController</span>
+<span class="kd">extension</span> <span class="kt">AnotherViewController</span><span class="p">:</span> <span class="kt">P</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">myMethod</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">doWork</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>你可能不禁要问，这和 Copy &amp; Paste 的解决方式有何不同？没错，答案就是 – 没有不同。不过稍安勿躁，我们还有其他科技可以解决这个问题，那就是协议扩展。协议本身并不是很强大，只是静态类型语言的编译器保证，在很多静态语言中也有类似的概念。那到底是什么让 Swift 成为了一门协议优先的语言？真正使协议发生质变，并让大家如此关注的原因，其实是在 WWDC 2015 和 Swift 2 发布时，Apple 为协议引入了一个新特性，协议扩展，它为 Swift 语言带来了一次革命性的变化。</p><p>所谓协议扩展，就是我们可以为一个协议提供默认的实现。对于 <code class="language-plaintext highlighter-rouge">P</code>，可以在 <code class="language-plaintext highlighter-rouge">extension P</code> 中为 <code class="language-plaintext highlighter-rouge">myMethod</code> 添加一个实现：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">P</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">myMethod</span><span class="p">()</span>
+<span class="p">}</span>
+
+<span class="kd">extension</span> <span class="kt">P</span> <span class="p">{</span>
+    <span class="kd">func</span> <span class="nf">myMethod</span><span class="p">()</span> <span class="p">{</span>
+        <span class="nf">doWork</span><span class="p">()</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>有了这个协议扩展后，我们只需要简单地声明 <code class="language-plaintext highlighter-rouge">ViewController</code> 和 <code class="language-plaintext highlighter-rouge">AnotherViewController</code> 遵守 <code class="language-plaintext highlighter-rouge">P</code>，就可以直接使用 <code class="language-plaintext highlighter-rouge">myMethod</code> 的实现了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">ViewController</span><span class="p">:</span> <span class="kt">P</span> <span class="p">{</span> <span class="p">}</span>
+<span class="kd">extension</span> <span class="kt">AnotherViewController</span><span class="p">:</span> <span class="kt">P</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="n">viewController</span><span class="o">.</span><span class="nf">myMethod</span><span class="p">()</span>
+<span class="n">anotherViewController</span><span class="o">.</span><span class="nf">myMethod</span><span class="p">()</span>
+</pre></table></code></div></div><p>不仅如此，除了已经定义过的方法，我们甚至可以在扩展中添加协议里没有定义过的方法。在这些额外的方法中，我们可以依赖协议定义过的方法进行操作。我们之后会看到更多的例子。总结下来：</p><ul><li>协议定义<ul><li>提供实现的入口<li>遵循协议的类型需要对其进行实现</ul><li>协议扩展<ul><li>为入口提供默认实现<li>根据入口提供额外实现</ul></ul><p>这样一来，横切点关注的问题也简单安全地得到了解决。</p><ul><li>✅ 动态派发安全性<li>✅ 横切关注点<li>菱形缺陷</ul><h4 id="菱形缺陷-1">菱形缺陷</h4><p>最后我们看看多继承。多继承中存在的一个重要问题是菱形缺陷，也就是子类无法确定使用哪个父类的方法。在协议的对应方面，这个问题虽然依然存在，但却是可以唯一安全地确定的。我们来看一个多个协议中出现同名元素的例子：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+</pre><td class="rouge-code"><pre><span class="kd">protocol</span> <span class="kt">Nameable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">protocol</span> <span class="kt">Identifiable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+    <span class="k">var</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">Int</span> <span class="p">{</span> <span class="k">get</span> <span class="p">}</span>
+<span class="p">}</span>
+</pre></table></code></div></div><p>如果有一个类型，需要同时实现两个协议的话，它<strong>必须</strong>提供一个 <code class="language-plaintext highlighter-rouge">name</code> 属性，来<strong>同时</strong>满足两个协议的要求：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+</pre><td class="rouge-code"><pre><span class="kd">struct</span> <span class="kt">Person</span><span class="p">:</span> <span class="kt">Nameable</span><span class="p">,</span> <span class="kt">Identifiable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span> 
+    <span class="k">let</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="c1">// `name` 属性同时满足 Nameable 和 Identifiable 的 name</span>
+</pre></table></code></div></div><p>这里比较有意思，又有点让人困惑的是，如果我们为其中的某个协议进行了扩展，在其中提供了默认的 <code class="language-plaintext highlighter-rouge">name</code> 实现，会如何。考虑下面的代码：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Nameable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">return</span> <span class="s">"default name"</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">Person</span><span class="p">:</span> <span class="kt">Nameable</span><span class="p">,</span> <span class="kt">Identifiable</span> <span class="p">{</span>
+    <span class="c1">// let name: String </span>
+    <span class="k">let</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="c1">// Identifiable 也将使用 Nameable extension 中的 name</span>
+</pre></table></code></div></div><p>这样的编译是可以通过的，虽然 <code class="language-plaintext highlighter-rouge">Person</code> 中没有定义 <code class="language-plaintext highlighter-rouge">name</code>，但是通过 <code class="language-plaintext highlighter-rouge">Nameable</code> 的 <code class="language-plaintext highlighter-rouge">name</code> (因为它是静态派发的)，<code class="language-plaintext highlighter-rouge">Person</code> 依然可以遵守 <code class="language-plaintext highlighter-rouge">Identifiable</code>。不过，当 <code class="language-plaintext highlighter-rouge">Nameable</code> 和 <code class="language-plaintext highlighter-rouge">Identifiable</code> 都有 <code class="language-plaintext highlighter-rouge">name</code> 的协议扩展的话，就无法编译了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Nameable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">return</span> <span class="s">"default name"</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">extension</span> <span class="kt">Identifiable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">return</span> <span class="s">"another default name"</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">Person</span><span class="p">:</span> <span class="kt">Nameable</span><span class="p">,</span> <span class="kt">Identifiable</span> <span class="p">{</span>
+    <span class="c1">// let name: String </span>
+    <span class="k">let</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="c1">// 无法编译，name 属性冲突</span>
+</pre></table></code></div></div><p>这种情况下，<code class="language-plaintext highlighter-rouge">Person</code> 无法确定要使用哪个协议扩展中 <code class="language-plaintext highlighter-rouge">name</code> 的定义。在同时实现两个含有同名元素的协议，<strong>并且</strong>它们都提供了默认扩展时，我们需要在具体的类型中明确地提供实现。这里我们将 <code class="language-plaintext highlighter-rouge">Person</code> 中的 <code class="language-plaintext highlighter-rouge">name</code> 进行实现就可以了：</p><div class="language-swift highlighter-rouge"><div class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+</pre><td class="rouge-code"><pre><span class="kd">extension</span> <span class="kt">Nameable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">return</span> <span class="s">"default name"</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">extension</span> <span class="kt">Identifiable</span> <span class="p">{</span>
+    <span class="k">var</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span> <span class="p">{</span> <span class="k">return</span> <span class="s">"another default name"</span> <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="kd">struct</span> <span class="kt">Person</span><span class="p">:</span> <span class="kt">Nameable</span><span class="p">,</span> <span class="kt">Identifiable</span> <span class="p">{</span>
+    <span class="k">let</span> <span class="nv">name</span><span class="p">:</span> <span class="kt">String</span> 
+    <span class="k">let</span> <span class="nv">id</span><span class="p">:</span> <span class="kt">Int</span>
+<span class="p">}</span>
+
+<span class="kt">Person</span><span class="p">(</span><span class="nv">name</span><span class="p">:</span> <span class="s">"onevcat"</span><span class="p">,</span> <span class="nv">id</span><span class="p">:</span> <span class="mi">123</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="c1">// onevcat</span>
+</pre></table></code></div></div><p>这里的行为看起来和菱形问题很像，但是有一些本质不同。首先，这个问题出现的前提条件是同名元素<strong>以及</strong>同时提供了实现，而协议扩展对于协议本身来说并不是必须的。其次，我们在具体类型中提供的实现一定是安全和确定的。当然，菱形缺陷没有被完全解决，Swift 还不能很好地处理多个协议的冲突，这是 Swift 现在的不足。</p><ul><li>✅ 动态派发安全性<li>✅ 横切关注点<li>❓菱形缺陷</ul><p><a href="/2016/12/pop-cocoa-2/">本文的下半部分</a>将展示一些笔者日常使用面向协议思想和 Cocoa 开发结合的示例代码，并对其进行了一些解说。</p></div><div class="post-tail-wrapper text-muted"><div class="post-meta mb-3"> <i class="far fa-folder-open fa-fw mr-1"></i> <a href='/categories/%E8%83%BD%E5%B7%A5%E5%B7%A7%E5%8C%A0%E9%9B%86/'>能工巧匠集</a>, <a href='/categories/swift/'>Swift</a></div><div class="post-tags"> <i class="fa fa-tags fa-fw mr-1"></i> <a href="/tags/swift/" class="post-tag no-text-decoration" >swift</a> <a href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/" class="post-tag no-text-decoration" >开发者体验</a> <a href="/tags/%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F/" class="post-tag no-text-decoration" >设计模式</a> <a href="/tags/pop/" class="post-tag no-text-decoration" >pop</a> <a href="/tags/%E8%AE%B2%E7%A8%BF/" class="post-tag no-text-decoration" >讲稿</a></div><div class="post-tail-bottom d-flex justify-content-between align-items-center mt-3 pt-5 pb-2"><div class="license-wrapper"> 该博客文章由作者通过 <a href="https://creativecommons.org/licenses/by/4.0/deed.zh">CC BY 4.0</a> 进行授权。</div><div class="share-wrapper"> <span class="share-label text-muted mr-1">分享</span> <span class="share-icons"> <a href="https://twitter.com/intent/tweet?text=面向协议编程与 Cocoa 的邂逅 (上) - OneV's Den&url=https://onevcat.com/2016/11/pop-cocoa-1/" data-toggle="tooltip" data-placement="top" title="Twitter" target="_blank" rel="noopener" aria-label="Twitter"> <i class="fa-fw fab fa-twitter"></i> </a> <a href="https://www.facebook.com/sharer/sharer.php?title=面向协议编程与 Cocoa 的邂逅 (上) - OneV's Den&u=https://onevcat.com/2016/11/pop-cocoa-1/" data-toggle="tooltip" data-placement="top" title="Facebook" target="_blank" rel="noopener" aria-label="Facebook"> <i class="fa-fw fab fa-facebook-square"></i> </a> <a href="https://telegram.me/share?text=面向协议编程与 Cocoa 的邂逅 (上) - OneV's Den&url=https://onevcat.com/2016/11/pop-cocoa-1/" data-toggle="tooltip" data-placement="top" title="Telegram" target="_blank" rel="noopener" aria-label="Telegram"> <i class="fa-fw fab fa-telegram"></i> </a> <a href="http://service.weibo.com/share/share.php?title=面向协议编程与 Cocoa 的邂逅 (上) - OneV's Den&url=https://onevcat.com/2016/11/pop-cocoa-1/" data-toggle="tooltip" data-placement="top" title="Weibo" target="_blank" rel="noopener" aria-label="Weibo"> <i class="fa-fw fab fa-weibo"></i> </a> <i class="fa-fw fas fa-link small" onclick="copyLink()" data-toggle="tooltip" data-placement="top" title="Copy link"></i> </span></div></div></div></div></div><div id="panel-wrapper" class="col-xl-3 pl-2 text-muted topbar-down"><div class="access"><div id="access-lastmod" class="post"> <span>最近更新</span><ul class="post-content pl-0 pb-1 ml-1 mt-2"><li><a href="/2026/03/jj-for-agent-era/">用好你的 jj - 重新思考 Agent 时代的版本控制</a><li><a href="/2026/01/chroma/">十倍性能优化！一次终端语法高亮库的 AI 折腾与收获</a><li><a href="/2025/10/magpie-and-ai-ship/">Magpie 和 「AI 贼船」- 再谈 vibe coding，当代码变得廉价时...</a><li><a href="/2025/08/claude-code/">一个半月高强度 Claude Code 使用后感受</a></ul></div><div id="access-tags"> <span>热门标签</span><div class="d-flex flex-wrap mt-3 mb-1 mr-3"> <a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div></div></div><div id="toc-wrapper" class="pl-0 pr-4 mb-5"> <span class="pl-3 pt-2 mb-2">文章目录</span><nav id="toc" data-toggle="toc"></nav></div></div></div><div class="row"><div class="col-12 col-lg-11 col-xl-8"><div id="post-extend-wrapper" class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-md-4 pr-md-4"><div id="related-posts" class="mt-5 mb-2 mb-sm-4"><h3 class="pt-2 mt-1 mb-4 ml-1" data-toc-skip>接下来阅读</h3><div class="card-deck mb-4"><div class="card"> <a href="/2016/12/pop-cocoa-2/"><div class="card-body"> <span class="timeago small" > 2016-12-01 <i class="unloaded">2016-12-01T11:22:11+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>面向协议编程与 Cocoa 的邂逅 (下)</h3><div class="text-muted small"><p> 本文是笔者在 MDCC 16 (移动开发者大会) 上 iOS 专场中的主题演讲的文字整理。您可以在这里找到演讲使用的 Keynote，部分示例代码可以在 MDCC 2016 的官方 repo 中找到。 在上半部分主要介绍了一些理论方面的内容，包括面向对象编程存在的问题，面向协议的基本概念和决策模型等。本文 (下) 主要展示了一些笔者日常使用面向协议思想和 Cocoa 开发结合的示例代码，并...</p></div></div></a></div><div class="card"> <a href="/2016/01/create-framework/"><div class="card-body"> <span class="timeago small" > 2016-01-19 <i class="unloaded">2016-01-19T15:32:24+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>如何打造一个让人愉快的框架</h3><div class="text-muted small"><p> 这是我在今年 1 月 10 日 @Swift 开发者大会 上演讲的文字稿。相关的视频还在制作中，没有到现场的朋友可以通过这个文字稿了解到这个 session 的内容。 &lt;br&gt; 虽然我的工作是程序员，但是最近半年其实我的主要干的事儿是养了一个小孩。 所以这半年来可以说没有积累到什么技术，反而是积累了不少养小孩的心得。 当知道了有这么次会议可以分享这半年来的心得的时...</p></div></div></a></div><div class="card"> <a href="/2018/10/swift-result-error/"><div class="card-body"> <span class="timeago small" > 2018-10-31 <i class="unloaded">2018-10-31T11:38:00+09:00</i> </span><h3 class="pt-0 mt-1 mb-3" data-toc-skip>Result&lt;T&gt; 还是 Result&lt;T, E: Error&gt;</h3><div class="text-muted small"><p> 我之前在专栏文章里曾经发布这篇文章，由于这个话题其实还是挺重要的，可以说代表了 Swift 今后发展的方向流派，所以即使和专栏文章内容有些重复，我还是想把它再贴到博客来。经过半年以后，自己对于这个问题也有了更多的实践和想法，所以同时也更新了一下。我没有直接改动原文，而是把新的想法和需要补充的说明，用类似这段话的引用的方式写在合适的上下文里。 开始先打个广告 我个人经常会在数码荔枝...</p></div></div></a></div></div></div><div class="post-navigation d-flex justify-content-between"> <a href="/2016/08/notification/" class="btn btn-outline-primary"><p>活久见的重构 - iOS 10 UserNotifications 框架解析</p></a> <a href="/2016/12/pop-cocoa-2/" class="btn btn-outline-primary"><p>面向协议编程与 Cocoa 的邂逅 (下)</p></a></div><div class="utterances-container"> <script src="https://utteranc.es/client.js" repo="onevcat/OneV-s-Den-Comments" issue-term="pathname" theme="photon-dark" crossorigin="anonymous" async> </script></div><script type="text/javascript"> $(function() { window.onmessage = evt => { if (evt.origin === 'https://utteranc.es') { toggle.updateCommentStyle(); window.onmessage = null; } } }); </script></div></div></div><script type="text/javascript" src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script> <script type="text/javascript"> const imgs = document.querySelectorAll('#post-wrapper img'); const observer = lozad(imgs); observer.observe(); </script><footer class="d-flex w-100 justify-content-center"><div class="d-flex justify-content-between align-items-center"><div class="footer-left"><p class="mb-0"> © 2026 <a href="https://github.com/onevcat">onevcat</a>. <span data-toggle="tooltip" data-placement="top" title="除非另有说明，否则本网站上的博客文章均由作者根据知识共享许可协议 - 署名标示 4.0（CC BY 4.0）进行授权许可。">保留部分权利。</span></p></div><div class="footer-right"><p class="mb-0"> 本博客由 <a href="https://jekyllrb.com" target="_blank" rel="noopener">Jekyll</a> 生成，使用 <a href="https://github.com/cotes2020/jekyll-theme-chirpy/" target="_blank" rel="noopener">Chirpy</a> 作为主题</p></div></div></footer></div><div id="search-result-wrapper" class="d-flex justify-content-center unloaded"><div class="col-12 col-xl-11 post-content"><div id="search-hints"><h4 class="text-muted mb-4">热门标签</h4><a class="post-tag" href="/tags/swift/">swift</a> <a class="post-tag" href="/tags/%E5%BC%80%E5%8F%91%E8%80%85%E4%BD%93%E9%AA%8C/">开发者体验</a> <a class="post-tag" href="/tags/wwdc/">wwdc</a> <a class="post-tag" href="/tags/xcode/">xcode</a> <a class="post-tag" href="/tags/%E7%BC%96%E7%A8%8B%E8%AF%AD%E8%A8%80/">编程语言</a> <a class="post-tag" href="/tags/ios/">iOS</a> <a class="post-tag" href="/tags/%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5/">最佳实践</a> <a class="post-tag" href="/tags/objc/">objc</a> <a class="post-tag" href="/tags/ui/">ui</a> <a class="post-tag" href="/tags/swiftui/">swiftui</a></div><div id="search-results" class="d-flex flex-wrap justify-content-center text-muted mt-3"></div></div></div></div><div id="mask"></div><a id="back-to-top" href="#" aria-label="back-to-top" class="btn btn-lg btn-box-shadow" role="button"> <i class="fas fa-angle-up"></i> </a> <script src="https://cdn.jsdelivr.net/npm/simple-jekyll-search@1.7.3/dest/simple-jekyll-search.min.js"></script> <script> SimpleJekyllSearch({ searchInput: document.getElementById('search-input'), resultsContainer: document.getElementById('search-results'), json: '/assets/js/data/search.json', searchResultTemplate: '<div class="pl-1 pr-1 pl-sm-2 pr-sm-2 pl-lg-4 pr-lg-4 pl-xl-0 pr-xl-0"> <a href="https://onevcat.com{url}">{title}</a><div class="post-meta d-flex flex-column flex-sm-row text-muted mt-1 mb-1"><div class="mr-sm-4"><i class="far fa-folder fa-fw"></i>{categories}</div><div><i class="fa fa-tag fa-fw"></i>{tags}</div></div><p>{snippet}</p></div>', noResultsText: '<p class="mt-5">Oops! No result founds.</p>' }); </script>
