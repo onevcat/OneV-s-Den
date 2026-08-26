@@ -21,6 +21,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Images are stored in Git LFS. Cache the objects so a rebuild only
+      # downloads assets that changed, then resolve pointers before building.
+      - name: Resolve LFS cache key
+        id: lfs
+        run: echo "key=$(git lfs ls-files -l | cut -d' ' -f1 | sort | sha256sum | cut -c1-16)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v4
+        with:
+          path: .git/lfs
+          key: lfs-${{ steps.lfs.outputs.key }}
+
+      - name: Pull LFS assets
+        run: git lfs pull
+
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: .ruby-version

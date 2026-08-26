@@ -27,6 +27,15 @@ for path in Brewfile.lock.json config.codekit3; do
   fi
 done
 
+# htmlproofer only checks that image files exist, so an LFS pointer left by a
+# checkout without LFS content passes silently and ships as a 130-byte "image".
+pointers="$(grep -rIl --max-count=1 '^version https://git-lfs.github.com/spec/v1$' "$DEST" || true)"
+if [[ -n "$pointers" ]]; then
+  echo "Git LFS pointers were published instead of file content:" >&2
+  echo "$pointers" >&2
+  exit 1
+fi
+
 # Full link auditing has a large legacy baseline. Keep release validation focused
 # on generated output and local image availability.
 bundle exec htmlproofer "$DEST" \
