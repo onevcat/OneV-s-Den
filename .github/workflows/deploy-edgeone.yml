@@ -51,15 +51,25 @@ jobs:
           DEPLOY_DIRECTORY: ${{ runner.temp }}/edgeone-pages
           SITE_DIRECTORY: ${{ runner.temp }}/site
           GITHUB_TOKEN: ${{ github.token }}
+        # Commit on top of the existing branch instead of force-pushing an
+        # orphan: only changed files are uploaded, and EdgeOne's Git
+        # integration sees an ordinary push it can deploy from.
         run: |
-          mkdir -p "$DEPLOY_DIRECTORY"
+          remote="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git clone -q --depth 1 --branch edgeone-pages "$remote" "$DEPLOY_DIRECTORY" 2>/dev/null; then
+            find "$DEPLOY_DIRECTORY" -mindepth 1 -maxdepth 1 -not -name .git -exec rm -rf {} +
+          else
+            git init -q -b edgeone-pages "$DEPLOY_DIRECTORY"
+            git -C "$DEPLOY_DIRECTORY" remote add origin "$remote"
+          fi
           cp -a "$SITE_DIRECTORY/." "$DEPLOY_DIRECTORY/"
           cd "$DEPLOY_DIRECTORY"
-          git init
-          git checkout -b edgeone-pages
           git add --all
+          if git diff --cached --quiet; then
+            echo "Site output unchanged; nothing to publish."
+            exit 0
+          fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -m "Deploy $GITHUB_SHA"
-          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
-          git push --force origin HEAD:edgeone-pages
+          git commit -q -m "Deploy $GITHUB_SHA"
+          git push -q origin HEAD:edgeone-pages
