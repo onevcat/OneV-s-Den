@@ -83,6 +83,11 @@ typora-root-url: ..
 
 构建不会修改源工作树、`Gemfile.lock` 或已有 `_site`。
 
+### 部署
+- 站点托管在 EdgeOne Pages（海外区）项目 `onev-blog`，域名 `onevcat.com` / `www.onevcat.com` 的 DNS 在 Cloudflare（仅解析，不代理）。
+- push 到 `master` 触发 `.github/workflows/deploy-edgeone.yml`：拉取 LFS 图片 → `tools/build.sh` → `tools/test.sh` → 把产物增量提交到 `edgeone-pages` 分支，EdgeOne 跟踪该分支原样发布。
+- 本地不需要也不应该手动部署；不要向 `edgeone-pages` 分支直接提交。
+
 ### 自定义功能
 - Swift 语法高亮（支持 diff）
 - Utterances 评论系统
