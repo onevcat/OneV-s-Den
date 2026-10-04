@@ -6,6 +6,7 @@
 
 ## 文章
 
+- [一些关于开发的杂谈话题 - 代码审核](https://onevcat.com/2026/10/agent-review/index.html.md): 上一次开这个开发杂谈话题已经是三年前聊的测试了。当时的 AI 编程还是 Kite 和 Tabnine 的时代，GH 的 Copilot 还只是一个刚起步的补全工具，ChatGPT 也还是只有单纯的聊天框。那时候的一些见解，今天来看其实还是比较精准地预测了未来，比如： #代码审核 #最佳实践 #随想 
 - [当编程变得不再有趣](https://onevcat.com/2026/07/coding-not-funny-anymore/index.html.md): 我刚才用 dyld 的 __DATA，靠 __interpose 机制拦截了 malloc/calloc/realloc 及 malloc_zone_* 全家，现场编了一个动态库挂到你的 app 上。一旦进程内出现 FAIL_NOW 环境变量，所有 ≥100MB 的分配请求直接返回错误，配合一个 mock server 完整重现了你收到的崩溃栈。我现在有 100%... #ai #fable #agent 
 - [sim-use - 给 agent 装上眼睛和手，让 mobile 开发跟上 AI 时代](https://onevcat.com/2026/07/sim-use/index.html.md): 最近在公司捣鼓了一个工具，叫 sim-use：一个跨平台 CLI，让 agent 能在 iOS 和 Android 上高效且准确地”看见画面、点按元素、验证结果”。前段时间它正式开源了，日文版的介绍文章也发在了公司的 Tech Blog 上。不过说来有趣，那篇文章的初稿其实是用中文写的，后来才翻译成日文发表；现在再把它从日文”翻译”回中文、发在自己的博客上，多少有点出口转内销的行为艺术。趁着记忆还新鲜，用母语把里面的技术细节好好聊一遍。 #AI #Agent #iOS #Android #自动化 #开源 #工具 #vibe coding 
 - [和产品一起成长 - 从 AI 猫娘到 Prowl 终端](https://onevcat.com/2026/06/develop-with-ai/index.html.md): 三月底回国参加了 Let’s Vision 26 的会议。在 slide 里我贴了一张用手机干活的照片，会后有不少小伙伴对此很感兴趣，来问细节，也很好奇我平时的工作状态和工具。 #AI #Agent #协作 #github #杂记 #prowl #终端 
