@@ -184,7 +184,7 @@ Review Loop 自己在开发时也是这样审过来的：第一轮 reviewer 找�
 
 ### 编排你自己的审核流程
 
-Review Loop 只是 Prowl workflow 的一个内置例子。[Prowl 的 workflow](https://github.com/onevcat/Prowl/blob/main/docs/components/workflows.md) 就是一个描述“谁参与、按什么顺序做什么”的 YAML 文件：给某个 agent 发消息，用指定的 agent profile 启动新的 agent，根据交付结果的 verdict 做条件分支和循环，运行脚本，最后发出通知。参与者只通过 `prowl` CLI 交付结果，所以 Claude Code、Codex、Pi 或者其他任意 Prowl 能识别的 agent，都可以担任其中的任意角色。和单纯用一个 skill 之类的操作不同，Prowl workflow 提供了代码和状态机驱动的稳定工作流，我可以放心把任务交给任何模型，而不担心它们出错。
+Review Loop 只是 Prowl workflow 的一个内置例子。[Prowl 的 workflow](https://prowl.cat/manual/components/workflows/) 就是一个描述“谁参与、按什么顺序做什么”的 YAML 文件：给某个 agent 发消息，用指定的 agent profile 启动新的 agent，根据交付结果的 verdict 做条件分支和循环，运行脚本，最后发出通知。参与者只通过 `prowl` CLI 交付结果，所以 Claude Code、Codex、Pi 或者其他任意 Prowl 能识别的 agent，都可以担任其中的任意角色。和单纯用一个 skill 之类的操作不同，Prowl workflow 提供了代码和状态机驱动的稳定工作流，我可以放心把任务交给任何模型，而不担心它们出错。
 
 除了内置 workflow 外，自己写的 workflow 也可以放在 `~/.prowl/workflows/` 下个人使用，也可以放在仓库的 `.prowl/workflows/` 里跟着项目走。想要什么样的审核流程，基本都可以自己编排出来，比如：
 
@@ -192,7 +192,7 @@ Review Loop 只是 Prowl workflow 的一个内置例子。[Prowl 的 workflow](h
 - 要求 reviewer 的报告必须附带截图，没有截图的 UI 改动一律视为未验证；
 - 同时启动多个 reviewer，分别关注正确性、性能和安全性，最后汇总。
 
-这些 YAML 甚至都不用自己写：Prowl 自带了一个 `prowl-workflow` skill，直接告诉 agent“帮我写一个让两个 agent 互相审核的 Prowl workflow”，它就会帮你写好并完成验证。
+这些 YAML 甚至都不用自己写：Prowl 自带了一个 [`prowl-workflow` skill](https://prowl.cat/manual/skills/prowl-workflow/)，直接告诉 agent“帮我写一个让两个 agent 互相审核的 Prowl workflow”，它就会帮你写好并完成验证。
 
 其实不止审核，workflow 是一个通用的多 agent 在 Prowl 下协作的框架。只要涉及到 agent 任务编排（不止多 agent，也包括单 agent 的通用流程），你都可以使用 workflow 来轻易地实现和运行这个编排。如果你对这样的工作方式感兴趣，欢迎试试 [Prowl](https://prowl.cat/)（顺手点个星就更好了 :P ）。
 
