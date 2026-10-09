@@ -148,6 +148,10 @@ Spec 定下来以后，实现和代码审核都交给 agent。审核这一步，
 4. reviewer 进入下一轮：一边复核上一轮的问题是否真的修好，一边把当前完整的 diff 当作第一次看到一样重新审核。
 5. 循环往复，直到 reviewer 给出 `clean` 并且 main 没有再做修改，或者达到轮数上限。最后由 main 写一份总结。
 
+在 Prowl 中运行这套流程也很简单：发好 PR 以后，点一下 UI 上的按钮就行。
+
+![](/assets/images/2026/prowl-review-loop.png)
+
 Prowl 的 workflow 提供了一个完整的多 agent 执行环境，整个 workflow 是用 YAML 描述和定义的，简化后的骨架大概是这样：
 
 ```yaml
