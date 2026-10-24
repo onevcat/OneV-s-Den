@@ -39,8 +39,8 @@ fi
 # Full link auditing has a large legacy baseline. Keep release validation focused
 # on generated output and local image availability.
 bundle exec htmlproofer "$DEST" \
-  --checks=Images \
-  --disable-external=true \
-  --ignore-empty-alt=true \
-  --ignore-missing-alt=true \
+  --checks Images \
+  --disable-external \
+  --ignore-empty-alt \
+  --ignore-missing-alt \
   --ignore-urls "$URL_IGNORE"
