@@ -18,33 +18,18 @@ TYPE_TAG=1
 category_count=0
 tag_count=0
 
-_read_yaml() {
-  local _endline="$(grep -n "\-\-\-" "$1" | cut -d: -f 1 | sed -n '2p')"
-  head -"$_endline" "$1"
+# Print one value per line for a plural or singular front matter key.
+# A value can be a list or a single string.
+_read_list() {
+  yq --front-matter=extract e "[.$2 // .$3 // []] | flatten | .[]" "$1"
 }
 
 read_categories() {
-  local _yaml="$(_read_yaml "$1")"
-  local _categories="$(echo "$_yaml" | yq e ".categories | .." -)"
-  local _category="$(echo "$_yaml" | yq e ".category" -)"
-
-  if [[ -n $_categories ]]; then
-    echo "$_categories"
-  elif [[ -n $_category ]]; then
-    echo "$_category"
-  fi
+  _read_list "$1" categories category
 }
 
 read_tags() {
-  local _yaml="$(_read_yaml "$1")"
-  local _tags="$(echo "$_yaml" | yq e ".tags | .." -)"
-  local _tag="$(echo "$_yaml" | yq e ".tag" -)"
-
-  if [[ -n $_tags ]]; then
-    echo "$_tags"
-  elif [[ -n $_tag ]]; then
-    echo "$_tag"
-  fi
+  _read_list "$1" tags tag
 }
 
 init() {
@@ -136,6 +121,11 @@ create_pages() {
 }
 
 main() {
+  # Without yq every page is skipped silently, so stop here instead.
+  if ! command -v yq > /dev/null; then
+    echo "[ERROR] yq is required to create category and tag pages." >&2
+    exit 1
+  fi
 
   init
 

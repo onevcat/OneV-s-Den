@@ -6,11 +6,11 @@
 * MIT Licensed
 */
 
-@import "_addon/fonts";
-@import "_addon/module";
-@import "_addon/variables";
-@import "_colors/light-typography";
-@import "_colors/dark-typography";
+@use "_addon/fonts";
+@use "_addon/module" as *;
+@use "_addon/variables" as *;
+@use "_colors/light-typography" as *;
+@use "_colors/dark-typography" as *;
 
 @mixin set-visible($light-display, $dark-display) {
   [light-mode-invisible] {

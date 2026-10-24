@@ -20,7 +20,7 @@ done
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 python3 "$script_dir/verify-edgeone-config.py" "$DEST"
 
-for path in Brewfile.lock.json config.codekit3; do
+for path in Brewfile.lock.json config.codekit3 AGENTS.md CLAUDE.md; do
   if [[ -e "$DEST/$path" ]]; then
     echo "Development artifact was published: $path" >&2
     exit 1
@@ -39,8 +39,8 @@ fi
 # Full link auditing has a large legacy baseline. Keep release validation focused
 # on generated output and local image availability.
 bundle exec htmlproofer "$DEST" \
-  --checks=Images \
-  --disable-external=true \
-  --ignore-empty-alt=true \
-  --ignore-missing-alt=true \
+  --checks Images \
+  --disable-external \
+  --ignore-empty-alt \
+  --ignore-missing-alt \
   --ignore-urls "$URL_IGNORE"
