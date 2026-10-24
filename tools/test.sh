@@ -20,7 +20,7 @@ done
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 python3 "$script_dir/verify-edgeone-config.py" "$DEST"
 
-for path in Brewfile.lock.json config.codekit3; do
+for path in Brewfile.lock.json config.codekit3 AGENTS.md CLAUDE.md; do
   if [[ -e "$DEST/$path" ]]; then
     echo "Development artifact was published: $path" >&2
     exit 1

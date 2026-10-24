@@ -176,6 +176,8 @@ exclude:
   - docs
   - README.md
   - LICENSE
+  - AGENTS.md
+  - CLAUDE.md
 
 sitemap_exclude:  # Sitemap will exclude the following items.
   fuzzy:
