@@ -102,6 +102,8 @@ typora-root-url: ..
 - 使用 Rouge 进行语法高亮
 - `_plugins/` 中的自定义插件扩展了功能
 - 默认构建输出到 `_site/` 目录
+- Ruby 版本见 `.ruby-version`（本地用 rbenv）；构建还需要 `yq` v4，`_scripts/sh/create_pages.sh` 用它生成分类和标签页
+- SCSS 入口文件通过 Liquid `include_relative` 引入 `_addon/main.scss`，所以所有 `@use` 必须写在入口文件或 `main.scss` 的最前面，不要再用 `@import`
 
 ## 写作助手
 
