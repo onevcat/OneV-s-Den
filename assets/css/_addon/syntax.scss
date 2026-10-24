@@ -6,8 +6,8 @@
 * MIT Licensed
 */
 
-@import "_colors/light-syntax";
-@import "_colors/dark-syntax";
+// Uses the light-syntax and dark-syntax mixins. The entry file loads them,
+// because @use must come before the rules of main.scss.
 
 html:not([mode]),
 html[mode=light] {
